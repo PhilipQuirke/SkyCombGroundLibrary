@@ -1,0 +1,234 @@
+﻿using System;
+using System.Drawing;
+
+
+namespace SkyCombGround.CommonSpace
+{
+    // A global location based on latitude/Longitude
+    // Latitude/Longitude is an asymmetrical global coordinate system
+    // Refer https://gisgeography.com/latitude-longitude-coordinates/
+    // That is 1 unit Latitude is not the same distance as 1 unit Longitude in meters (apart from at the Equator).
+    public class GlobalLocation : Constants
+    {
+        public static string Format = "0.0000000";
+
+
+        // Latitude (North South) ranges from -90 to +90 degrees e.g. -36.871811
+        public double Latitude { get; set; }
+        // Longitude (West East) ranges from -180 to +180 degrees e.g. 174.701012
+        public double Longitude { get; set; }
+
+
+        // If the latitude and longitude are zero this is not a real location
+        public bool Specified { get { return Latitude != 0 && Longitude != 0; } }
+
+
+        public GlobalLocation(double latitude = 0, double longitude = 0)
+        {
+            Latitude = latitude;
+            Longitude = longitude;
+        }
+
+
+        public GlobalLocation(GlobalLocation location)
+        {
+            Latitude = location.Latitude;
+            Longitude = location.Longitude;
+        }
+
+
+        // This constructor is the inverse of the ToString function below.
+        public GlobalLocation(string locationAsString)
+        {
+            var stringList = locationAsString.Split(",");
+            Latitude = Convert.ToDouble(stringList[0]);
+            Longitude = Convert.ToDouble(stringList[1]);
+        }
+
+
+        public override string ToString()
+        {
+            return Latitude.ToString(Format) + "," + Longitude.ToString(Format);
+        }
+    }
+
+
+    // A relative location, based on some origin, with distances in meters.
+    // RelativeLocation is a symmetrical local coordinate system. 1 unit Easting = 1 unit Northing = 1 meter
+    public class RelativeLocation
+    {
+        public static string Format = "0.00";
+
+
+        // Distance North (South if negative) in meters. Similar to Latitude 
+        public float NorthingM { get; set; }
+        // Distance East (West if negative) in meters. Similar to Longitude
+        public float EastingM { get; set; }
+
+
+        public RelativeLocation(float northingM = 0, float eastingM = 0)
+        {
+            NorthingM = northingM;
+            EastingM = eastingM;
+        }
+
+
+        public RelativeLocation(RelativeLocation location)
+        {
+            NorthingM = location.NorthingM;
+            EastingM = location.EastingM;
+        }
+
+
+        public RelativeLocation(PointF location)
+        {
+            NorthingM = location.Y;
+            EastingM = location.X;
+        }
+
+
+        public RelativeLocation(string northingMString, string eastingMString)
+        {
+            NorthingM = ConfigBase.StringToFloat(northingMString);
+            EastingM = ConfigBase.StringToFloat(eastingMString);
+        }
+
+
+        // This constructor mirrors the ToString function below.
+        public RelativeLocation(string locationAsString)
+        {
+            var stringList = locationAsString.Split(",");
+            NorthingM = ConfigBase.StringToFloat(stringList[0]);
+            EastingM = ConfigBase.StringToFloat(stringList[1]);
+        }
+
+
+        // This function mirrors the "string" constructor above.
+        public override string ToString()
+        {
+            return NorthingM.ToString(Format) + "," + EastingM.ToString(Format);
+        }
+
+
+        // This is used for flight areas to show "302 x 279"
+        public string ToString_Area()
+        {
+            return NorthingM.ToString("0") + " x " + EastingM.ToString("0");
+        }
+
+
+        // Length of the vector in Meters
+        public float DiagonalM()
+        {
+            return (float)Math.Sqrt(Math.Pow(EastingM, 2) + Math.Pow(NorthingM, 2));
+        }
+
+
+        // Return copy of this vector translated by the specified distance
+        public RelativeLocation Translate(RelativeLocation distance)
+        {
+            if (distance == null)
+                return this.Clone();
+
+            return new RelativeLocation(
+                this.NorthingM + distance.NorthingM,
+                this.EastingM + distance.EastingM);
+        }
+
+
+        // Return negated copy of this vector
+        public RelativeLocation Negate()
+        {
+            return new RelativeLocation(
+                -this.NorthingM,
+                -this.EastingM);
+        }
+
+        public RelativeLocation Clone()
+        {
+            return new RelativeLocation(this);
+        }
+
+
+        // Distance from location1 to location2 in meters.
+        public static double DistanceM(RelativeLocation location1, RelativeLocation location2)
+        {
+            if (location1 == null || location2 == null)
+                return 0;
+
+            var northingM = location2.NorthingM - location1.NorthingM;
+            var eastingM = location2.EastingM - location1.EastingM;
+
+            return (float)Math.Sqrt(Math.Pow(eastingM, 2) + Math.Pow(northingM, 2));
+        }
+
+
+        // Distance from Latitude/Longitude to Latitude/Longitude in meters.
+        // Converts from global LOCATION coordinate system Latitude / Longitude 
+        // to a local RELATIVE-DISTANCE coordinate system Easting (aka X axis) / Northing (aka Y axis) 
+        public static RelativeLocation DistanceM(GlobalLocation location1, GlobalLocation location2)
+        {
+            if (location1 == null || location2 == null)
+                return new RelativeLocation();
+
+            if (location1.Latitude == location2.Latitude && location1.Longitude == location2.Longitude)
+                return new RelativeLocation();
+
+            double latMidDegrees = (location1.Latitude + location2.Latitude) / 2.0;
+            double latMidRadians = latMidDegrees * Constants.DegreesToRadians;
+
+            double per_deg_lat = 111132.954 - 559.822 * Math.Cos(2.0 * latMidRadians) + 1.175 * Math.Cos(4.0 * latMidRadians);
+            double per_deg_lon = (Math.PI / 180.0) * 6367449.0 * Math.Cos(latMidRadians);
+
+            // Floats have 6 to 9 decimal places of precision, which is plenty for
+            // drone flight relative distances measure in meters.
+            float northingM = (float)((location2.Latitude - location1.Latitude) * per_deg_lat);
+            float eastingM = (float)((location2.Longitude - location1.Longitude) * per_deg_lon);
+
+            return new RelativeLocation(northingM, eastingM);
+        }
+
+
+        public static RelativeLocation TravelM(RelativeLocation fromLocation, RelativeLocation toLocation)
+        {
+            RelativeLocation answer = new();
+
+            if ((fromLocation != null) && (toLocation != null))
+            {
+                answer.NorthingM = toLocation.NorthingM - fromLocation.NorthingM;
+                answer.EastingM = toLocation.EastingM - fromLocation.EastingM;
+            }
+
+            return answer;
+        }
+
+
+        /// <summary>
+        /// Rotates one point around another
+        /// </summary>
+        /// <param name="pointToRotate">The point to rotate.</param>
+        /// <param name="centerPoint">The center point of rotation.</param>
+        /// <param name="angleInDegrees">The rotation angle in degrees.</param>
+        /// <returns>Rotated point</returns>
+        static public PointF RotatePoint(PointF pointToRotate, PointF centerPoint, double angleInRadians)
+        {
+            double cosTheta = Math.Cos(angleInRadians);
+            double sinTheta = Math.Sin(angleInRadians);
+            return new PointF
+            {
+                X =
+                    (float)
+                    (cosTheta * (pointToRotate.X - centerPoint.X) -
+                    sinTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.X),
+                Y =
+                    (float)
+                    (sinTheta * (pointToRotate.X - centerPoint.X) +
+                    cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y)
+            };
+        }
+        static public PointF RotatePoint(PointF pointToRotate, double angleInRadians)
+        {
+            return RotatePoint(pointToRotate, new(0, 0), angleInRadians);
+        }
+    }
+}
