@@ -82,7 +82,7 @@ namespace SkyCombGround.PersistModel
 
 
         // Return a pointer to an existing worksheet by name
-        public ExcelWorksheet ReferWorksheet(string worksheetName)
+        public ExcelWorksheet? ReferWorksheet(string worksheetName)
         {
             if (Store == null)
                 return null;
