@@ -360,28 +360,74 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        public static string RemoveFileNameSuffix(string filename)
+        // Split the filename into folder and filename
+        public static (string folder, string file) SplitFileName(string fileName)
         {
-            if (filename.Length < 4)
-                return filename;
+            if (fileName.Length < 4)
+                return ("", fileName);
 
-            return filename.Substring(0, filename.Length - 4);
+            int pos = fileName.LastIndexOf('\\');
+
+            if (pos < 0)
+                return ("", fileName);
+
+            return (fileName.Substring(0, pos), fileName.Substring(pos + 1));
         }
 
 
-        public static string AddFileNameSuffix(string filename, string suffix)
+        public static string RemoveFileNameSuffix(string fileName)
         {
-            return RemoveFileNameSuffix(filename) + suffix;
+            if (fileName.Length < 4)
+                return fileName;
+
+            return fileName.Substring(0, fileName.Length - 4);
         }
 
 
-        // Swap file extension
-        public static string SwapExtension(string fileName, string newExtension)
+        public static string AddFileNameSuffix(string fileName, string suffix)
         {
-            if (fileName == "")
+            return RemoveFileNameSuffix(fileName) + suffix;
+        }
+
+
+        public static string SwapFileNameExtension(string fileName, string newExtension)
+        {
+            if (fileName.Length < 4)
                 return fileName;
 
             return fileName.Substring(0, fileName.Length - 4) + newExtension;
+        }
+
+
+        // Assuming that the file name is something like F:\SkyComb\Input_Data\Philip_Quirke\DJI_0027.SRT
+        // return the string F:\SkyComb\Ground_Data
+        public static string GuessGroundDataFolderFromFileName(string fileName)
+        {
+            if (fileName.Length < 15)
+                return "";
+
+            int pos = fileName.IndexOf("Input_Data");
+
+            if (pos < 0)
+                return "";
+
+            return fileName.Substring(0, pos) + "Ground_Data";
+        }
+
+
+        // Assuming that the file name is something like F:\SkyComb\Input_Data\Philip_Quirke\DJI_0027.SRT
+        // return the string F:\SkyComb\Output_Data
+        public static string GuessOutputDataFolderFromFileName(string fileName)
+        {
+            if (fileName.Length < 15)
+                return "";
+
+            int pos = fileName.IndexOf("Input_Data");
+
+            if (pos < 0)
+                return "";
+
+            return fileName.Substring(0, pos) + "Output_Data";
         }
 
     }
