@@ -1,163 +1,181 @@
 ﻿using SkyCombGround.CommonSpace;
-
-
-// GroundSpace only depends on CommonSpace & PersistModel. It does not depend on DroneModel.
-
+using System.Drawing;
 
 namespace SkyCombGround.GroundSpace
 {
-    public class GroundDatum : Constants
+    public class GroundGrid : BaseConstants
     {
-        // Location relative to encompassing DRONE flight path box (in meters). For example [24,13]
-        // As ground grid area is greater than drone flight area, includes some relative locations with negative Northing &/or Easting values.
-        public RelativeLocation? FlightLocnM { get; set; } = null;
-        // The (DEM or DSM) elevation.  
-        public double ElevationM { get; set; } = UnknownValue;
-        // Was overflown by the drone and was seen in the video
-        public bool Seen { get; set; } = false;
+        // The drone video footage extends beyond the flight path locations, so we add a buffer.
+        // The DJI_0094 test video has a MaxInputWidthM of 42 meters, so we add 20 meters to all sides.
+        public const int GroundBufferM = 20;
+
+        // The 27.5 minute video DJI_20230630201405_0001_T.mp4
+        // covers 840 m x 974 m = 817,560 m2.
+        // Plus buffer gives so 880 m x 1014 m = 892,320 m2.
+        // That how many datums we need to store.
+        const int MaxDatums = 1000000;
+
+        // The DEM & DSM data is available in a grid of 1 m x 1 m cells,
+        // with heights in 0.25m increments.
+        const float VerticalUnitM = 0.25f;
 
 
-        public GroundDatum(float northingM, float eastingM, float elevationM = UnknownValue)
-        {
-            FlightLocnM = new RelativeLocation(northingM, eastingM);
-            ElevationM = elevationM;
-        }
-        public GroundDatum(List<string> settings)
-        {
-            LoadSettings(settings);
-        }
-
-
-        // Get the object's settings as datapairs (e.g. for saving to a datastore)
-        public DataPairList GetSettings(int roundFactor, bool includeSeen)
-        {
-            var answer = new DataPairList {
-                {"NorthM", FlightLocnM.NorthingM, 1 }, // Spit LocationM to allow graphing in xls
-                {"EastM", FlightLocnM.EastingM, 1},  // Spit LocationM to allow graphing in xls
-                {"NorthRndM", roundFactor * (int)(FlightLocnM.NorthingM/roundFactor) }, // Round to avoid xls graphing limits
-                {"EastRndM", roundFactor * (int)(FlightLocnM.EastingM/roundFactor) },  // Round to avoid xls graphing limits
-                {"ElevationM", ElevationM, 1},
-            };
-
-            if (includeSeen)
-                answer.Add("Seen", Seen);
-
-            return answer;
-        }
-
-
-        // Load this object's settings from strings (loaded from a datastore)
-        // This function must align to the above GetSettings function.
-        private void LoadSettings(List<string> settings)
-        {
-            FlightLocnM = new RelativeLocation(settings[0], settings[1]);
-            // NorthingRndM settings[2]
-            // EastingRndM settings[3]
-            ElevationM = ConfigBase.StringToFloat(settings[4]);
-            if (settings.Count >= 6)
-                Seen = ConfigBase.StringToBool(settings[5]);
-        }
-
-
-        public void AssertGood()
-        {
-            Assert(FlightLocnM != null, "GroundDatum.AssertGood: No Relative Location");
-        }
-    }
-
-
-    public class GroundGrid : Constants
-    {
-        // List of ground data points
-        public List<GroundDatum> Datums { get; private set; }
         // Is this DEM data? Else is DSM data. 
         public bool IsDem { get; }
-        // The Northing/Easting coverage of the datums
-        public RelativeLocation? MaxLocationM { get; set; }
-        public RelativeLocation? MinLocationM { get; set; }
+
+        // DEM/DSM range from ~0 to 3,754 m (NZ's highest mountain).
+        // In C#, short ints (signed 16-bit integer) can store values from -32,768 to 32,767
+        // So a short int can store the DEM/DSM height values / VerticalUnitM.
+        // We store the elevations in a Northing by Easting (2D array) in VerticalUnitM values
+        private short[] ElevationQuarterM { get; }
+        // Number of elevations values stored into the elevation array
+        public int NumElevationsStored { get; set; }
+
+        // Min/Max elevation
+        public short MaxElevationQuarterM { get; set; }
+        public short MinElevationQuarterM { get; set; }
+
+        // The Northing/Easting coverage of the datums (including BufferM)
+        // in the local coordinate system. (Not drone zero-based coordinates.)
+        public int MaxCountryNorthingM { get; } // e.g. 5786068
+        public int MinCountryNorthingM { get; } // e.g. 5786000
+        public int MaxCountryEastingM { get; } // e.g. 1954744
+        public int MinCountryEastingM { get; } // e.g. 1954000
+
+
         // Where are we getting this elevation data from?
-        public string Source { get; set; } = "";
+        public string Source { get; set; }
+
         // How accurate is this vertical data (in +/- meters)
         // Most available global data sets are +/- 20 meters
-        // Local data sets, based on Lidar, can be accurate to +/- 0.2 meters
-        public float ElevationAccuracyM { get; set; } = Constants.UnknownValue;
+        // Local data sets, based on Lidar, can be accurate to +/- 0.25 meters
+        public float ElevationAccuracyM { get; set; }
 
 
-        public GroundGrid(bool isDem)
+        public int NumRows { get {
+                return MaxCountryNorthingM - MinCountryNorthingM + 1;
+            }
+        } 
+        public int NumCols { get {
+                return MaxCountryEastingM - MinCountryEastingM + 1;
+            }
+        }
+        // Number of datums required to cover the ground area
+        public int NumDatums { get {
+                return NumRows * NumCols;
+            }
+        }
+
+
+        // Percentage of datums we found a valid elevation for
+        public float PercentDatumElevationsAvailable { get {
+                return 100.0f * NumElevationsStored / NumDatums;
+            }
+        }
+
+
+        // Representation of the ground area in country coordinates
+        public RectangleF TargetCountryAreaM()
         {
-            Datums = new();
+            return new RectangleF(
+                (float)MinCountryEastingM,
+                (float)MinCountryNorthingM,
+                (float)(MaxCountryEastingM - MinCountryEastingM + 1),
+                (float)(MaxCountryNorthingM - MinCountryNorthingM + 1));
+        }
+
+
+        public GroundGrid(bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
+        {
             IsDem = isDem;
+
+            Assert(minCountryLocnM != null, "GroundGrid: minCountryLocnM missing");
+            Assert(maxCountryLocnM != null, "GroundGrid: maxCountryLocnM missing");
+
+            MinCountryNorthingM = (int) (minCountryLocnM.NorthingM - GroundBufferM);
+            MinCountryEastingM = (int) (minCountryLocnM.EastingM - GroundBufferM);
+            MaxCountryNorthingM = (int) (maxCountryLocnM.NorthingM + GroundBufferM);
+            MaxCountryEastingM = (int) (maxCountryLocnM.EastingM + GroundBufferM);
+
+            Assert(MinCountryNorthingM < MaxCountryNorthingM, "GroundGrid: NorthingM ordering");
+            Assert(MinCountryEastingM < MaxCountryEastingM, "GroundGrid: EastingM ordering");
+
+            Assert(MinCountryNorthingM > 5700000, "GroundGrid: NorthingM coord bad");
+            Assert(MinCountryEastingM > 1700000, "GroundGrid: EastingM coord bad");
+
+            ElevationQuarterM = new short[NumDatums];
+            for(int i = 0; i < NumDatums; i++)
+                ElevationQuarterM[i] = UnknownValue;
+
+            NumElevationsStored = 0;
+            MaxElevationQuarterM = UnknownValue;
+            MinElevationQuarterM = UnknownValue;
+
+            Source = "";
+            ElevationAccuracyM = UnknownValue;
         }
 
 
         // Has this object obtained some elevation data?
         public bool HasElevationData()
         {
-            return Datums.Count > 0 && Datums[0].ElevationM != Constants.UnknownValue;
+            return NumElevationsStored > 0;
         }
 
 
-        // The list must have at least 4 points. Generally it has 100 to 800 points.
+        // The list must have at least 4 points. Generally it has 100s to 1M points.
         public void AssertGood()
         {
-            FailIf(Datums.Count < 4, "GroundDatumList.AssertGood: Not enough ground data points.");
+            FailIf(NumElevationsStored < 4, "GroundDatumList.AssertGood: Not enough ground data points.");
+        }
+
+
+        public void AssertGoodIndex(string usecase, int index)
+        {
+            Assert(index >= 0, "GroundGrid." + usecase + ": answer low");
+            Assert(index < NumDatums, "GroundGrid." + usecase + ": answer high");
+        }
+
+
+        // Convert from drone location (e.g. [14,3] ) to a grid index. 
+        private int DroneLocnToGridIndex(RelativeLocation droneLocnM)
+        {
+            int answer =
+                ((int)(droneLocnM.NorthingM) + GroundBufferM) *
+                (MaxCountryEastingM - MinCountryEastingM + 1) +
+                ((int)(droneLocnM.EastingM) + GroundBufferM);
+
+            AssertGoodIndex("DroneLocnToGridIndex", answer );
+
+            return answer;
+        }
+
+
+        // Translate from country location (e.g. [5786000,1954744] ) to grid index
+        private int CountryLocnToGridIndex(RelativeLocation countryLocnM)
+        {
+            int answer =
+                ((int)(countryLocnM.NorthingM) - MinCountryNorthingM) *
+                (MaxCountryEastingM - MinCountryEastingM + 1) +
+                ((int)(countryLocnM.EastingM) - MinCountryEastingM);
+
+            AssertGoodIndex("CountryLocnToGridIndex", answer);
+
+            return answer;
+        }
+
+
+        private float GridElevationQuarterMToM(int quarterMs)
+        {
+            return 1.0f * quarterMs * VerticalUnitM;
         }
 
 
         // Return the minimum & maximum ground elevations (excluding UnknownValue)
-        public (double minElevation, double maxElevation) GetMinMaxElevationM()
+        public (float minElevationM, float maxElevationM) GetMinMaxElevationM()
         {
-            double min = double.MaxValue;
-            double max = double.MinValue;
-
-            foreach (GroundDatum datum in Datums)
-                if (datum.ElevationM != UnknownValue)
-                {
-                    min = Math.Min(datum.ElevationM, min);
-                    max = Math.Max(datum.ElevationM, max);
-                }
-
-            return (min, max);
-        }
-
-
-        // Assuming the datums are 1m by 1m squares, calculate the area of the ground seen by the drone
-        public int GetGroundSeenM2()
-        {
-            int datumsSeen = 0;
-
-            foreach (GroundDatum datum in Datums)
-                if (datum.Seen)
-                    datumsSeen++;
-
-            return datumsSeen;
-        }
-
-
-        // Calculate the rectangular size of datum coverage (includes GroundBufferM space)
-        public void CalculateMinMaxLocationM()
-        {
-            MinLocationM = null;
-            MaxLocationM = null;
-
-            if (!HasElevationData())
-                return;
-
-            float minNorthingM = Datums[0].FlightLocnM.NorthingM;
-            float minEastingM = Datums[0].FlightLocnM.EastingM;
-            float maxNorthingM = Datums[0].FlightLocnM.NorthingM;
-            float maxEastingM = Datums[0].FlightLocnM.EastingM;
-
-            foreach (var datum in Datums)
-            {
-                minNorthingM = Math.Min(minNorthingM, datum.FlightLocnM.NorthingM);
-                minEastingM = Math.Min(minEastingM, datum.FlightLocnM.EastingM);
-                maxNorthingM = Math.Max(maxNorthingM, datum.FlightLocnM.NorthingM);
-                maxEastingM = Math.Max(maxEastingM, datum.FlightLocnM.EastingM);
-            }
-
-            MinLocationM = new(minNorthingM, minEastingM);
-            MaxLocationM = new(maxNorthingM, maxEastingM);
+            return (GridElevationQuarterMToM( MinElevationQuarterM ),
+                    GridElevationQuarterMToM( MaxElevationQuarterM ));
         }
 
 
@@ -166,44 +184,93 @@ namespace SkyCombGround.GroundSpace
         // This water may be the sea, or a lake at a higher altitude, so we use the minimum elevation of that layer.
         public void SetGapsToMinimum()
         {
-            (double minElevation, double _) = GetMinMaxElevationM();
-
-            foreach (var datum in Datums)
-                if (datum.ElevationM == UnknownValue)
-                    datum.ElevationM = minElevation;
+            for (int i = 0; i < NumDatums; i++)
+                if( ElevationQuarterM[i] == UnknownValue )
+                    ElevationQuarterM[i] = MinElevationQuarterM;
         }
 
 
         // For a "query" point inside the grid, interpolate the elevation, from the surrounding points.
-        // Does not assume that the grid is ordered in any particular way.
-        // Assumes that the datum.FlightLocnM points are closely packed,
-        // so the difference in distance from queryLocn to each of surrounding points is not important. 
-        public virtual float GetElevation(RelativeLocation queryLocn)
+        // Assumes that the grid is 1m by 1m cells so the horizontal difference in
+        // distance from queryLocn to each of surrounding points is not important. 
+        public float GetElevationByDroneLocn(RelativeLocation droneLocnM)
         {
-            // Just want a small, close-by sample.
-            // Assume we have a grid of 1x1m datums.
-            // Only consider datums less than 2m away.
-            float maxDistM = 2;
+            int gridIndex = DroneLocnToGridIndex(droneLocnM);
 
-            int elevationCount = 0;
-            double elevationSumM = 0;
-            foreach (var datum in Datums)
-                // Avoid use of slow square and squareroot functions 
-                if (Math.Abs(datum.FlightLocnM.NorthingM - queryLocn.NorthingM) +
-                    Math.Abs(datum.FlightLocnM.EastingM - queryLocn.EastingM) < maxDistM)
-                {
-                    elevationCount++;
-                    elevationSumM += datum.ElevationM;
-                }
+            if (ElevationQuarterM[gridIndex] != UnknownValue)
+                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex]);
 
-            if (elevationCount > 0)
-                return (float)(elevationSumM / elevationCount);
+            // Because of GroundBufferM, the drone is not near the edge of the grid.
+            if (ElevationQuarterM[gridIndex+1] != UnknownValue)
+                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex+1]);
+            if (ElevationQuarterM[gridIndex-1] != UnknownValue)
+                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex-1]);
 
             return UnknownValue;
+        }
+
+
+        // Used with Loading from DataStore, to set the elevation of a grid point.
+        // Row and Col are one-based
+        public float GetElevationMByGridIndex(int row, int col)
+        {
+            int gridIndex =
+                (row - 1) *
+                (MaxCountryEastingM - MinCountryEastingM + 1) +
+                (col - 1);
+
+            AssertGoodIndex("GetElevationByGridIndex", gridIndex);
+
+            return GridElevationQuarterMToM(ElevationQuarterM[gridIndex]);
+        }
+
+
+        private void AddDatum(int gridIndex, float elevationM)
+        {
+            short quarterMs = (short)(elevationM / VerticalUnitM);
+
+            ElevationQuarterM[gridIndex] = quarterMs;
+
+            NumElevationsStored++;
+
+            if (MaxElevationQuarterM == UnknownValue)
+            {
+                MaxElevationQuarterM = quarterMs;
+                MinElevationQuarterM = quarterMs;
+            }
+            else
+            {
+                MaxElevationQuarterM = Math.Max(quarterMs, MaxElevationQuarterM);
+                MinElevationQuarterM = Math.Min(quarterMs, MinElevationQuarterM);
+            }
+        }
+
+
+        // Add a datum, in world local coordinate system (e.g. 115028,262743)
+        public void AddCountryDatum(RelativeLocation countryLocnM, float elevationM)
+        {
+            int gridIndex = CountryLocnToGridIndex(countryLocnM);
+
+            AddDatum(gridIndex, elevationM);    
+        }
+
+
+        // Add a datum from spreadsheet. Row and col are 1 based
+        public void AddSettingDatum(int row, int col, float elevationM)
+        {
+            int gridIndex =
+                 (row-1) *
+                 (MaxCountryEastingM - MinCountryEastingM + 1) +
+                 (col-1);
+
+            AssertGoodIndex("AddSettingDatum", gridIndex);
+
+            AddDatum(gridIndex, elevationM);
         }
     }
 
 
+    /*
     // Class to calculate the portion of Ground Grid that was "seen" by the drone's video during flight.
     public class GroundSeen : Constants
     {
@@ -233,10 +300,10 @@ namespace SkyCombGround.GroundSpace
                 MinNorthingM = (int)Math.Floor(Grid.MinLocationM.NorthingM);
                 MinEastingM = (int)Math.Floor(Grid.MinLocationM.EastingM);
             }
-            if (Grid.MaxLocationM != null)
+            if (Grid.maxCountryLocnM != null)
             {
-                MaxNorthingM = (int)Math.Floor(Grid.MaxLocationM.NorthingM);
-                MaxEastingM = (int)Math.Floor(Grid.MaxLocationM.EastingM);
+                MaxNorthingM = (int)Math.Floor(Grid.maxCountryLocnM.NorthingM);
+                MaxEastingM = (int)Math.Floor(Grid.maxCountryLocnM.EastingM);
             }
 
             // Create a grid of booleans to indicate if a grid point has been seen
@@ -325,4 +392,5 @@ namespace SkyCombGround.GroundSpace
             }
         }
     }
+    */
 }

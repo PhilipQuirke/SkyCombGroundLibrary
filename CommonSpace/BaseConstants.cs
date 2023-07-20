@@ -1,10 +1,14 @@
-﻿using System;
+﻿
 
 
 namespace SkyCombGround.CommonSpace
 {
-    public class Constants : BaseColors
+    public class BaseConstants : GroundColors
     {
+        // The current version of the code base.
+        public static string CodeVersion = "6.0";
+
+
         // Number of decimal places for commonly used types of data
         public const int FpsNdp = 6;
         public const int LatLongNdp = 6;
@@ -34,6 +38,66 @@ namespace SkyCombGround.CommonSpace
 
         public const float DegreesToRadians = (float)(Math.PI / 180.0);
         public const float RadiansToDegrees = 1 / DegreesToRadians;
+
+
+        // Fonts
+        public const int LargeTitleFontSize = 16;
+        public const int MediumTitleFontSize = 14;
+
+
+        // Titles
+        public const string Main1Title = "SkyComb Analyst";
+        public const string Main2Title = "DataStore";
+        public const string IndexTitle = "Index";
+        public const string FilesTitle = "Files";
+        public const string GroundInputTitle = "Ground Data";
+
+
+        // Tab Names
+        public const string IndexTabName = "Index";
+        public const string FilesTabName = "Files";
+        public const string GroundTabName = "Ground";
+        public const string DemTabName = "DEM";
+        public const string DsmTabName = "DSM";
+        public const string DroneTabName = "Drone";
+        public const string Sections1TabName = "Sects1";
+        public const string Sections2TabName = "Sects2";
+        public const string Steps1TabName = "Steps1";
+        public const string Steps2TabName = "Steps2";
+        public const string Legs1TabName = "Legs1";
+        public const string ProcessTabName = "Process";
+        public const string Blocks1TabName = "Blks1";
+        public const string Blocks2TabName = "Blks2";
+        public const string PixelsTabName = "Pxls";
+        public const string FeaturesTabName = "Feats";
+        public const string Objects1TabName = "Objs1";
+        public const string Objects2TabName = "Objs2";
+        public const string Legs2TabName = "Legs2";
+        public const string CategoryTabName = "Cat1";
+        public const string ObjectCategoryTabName = "Cat2";
+        public const string PopulationTabName = "Popln";
+
+
+        // Chart outline sizes
+        public const int StandardChartCols = 13;
+        public const int StandardChartRows = 15;
+        public const int LargeChartRows = 2 * StandardChartRows;
+
+
+        // Rows
+        public const int Chapter1TitleRow = 3;
+        public const int Chapter2TitleRow = 21;
+        public const int Chapter3TitleRow = 38;
+        public const int Chapter4TitleRow = 50;
+        public const int IndexContentRow = 5;
+
+
+        // Columns / Column offset
+        public const int LhsColOffset = 1;
+        public const int MidColOffset = 4;
+        public const int RhsColOffset = 7;
+        public const int FarRhsColOffset = 10;
+        public const int LabelToValueCellOffset = 1;
 
 
         public float RadToDeg(float rad)

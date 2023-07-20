@@ -3,7 +3,7 @@
 
 namespace SkyCombGround.CommonSpace
 {
-    public class ConfigBase : Constants
+    public class ConfigBase : BaseConstants
     {
 
         public static string CleanString(string input)

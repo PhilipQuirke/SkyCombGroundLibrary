@@ -1,5 +1,4 @@
 ﻿using SkyCombGround.CommonSpace;
-using System;
 
 
 namespace SkyCombGround.GroundSpace
@@ -355,10 +354,10 @@ namespace SkyCombGround.GroundSpace
             (double northing2, double easting2) = WgsToNztm(southBoundLatitude, eastBoundLongitude);
             (double latitude2, double longitude2) = NztmToWgs(northing2, easting2);
 
-            Constants.Assert(Math.Abs(northBoundLatitude - latitude1) < 0.000001, "NztmProjection.UnitTest: Bad northBoundLatitude");
-            Constants.Assert(Math.Abs(westBoundLongitude - longitude1) < 0.000001, "NztmProjection.UnitTest: Bad westBoundLongitude");
-            Constants.Assert(Math.Abs(southBoundLatitude - latitude2) < 0.000001, "NztmProjection.UnitTest: Bad southBoundLatitude");
-            Constants.Assert(Math.Abs(eastBoundLongitude - longitude2) < 0.000001, "NztmProjection.UnitTest: Bad eastBoundLongitude");
+            BaseConstants.Assert(Math.Abs(northBoundLatitude - latitude1) < 0.000001, "NztmProjection.UnitTest: Bad northBoundLatitude");
+            BaseConstants.Assert(Math.Abs(westBoundLongitude - longitude1) < 0.000001, "NztmProjection.UnitTest: Bad westBoundLongitude");
+            BaseConstants.Assert(Math.Abs(southBoundLatitude - latitude2) < 0.000001, "NztmProjection.UnitTest: Bad southBoundLatitude");
+            BaseConstants.Assert(Math.Abs(eastBoundLongitude - longitude2) < 0.000001, "NztmProjection.UnitTest: Bad eastBoundLongitude");
         }
     }
 }

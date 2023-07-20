@@ -8,7 +8,7 @@ namespace SkyCombGround.CommonSpace
     // Latitude/Longitude is an asymmetrical global coordinate system
     // Refer https://gisgeography.com/latitude-longitude-coordinates/
     // That is 1 unit Latitude is not the same distance as 1 unit Longitude in meters (apart from at the Equator).
-    public class GlobalLocation : Constants
+    public class GlobalLocation : BaseConstants
     {
         public static string Format = "0.0000000";
 
@@ -175,7 +175,7 @@ namespace SkyCombGround.CommonSpace
                 return new RelativeLocation();
 
             double latMidDegrees = (location1.Latitude + location2.Latitude) / 2.0;
-            double latMidRadians = latMidDegrees * Constants.DegreesToRadians;
+            double latMidRadians = latMidDegrees * BaseConstants.DegreesToRadians;
 
             double per_deg_lat = 111132.954 - 559.822 * Math.Cos(2.0 * latMidRadians) + 1.175 * Math.Cos(4.0 * latMidRadians);
             double per_deg_lon = (Math.PI / 180.0) * 6367449.0 * Math.Cos(latMidRadians);

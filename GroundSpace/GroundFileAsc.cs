@@ -1,8 +1,8 @@
 ﻿using SkyCombGround.CommonSpace;
 using SkyCombGround.PersistModel;
+using System.Drawing;
 
 
-// GroundSpace only depends on CommonSpace & PersistModel. It does not depend on DroneModel.
 // Handles ASC text files
 // Refer https://en.wikipedia.org/wiki/Esri_grid for more detail on ASC file structure.
 // Importantly the origin correponds to the FIRST value on the LAST row of data.
@@ -98,7 +98,7 @@ namespace SkyCombGround.GroundSpace
                                     double cellSize = double.Parse(line.Substring(12).Trim());
 
                                     line = ascFile.ReadLine();
-                                    int noDataValue = Constants.UnknownValue;
+                                    int noDataValue = BaseConstants.UnknownValue;
                                     if (line.Substring(0, 6).ToLower() == "NoData") // Sometimes this line is missing.
                                         noDataValue = (int)double.Parse(line.Substring(12).Trim());
 
@@ -126,7 +126,8 @@ namespace SkyCombGround.GroundSpace
 
     internal abstract class GroundDatumsAsc : GroundDatums
     {
-        public GroundDatumsAsc(string groundDirectory, bool isDem) : base(groundDirectory, isDem)
+        public GroundDatumsAsc(string groundDirectory, bool isDem, RelativeLocation minLocationM, RelativeLocation maxCountryLocnM) 
+            : base(groundDirectory, isDem, minLocationM, maxCountryLocnM) 
         {
         }
 
@@ -177,9 +178,9 @@ namespace SkyCombGround.GroundSpace
                             continue;
 
                         double yLocation = book.YllCorner + northing * book.CellSize;
-                        if (yLocation <= CountryTargetAreaBuffered.Y + CountryTargetAreaBuffered.Height)
+                        if (yLocation <= MaxCountryNorthingM)
                         {
-                            if (yLocation >= CountryTargetAreaBuffered.Y)
+                            if (yLocation >= MinCountryNorthingM)
                             {
                                 easting = 0;
                                 var lastSpacePos = 0;
@@ -188,13 +189,13 @@ namespace SkyCombGround.GroundSpace
                                 {
                                     // As we read across the line, the xLocation increases.
                                     double xLocation = book.XllCorner + easting * book.CellSize;
-                                    if (xLocation >= CountryTargetAreaBuffered.X)
+                                    if (xLocation >= MinCountryEastingM)
                                     {
-                                        if (xLocation <= CountryTargetAreaBuffered.X + CountryTargetAreaBuffered.Width)
+                                        if (xLocation <= MaxCountryEastingM)
                                         {
-                                            var elevation = float.Parse(line.Substring(lastSpacePos, spacePos - lastSpacePos));
+                                            var elevationM = float.Parse(line.Substring(lastSpacePos, spacePos - lastSpacePos));
 
-                                            AddDatum((float)xLocation, (float)yLocation, elevation);
+                                            AddCountryDatum(new RelativeLocation((float)yLocation, (float)xLocation), elevationM);
                                         }
                                         else
                                             // Have traversed right past desired range.
@@ -227,21 +228,10 @@ namespace SkyCombGround.GroundSpace
     // #ExtendGroundSpace: For data sources from other countries, clone and modfiy this class's source ccode
     internal class GroundDatumsAscNz : GroundDatumsAsc
     {
-        public GroundDatumsAscNz(string groundDirectory, bool isDem) : base(groundDirectory, isDem)
+        public GroundDatumsAscNz(string groundDirectory, bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
+            : base(groundDirectory, isDem, minCountryLocnM, maxCountryLocnM)
         {
             NztmProjection.AssertGood();
-        }
-
-
-        public override (double northing, double easting) GlobalToCountryConversion(double latitude, double longitude)
-        {
-            return NztmProjection.WgsToNztm(latitude, longitude);
-        }
-
-
-        public override (double latitude, double longitude) CountryToGlobalConversion(double northing, double easting)
-        {
-            return NztmProjection.WgsToNztm(northing, easting);
         }
     }
 
@@ -249,7 +239,7 @@ namespace SkyCombGround.GroundSpace
     // Calculate ground DEM and DSM using ASC files on disk for New Zealand locations
     // Refer https://github.com/PhilipQuirke/SkyCombAnalystHelp/Ground.md for more detail.
     // #ExtendGroundSpace: For data sources from other countries, clone and modfiy this class's source ccode
-    internal class GroundAscNZ : Constants
+    internal class GroundAscNZ : BaseConstants
     {
         // Using PRJ and ASC files in subfolders of the groundDirectory folder,
         // return a list of unsorted DEM and DSM elevations inside the min/max location range.
@@ -262,26 +252,31 @@ namespace SkyCombGround.GroundSpace
 
                 if (groundDirectory != "")
                 {
-                    GroundDatumsAsc demDatums = new GroundDatumsAscNz(groundDirectory, true);
-                    GroundDatumsAsc dsmDatums = new GroundDatumsAscNz(groundDirectory, false);
+                    (double minCountryNorthingM, double minCountryEastingM) =
+                        NztmProjection.WgsToNztm(groundData.MinGlobalLocation.Latitude, groundData.MinGlobalLocation.Longitude);
+                    (double maxCountryNorthingM, double maxCountryEastingM) =
+                        NztmProjection.WgsToNztm(groundData.MaxGlobalLocation.Latitude, groundData.MaxGlobalLocation.Longitude);
 
-                    demDatums.SetLocalArea(groundData.MinGlobalLocation, groundData.MaxGlobalLocation);
-                    dsmDatums.SetLocalArea(groundData.MinGlobalLocation, groundData.MaxGlobalLocation);
+                    var minCountryM = new RelativeLocation((float)minCountryNorthingM, (float)minCountryEastingM);
+                    var maxCountryM = new RelativeLocation((float)maxCountryNorthingM, (float)maxCountryEastingM);
+
+                    GroundDatumsAsc? demDatums = new GroundDatumsAscNz(groundDirectory, true, minCountryM, maxCountryM);
+                    GroundDatumsAsc? dsmDatums = new GroundDatumsAscNz(groundDirectory, false, minCountryM, maxCountryM);
 
                     // Create (slow) or open (fast) an index of the ground DEM/DSM books found in groundDirectory
                     BookCatalogAsc catalog = new(groundDirectory);
 
                     // Find the books that can provide ground data for the drone flight area.
-                    var neededBooks = catalog.OverlapsTargetArea(demDatums.CountryTargetAreaBuffered, BookCatalogAsc.NzGeoGcs, true);
+                    var neededBooks = catalog.OverlapsTargetArea(demDatums.TargetCountryAreaM(), BookCatalogAsc.NzGeoGcs, true);
                     if (neededBooks.Count > 0)
                     {
                         demDatums.GetDatumsInLocationCoordinates(neededBooks);
                         dsmDatums.GetDatumsInLocationCoordinates(neededBooks);
 
-                        if (demDatums.Datums.Count == 0)
+                        if((demDatums.NumDatums == 0) || (demDatums.NumElevationsStored == 0))
                             demDatums = null;
 
-                        if (dsmDatums.Datums.Count == 0)
+                        if((dsmDatums.NumDatums == 0) || (dsmDatums.NumElevationsStored == 0))
                             dsmDatums = null;
                     }
 

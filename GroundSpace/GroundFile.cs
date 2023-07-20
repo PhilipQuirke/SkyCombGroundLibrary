@@ -3,15 +3,12 @@ using SkyCombGround.PersistModel;
 using System.Drawing;
 
 
-// GroundSpace only depends on CommonSpace & PersistModel. It does not depend on DroneModel.
-
-
 // Read & index ground & surface elevation data from files on disk 
 // Refer https://github.com/PhilipQuirke/SkyCombAnalystHelp/Ground.md for more background
 namespace SkyCombGround.GroundSpace
 {
     // Read-only book containing book location and the ground area it covers
-    public class BookName : Constants
+    public class BookName : BaseConstants
     {
         // Folder name the file is in e.g. lds-auckland-north-lidar-1m-dem-2016-2018-AAIGrid
         public string FolderName { get; set; }
@@ -179,14 +176,14 @@ namespace SkyCombGround.GroundSpace
             }
             catch (Exception ex)
             {
-                throw Constants.ThrowException("BookDataStore.Load: Row=" + row, ex);
+                throw BaseConstants.ThrowException("BookDataStore.Load: Row=" + row, ex);
             }
         }
     }
 
 
     // Build and save a list of the books in a datastore
-    public abstract class BookCatalog : Constants
+    public abstract class BookCatalog : BaseConstants
     {
         public BookNameList BookNames = null;
 
@@ -260,63 +257,16 @@ namespace SkyCombGround.GroundSpace
     {
         public string GroundDirectory = "";
 
-        // The area we are interested in, in country coordinate system (e.g. GCS_NZGD_2000)
-        // Set to drone flight area, buffered by GroundBufferM.
-        public RectangleF CountryTargetAreaBuffered;
 
-
-        public GroundDatums(string groundDirectory, bool isDem) : base(isDem)
+        public GroundDatums(string groundDirectory, bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
+         : base(isDem, minCountryLocnM, maxCountryLocnM)
         {
             GroundDirectory = groundDirectory.TrimEnd('\\'); // Remove any trailing backslash
             ElevationAccuracyM = 0.2f;
         }
 
 
-        // Convert from global location (lat, long) to local country location (e.g. GCS_NZGD_2000, 5986320.0, 1738720.0)
-        public abstract (double northing, double easting) GlobalToCountryConversion(double latitude, double longitude);
-        // Convert from local country location (e.g. GCS_NZGD_2000, 5986320.0, 1738720.0) to global location (lat, long)
-        public abstract (double latitude, double longitude) CountryToGlobalConversion(double northing, double easting);
-
-
-        // Using two global locations, set LocalArea, an area in country coordinate system.
-        public void SetLocalArea(GlobalLocation minGlobalLocation, GlobalLocation maxGlobalLocation)
-        {
-            Assert(minGlobalLocation.Longitude < maxGlobalLocation.Longitude, "SetLocalArea: TargetLocation Longitude Bad");
-            Assert(minGlobalLocation.Latitude < maxGlobalLocation.Latitude, "SetLocalArea: TargetLocation Latitude Bad");
-
-            (double minNorthing, double minEasting) = GlobalToCountryConversion(minGlobalLocation.Latitude, minGlobalLocation.Longitude);
-            (double maxNorthing, double maxEasting) = GlobalToCountryConversion(maxGlobalLocation.Latitude, maxGlobalLocation.Longitude);
-
-            Assert(minNorthing < maxNorthing, "SetLocalArea: Bad logic 1");
-            Assert(minEasting < maxEasting, "SetLocalArea: Bad logic 2");
-
-            // Make the area bigger on all sides
-            CountryTargetAreaBuffered = new RectangleF(
-                (float)minEasting - GroundData.GroundBufferM,
-                (float)minNorthing - GroundData.GroundBufferM,
-                (float)(maxEasting - minEasting) + 2 * GroundData.GroundBufferM,
-                (float)(maxNorthing - minNorthing) + 2 * GroundData.GroundBufferM);
-        }
-
-
-        // Add a datum, converting from world local coordinate system (e.g. 115028,262743)
-        // to drone coordinate system (e.g. 13.4,18.1) and removing the 20m ground buffer.
-        // Because of the buffer some drone coordinates will be negative.
-        public void AddDatum(float xLocation, float yLocation, float elevation)
-        {
-            var answer = new GroundDatum(
-                yLocation - CountryTargetAreaBuffered.Y - GroundData.GroundBufferM,
-                xLocation - CountryTargetAreaBuffered.X - GroundData.GroundBufferM,
-                elevation);
-
-            Assert(answer.FlightLocnM.NorthingM >= -GroundData.GroundBufferM - 1, "GroundFile.AddDatum: Bad logic 1");
-            Assert(answer.FlightLocnM.EastingM >= -GroundData.GroundBufferM - 1, "GroundFile.AddDatum: Bad logic 2");
-
-            Datums.Add(answer);
-        }
-
-
-        // Load datums from the book that are inside LocalArea
+        // Load datums from the book that are inside CountryArea
         protected abstract void GetDatums(BookName book);
 
 
@@ -328,11 +278,8 @@ namespace SkyCombGround.GroundSpace
                     if (book.IsDem == this.IsDem)
                         GetDatums(book);
 
-                if (Datums.Count > 0)
-                {
+                if (NumDatums > 0)
                     SetGapsToMinimum();
-                    CalculateMinMaxLocationM();
-                }
             }
         }
     }

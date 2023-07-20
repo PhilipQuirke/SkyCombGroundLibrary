@@ -1,8 +1,8 @@
 ﻿using BitMiracle.LibTiff.Classic;
 using SkyCombGround.CommonSpace;
+using System.Drawing;
 
 
-// GroundSpace only depends on CommonSpace & PersistModel. It does not depend on DroneModel.
 // Handles GeoTiff file with suffix ".tif"
 
 
@@ -89,7 +89,8 @@ namespace SkyCombGround.GroundSpace
 
     internal abstract class GroundDatumsTiff : GroundDatums
     {
-        public GroundDatumsTiff(string groundDirectory, bool isDem) : base(groundDirectory, isDem)
+        public GroundDatumsTiff(string groundDirectory, bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
+            : base(groundDirectory, isDem, minCountryLocnM, maxCountryLocnM)
         {
         }
 
@@ -171,14 +172,14 @@ namespace SkyCombGround.GroundSpace
                     for (northing = 0; northing < height; northing++)
                     {
                         double yLocation = startY - northing * pixelSizeY;
-                        if ((yLocation <= CountryTargetAreaBuffered.Y + CountryTargetAreaBuffered.Height) &&
-                            (yLocation >= CountryTargetAreaBuffered.Y))
+                        if ((yLocation <= MaxCountryNorthingM) &&
+                            (yLocation >= MinCountryNorthingM))
                         {
                             for (easting = 0; easting < width; easting++)
                             {
                                 double xLocation = startX + easting * pixelSizeX;
-                                if ((xLocation >= CountryTargetAreaBuffered.X) &&
-                                    (xLocation <= CountryTargetAreaBuffered.X + CountryTargetAreaBuffered.Width))
+                                if ((xLocation >= MinCountryEastingM) &&
+                                    (xLocation <= MaxCountryEastingM))
                                 {
                                     int tileIndexX = easting / tileWidth;
                                     int tileIndexY = northing / tileHeight;
@@ -190,7 +191,7 @@ namespace SkyCombGround.GroundSpace
 
                                     float elevationM = BitConverter.ToSingle(buffer, tileOffset + tileIndex * tileSize);
 
-                                    AddDatum((float)xLocation, (float)yLocation, elevationM);
+                                    AddCountryDatum(new RelativeLocation((float)yLocation, (float)xLocation), elevationM);
                                 }
                             }
                         }
@@ -211,21 +212,10 @@ namespace SkyCombGround.GroundSpace
     // #ExtendGroundSpace: For data sources from other countries, clone and modfiy this class's source ccode
     internal class GroundDatumsTiffNz : GroundDatumsTiff
     {
-        public GroundDatumsTiffNz(string groundDirectory, bool isDem) : base(groundDirectory, isDem)
+        public GroundDatumsTiffNz(string groundDirectory, bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
+            : base(groundDirectory, isDem, minCountryLocnM, maxCountryLocnM)
         {
             NztmProjection.AssertGood();
-        }
-
-
-        public override (double northing, double easting) GlobalToCountryConversion(double latitude, double longitude)
-        {
-            return NztmProjection.WgsToNztm(latitude, longitude);
-        }
-
-
-        public override (double latitude, double longitude) CountryToGlobalConversion(double northing, double easting)
-        {
-            return NztmProjection.WgsToNztm(northing, easting);
         }
     }
 
@@ -233,7 +223,7 @@ namespace SkyCombGround.GroundSpace
     // Calculate ground DEM and DSM using TIFF files on disk for New Zealand locations
     // Refer https://github.com/PhilipQuirke/SkyCombAnalystHelp/Ground.md for more detail.
     // #ExtendGroundSpace: For data sources from other countries, clone and modfiy this class's source ccode
-    internal class GroundTiffNZ : Constants
+    internal class GroundTiffNZ : BaseConstants
     {
         // Using TIFF files in subfolders of the groundDirectory folder,
         // return a list of unsorted DEM and DSM elevations inside the min/max location range.
@@ -246,26 +236,31 @@ namespace SkyCombGround.GroundSpace
 
                 if (groundDirectory != "")
                 {
-                    GroundDatumsTiff demDatums = new GroundDatumsTiffNz(groundDirectory, true);
-                    GroundDatumsTiff dsmDatums = new GroundDatumsTiffNz(groundDirectory, false);
+                    (double minCountryNorthingM, double minCountryEastingM) =
+                        NztmProjection.WgsToNztm(groundData.MinGlobalLocation.Latitude, groundData.MinGlobalLocation.Longitude);
+                    (double maxCountryNorthingM, double maxCountryEastingM) =
+                        NztmProjection.WgsToNztm(groundData.MaxGlobalLocation.Latitude, groundData.MaxGlobalLocation.Longitude);
 
-                    demDatums.SetLocalArea(groundData.MinGlobalLocation, groundData.MaxGlobalLocation);
-                    dsmDatums.SetLocalArea(groundData.MinGlobalLocation, groundData.MaxGlobalLocation);
+                    var minCountryM = new RelativeLocation((float)minCountryNorthingM, (float)minCountryEastingM);
+                    var maxCountryM = new RelativeLocation((float)maxCountryNorthingM, (float)maxCountryEastingM);
+
+                    GroundDatumsTiff demDatums = new GroundDatumsTiffNz(groundDirectory, true, minCountryM, maxCountryM);
+                    GroundDatumsTiff dsmDatums = new GroundDatumsTiffNz(groundDirectory, false, minCountryM, maxCountryM);
 
                     // Create (slow) or open (fast) an index of the ground DEM/DSM books found in groundDirectory
                     BookCatalogTiff catalog = new(groundDirectory);
 
                     // Find the books that can provide ground data for the drone flight area.
-                    var neededBooks = catalog.OverlapsTargetArea(demDatums.CountryTargetAreaBuffered, BookCatalogTiff.NzGeoGcs, false);
+                    var neededBooks = catalog.OverlapsTargetArea(demDatums.TargetCountryAreaM(), BookCatalogTiff.NzGeoGcs, false);
                     if (neededBooks.Count > 0)
                     {
                         demDatums.GetDatumsInLocationCoordinates(neededBooks);
                         dsmDatums.GetDatumsInLocationCoordinates(neededBooks);
 
-                        if (demDatums.Datums.Count == 0)
+                        if ((demDatums.NumDatums == 0) || (demDatums.NumElevationsStored == 0))
                             demDatums = null;
 
-                        if (dsmDatums.Datums.Count == 0)
+                        if ((dsmDatums.NumDatums == 0) || (dsmDatums.NumElevationsStored == 0))
                             dsmDatums = null;
                     }
 

@@ -181,7 +181,7 @@ namespace SkyCombGround.CommonSpace
     }
 
 
-    public class DataPair : Constants
+    public class DataPair : BaseConstants
     {
         public string Key;
         public string Value;
