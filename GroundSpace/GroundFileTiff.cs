@@ -1,6 +1,5 @@
 ﻿using BitMiracle.LibTiff.Classic;
 using SkyCombGround.CommonSpace;
-using System.Drawing;
 
 
 // Handles GeoTiff file with suffix ".tif"

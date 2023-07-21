@@ -8,9 +8,9 @@ namespace SkyCombGround.PersistModel
     public class GroundLoad : BaseConstants
     {
         // Load Ground elevation settings
-        public static List<string> LoadSettings(GenericDataStore Data)
+        public static List<string> LoadSettings(GenericDataStore dataStore)
         {
-            return Data.GetColumnSettingsIfAvailable(
+            return dataStore.GetColumnSettingsIfAvailable(
                 GroundTabName, GroundInputTitle, 
                 Chapter1TitleRow, LhsColOffset);
         }
@@ -18,28 +18,28 @@ namespace SkyCombGround.PersistModel
 
         // Load all Ground (DEM) or Surface (DSM) data from a XLS file 
         public static void LoadGrid(
-            GenericDataStore Data, 
-            GroundGrid datums, 
+            GenericDataStore dataStore, 
+            GroundGrid grid, 
             string tabName)
         {
             int row = 0;
             int col = 0;
             try
             {
-                if ((datums != null) && (Data != null) && Data.SelectWorksheet(tabName))
+                if ((grid != null) && (dataStore != null) && dataStore.SelectWorksheet(tabName))
                 {
-                    for( row = 1; row < datums.NumRows + 1; row++ )
+                    for( row = 1; row < grid.NumRows + 1; row++ )
                     {
-                        for (col = 1; col < datums.NumCols + 1; col++)
+                        for (col = 1; col < grid.NumCols + 1; col++)
                         {
-                            var cell = Data.Worksheet.Cells[row, col];
+                            var cell = dataStore.Worksheet.Cells[row, col];
                             if (cell != null && cell.Value != null)
                             {
                                 var elevationStr = cell.Value.ToString();
                                 if ((elevationStr != null) && (elevationStr != ""))
                                 {
                                     float elevationM = float.Parse(elevationStr);
-                                    datums.AddSettingDatum(row, col, elevationM);
+                                    grid.AddSettingDatum(row, col, elevationM);
                                 }
                             }
                         }
@@ -90,6 +90,5 @@ namespace SkyCombGround.PersistModel
 
             return groundData;
         }
-
     }
 }

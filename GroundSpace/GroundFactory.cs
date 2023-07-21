@@ -113,26 +113,10 @@ namespace SkyCombGround.GroundSpace
             };
 
             if (DemGrid != null)
-            {
-                answer.Add("Dem Source", DemGrid.Source);
-                answer.Add("Dem Min Easting M", DemGrid.MinCountryEastingM);
-                answer.Add("Dem Min Northing M", DemGrid.MinCountryNorthingM);
-                answer.Add("Dem Max Easting M", DemGrid.MaxCountryEastingM);
-                answer.Add("Dem Max Northing M", DemGrid.MaxCountryNorthingM);
-                answer.Add("Dem # Datums", DemGrid.NumDatums);
-                answer.Add("Dem Elevation Accuracy M", DemGrid.ElevationAccuracyM, 1);
-            }
+                DemGrid.GetSettings("Dem", ref answer);
 
             if (DsmGrid != null)
-            {
-                answer.Add("Dsm Source", DsmGrid.Source);
-                answer.Add("Dsm Min Easting M", DemGrid.MinCountryEastingM);
-                answer.Add("Dsm Min Northing M", DemGrid.MinCountryNorthingM);
-                answer.Add("Dsm Max Easting M", DemGrid.MaxCountryEastingM);
-                answer.Add("Dsm Max Northing M", DemGrid.MaxCountryNorthingM); 
-                answer.Add("Dsm # Datums", DsmGrid.NumDatums);
-                answer.Add("Dsm Elevation Accuracy M", DsmGrid.ElevationAccuracyM, 1);
-            }
+                DsmGrid.GetSettings("Dem", ref answer);
 
             return answer;
         }
@@ -145,37 +129,11 @@ namespace SkyCombGround.GroundSpace
             MinGlobalLocation = new GlobalLocation(settings[0]);
             MaxGlobalLocation = new GlobalLocation(settings[1]);
 
-            if (settings.Count >= 9)
-            {
-                var source = settings[2];
-                var minEastingM = ConfigBase.StringToInt(settings[3]);
-                var minNorthingM = ConfigBase.StringToInt(settings[4]);
-                var maxEastingM = ConfigBase.StringToInt(settings[5]);
-                var maxNorthingM = ConfigBase.StringToInt(settings[6]);
+            if (settings.Count >= 14)
+                DemGrid = new(true, settings, 2);
 
-                DemGrid = new(true, 
-                    new RelativeLocation(minNorthingM, minEastingM),
-                    new RelativeLocation(maxNorthingM, maxEastingM));
-                DemGrid.Source = source;
-                // # Datums = settings[7];
-                DemGrid.ElevationAccuracyM = ConfigBase.StringToFloat(settings[8]);
-            }
-
-            if (settings.Count >= 16)
-            {
-                var source = settings[9];
-                var minEastingM = ConfigBase.StringToInt(settings[10]);
-                var minNorthingM = ConfigBase.StringToInt(settings[11]);
-                var maxEastingM = ConfigBase.StringToInt(settings[12]);
-                var maxNorthingM = ConfigBase.StringToInt(settings[13]);
-
-                DsmGrid = new(true,
-                    new RelativeLocation(minNorthingM, minEastingM),
-                    new RelativeLocation(maxNorthingM, maxEastingM));
-                DsmGrid.Source = source;
-                // # Datums = settings[14];
-                DsmGrid.ElevationAccuracyM = ConfigBase.StringToFloat(settings[15]);
-            }
+            if (settings.Count >= 26)
+                DsmGrid = new(false, settings, 14);
         }
     }
 

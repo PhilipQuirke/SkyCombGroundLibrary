@@ -1,6 +1,7 @@
 ﻿using SkyCombGround.CommonSpace;
 using System.Drawing;
 
+
 namespace SkyCombGround.GroundSpace
 {
     public class GroundGrid : BaseConstants
@@ -52,23 +53,35 @@ namespace SkyCombGround.GroundSpace
         public float ElevationAccuracyM { get; set; }
 
 
-        public int NumRows { get {
+        public int NumRows
+        {
+            get
+            {
                 return MaxCountryNorthingM - MinCountryNorthingM + 1;
             }
-        } 
-        public int NumCols { get {
+        }
+        public int NumCols
+        {
+            get
+            {
                 return MaxCountryEastingM - MinCountryEastingM + 1;
             }
         }
         // Number of datums required to cover the ground area
-        public int NumDatums { get {
+        public int NumDatums
+        {
+            get
+            {
                 return NumRows * NumCols;
             }
         }
 
 
         // Percentage of datums we found a valid elevation for
-        public float PercentDatumElevationsAvailable { get {
+        public float PercentDatumElevationsAvailable
+        {
+            get
+            {
                 return 100.0f * NumElevationsStored / NumDatums;
             }
         }
@@ -85,34 +98,61 @@ namespace SkyCombGround.GroundSpace
         }
 
 
-        public GroundGrid(bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
+        // Partial constructor initialisation of the GroundGrid
+        private void Initialise()
         {
-            IsDem = isDem;
-
-            Assert(minCountryLocnM != null, "GroundGrid: minCountryLocnM missing");
-            Assert(maxCountryLocnM != null, "GroundGrid: maxCountryLocnM missing");
-
-            MinCountryNorthingM = (int) (minCountryLocnM.NorthingM - GroundBufferM);
-            MinCountryEastingM = (int) (minCountryLocnM.EastingM - GroundBufferM);
-            MaxCountryNorthingM = (int) (maxCountryLocnM.NorthingM + GroundBufferM);
-            MaxCountryEastingM = (int) (maxCountryLocnM.EastingM + GroundBufferM);
-
             Assert(MinCountryNorthingM < MaxCountryNorthingM, "GroundGrid: NorthingM ordering");
             Assert(MinCountryEastingM < MaxCountryEastingM, "GroundGrid: EastingM ordering");
 
             Assert(MinCountryNorthingM > 5700000, "GroundGrid: NorthingM coord bad");
             Assert(MinCountryEastingM > 1700000, "GroundGrid: EastingM coord bad");
 
-            ElevationQuarterM = new short[NumDatums];
-            for(int i = 0; i < NumDatums; i++)
+            for (int i = 0; i < NumDatums; i++)
                 ElevationQuarterM[i] = UnknownValue;
 
             NumElevationsStored = 0;
             MaxElevationQuarterM = UnknownValue;
             MinElevationQuarterM = UnknownValue;
 
-            Source = "";
             ElevationAccuracyM = UnknownValue;
+        }
+
+
+        public GroundGrid(bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
+        {
+            IsDem = isDem;
+            Source = "";
+
+            Assert(minCountryLocnM != null, "GroundGrid: minCountryLocnM missing");
+            Assert(maxCountryLocnM != null, "GroundGrid: maxCountryLocnM missing");
+
+            MinCountryNorthingM = (int)(minCountryLocnM.NorthingM - GroundBufferM);
+            MinCountryEastingM = (int)(minCountryLocnM.EastingM - GroundBufferM);
+            MaxCountryNorthingM = (int)(maxCountryLocnM.NorthingM + GroundBufferM);
+            MaxCountryEastingM = (int)(maxCountryLocnM.EastingM + GroundBufferM);
+
+            ElevationQuarterM = new short[NumDatums];
+
+            Initialise();
+        }
+
+
+        public GroundGrid(bool isDem, List<string> settings, int offset)
+        {
+            IsDem = isDem;
+            Source = "";
+
+            Assert(settings != null, "GroundGrid: settings missing");
+
+            MinCountryEastingM = ConfigBase.StringToInt(settings[offset + 1]);
+            MinCountryNorthingM = ConfigBase.StringToInt(settings[offset + 2]);
+            MaxCountryEastingM = ConfigBase.StringToInt(settings[offset + 3]);
+            MaxCountryNorthingM = ConfigBase.StringToInt(settings[offset + 4]);
+
+            ElevationQuarterM = new short[NumDatums];
+
+            Initialise();
+            LoadSettings(settings, offset);
         }
 
 
@@ -145,7 +185,7 @@ namespace SkyCombGround.GroundSpace
                 (MaxCountryEastingM - MinCountryEastingM + 1) +
                 ((int)(droneLocnM.EastingM) + GroundBufferM);
 
-            AssertGoodIndex("DroneLocnToGridIndex", answer );
+            AssertGoodIndex("DroneLocnToGridIndex", answer);
 
             return answer;
         }
@@ -174,8 +214,8 @@ namespace SkyCombGround.GroundSpace
         // Return the minimum & maximum ground elevations (excluding UnknownValue)
         public (float minElevationM, float maxElevationM) GetMinMaxElevationM()
         {
-            return (GridElevationQuarterMToM( MinElevationQuarterM ),
-                    GridElevationQuarterMToM( MaxElevationQuarterM ));
+            return (GridElevationQuarterMToM(MinElevationQuarterM),
+                    GridElevationQuarterMToM(MaxElevationQuarterM));
         }
 
 
@@ -185,7 +225,7 @@ namespace SkyCombGround.GroundSpace
         public void SetGapsToMinimum()
         {
             for (int i = 0; i < NumDatums; i++)
-                if( ElevationQuarterM[i] == UnknownValue )
+                if (ElevationQuarterM[i] == UnknownValue)
                     ElevationQuarterM[i] = MinElevationQuarterM;
         }
 
@@ -201,10 +241,10 @@ namespace SkyCombGround.GroundSpace
                 return GridElevationQuarterMToM(ElevationQuarterM[gridIndex]);
 
             // Because of GroundBufferM, the drone is not near the edge of the grid.
-            if (ElevationQuarterM[gridIndex+1] != UnknownValue)
-                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex+1]);
-            if (ElevationQuarterM[gridIndex-1] != UnknownValue)
-                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex-1]);
+            if (ElevationQuarterM[gridIndex + 1] != UnknownValue)
+                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex + 1]);
+            if (ElevationQuarterM[gridIndex - 1] != UnknownValue)
+                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex - 1]);
 
             return UnknownValue;
         }
@@ -251,7 +291,7 @@ namespace SkyCombGround.GroundSpace
         {
             int gridIndex = CountryLocnToGridIndex(countryLocnM);
 
-            AddDatum(gridIndex, elevationM);    
+            AddDatum(gridIndex, elevationM);
         }
 
 
@@ -259,138 +299,172 @@ namespace SkyCombGround.GroundSpace
         public void AddSettingDatum(int row, int col, float elevationM)
         {
             int gridIndex =
-                 (row-1) *
+                 (row - 1) *
                  (MaxCountryEastingM - MinCountryEastingM + 1) +
-                 (col-1);
+                 (col - 1);
 
             AssertGoodIndex("AddSettingDatum", gridIndex);
 
             AddDatum(gridIndex, elevationM);
         }
-    }
 
 
-    /*
-    // Class to calculate the portion of Ground Grid that was "seen" by the drone's video during flight.
-    public class GroundSeen : Constants
-    {
-        private GroundGrid Grid;
-
-        private int MinNorthingM = UnknownValue;
-        private int MinEastingM = UnknownValue;
-        private int MaxNorthingM = UnknownValue;
-        private int MaxEastingM = UnknownValue;
-
-        public int NorthingRangeM { get { return MaxNorthingM - MinNorthingM + 1; } }
-        public int EastingRangeM { get { return MaxEastingM - MinEastingM + 1; } }
-
-        // We use a 1 meter grid for the area seen calculations
-        private int IndexSize { get { return NorthingRangeM * EastingRangeM; } }
-
-        private bool[]? SeenGrid = null;
-
-
-        public GroundSeen(GroundGrid grid)
+        public void GetSettings(string prefix, ref DataPairList settings)
         {
-            Grid = grid;
-            Assert(Grid != null, "GroundSeen: Missing GroundGrid");
-
-            if (Grid.MinLocationM != null)
-            {
-                MinNorthingM = (int)Math.Floor(Grid.MinLocationM.NorthingM);
-                MinEastingM = (int)Math.Floor(Grid.MinLocationM.EastingM);
-            }
-            if (Grid.maxCountryLocnM != null)
-            {
-                MaxNorthingM = (int)Math.Floor(Grid.maxCountryLocnM.NorthingM);
-                MaxEastingM = (int)Math.Floor(Grid.maxCountryLocnM.EastingM);
-            }
-
-            // Create a grid of booleans to indicate if a grid point has been seen
-            SeenGrid = new bool[IndexSize];
-            for (int n = 0; n < IndexSize; n++)
-                SeenGrid[n] = false;
+            settings.Add(prefix + " Source", Source);
+            settings.Add(prefix + " Min Country Easting M", MinCountryEastingM);
+            settings.Add(prefix + " Min Country Northing M", MinCountryNorthingM);
+            settings.Add(prefix + " Max Country Easting M", MaxCountryEastingM);
+            settings.Add(prefix + " Max Country Northing M", MaxCountryNorthingM);
+            settings.Add(prefix + " Elevation Accuracy M", ElevationAccuracyM, 1);
+            settings.Add(prefix + " Max Elevation Quarter M", MaxElevationQuarterM);
+            settings.Add(prefix + " Min Elevation Quarter M", MinElevationQuarterM);
+            settings.Add(prefix + " Num Elevations Stored", NumElevationsStored);
+            settings.Add(prefix + " # Rows", NumRows);
+            settings.Add(prefix + " # Cols", NumCols);
+            settings.Add(prefix + " # Datums", NumDatums);
         }
 
 
-        // Convert from Northing/Easting to a 1D index
-        private int GetIndex(RelativeLocation theLocation)
+        public void LoadSettings(List<string> settings, int offset)
         {
-            var theNorth = (int)Math.Floor(theLocation.NorthingM);
-            var theEast = (int)Math.Floor(theLocation.EastingM);
-
-            if ((theNorth < MinNorthingM) ||
-                (theNorth >= MaxNorthingM) ||
-                (theEast < MinEastingM) ||
-                (theEast >= MaxEastingM))
-                return UnknownValue;
-
-            int index =
-                (theNorth - MinNorthingM) * EastingRangeM +
-                (theEast - MinEastingM);
-
-            if ((index < 0) || (index >= IndexSize))
-                return UnknownValue;
-
-            return index;
+            Source = settings[offset];
+            // minEastingM = ConfigBase.StringToInt(settings[offset + 1]);
+            // minNorthingM = ConfigBase.StringToInt(settings[offset + 2]);
+            // maxEastingM = ConfigBase.StringToInt(settings[offset + 3]);
+            // maxNorthingM = ConfigBase.StringToInt(settings[offset + 4]);
+            ElevationAccuracyM = ConfigBase.StringToFloat(settings[offset + 5]);
+            MaxElevationQuarterM = (short)ConfigBase.StringToInt(settings[offset + 6]);
+            MinElevationQuarterM = (short)ConfigBase.StringToInt(settings[offset + 7]);
+            NumElevationsStored = ConfigBase.StringToInt(settings[offset + 8]);
+            // NumRows = ConfigBase.StringToInt(settings[offset + 9]);
+            // NumCols = ConfigBase.StringToInt(settings[offset + 10]);
+            // NumDatums = ConfigBase.StringToInt(settings[offset + 11]);
         }
 
 
-        // Set point to seen
-        private void SeenPoint(RelativeLocation location)
+        /*
+        // Class to calculate the portion of Ground Grid that was "seen" by the drone's video during flight.
+        public class GroundSeen : Constants
         {
-            var index = GetIndex(location);
-            if (index != UnknownValue)
-                SeenGrid[index] = true;
-        }
+            private GroundGrid Grid;
+
+            private int MinNorthingM = UnknownValue;
+            private int MinEastingM = UnknownValue;
+            private int MaxNorthingM = UnknownValue;
+            private int MaxEastingM = UnknownValue;
+
+            public int NorthingRangeM { get { return MaxNorthingM - MinNorthingM + 1; } }
+            public int EastingRangeM { get { return MaxEastingM - MinEastingM + 1; } }
+
+            // We use a 1 meter grid for the area seen calculations
+            private int IndexSize { get { return NorthingRangeM * EastingRangeM; } }
+
+            private bool[]? SeenGrid = null;
 
 
-        // Set line to seen
-        private void SeenLine(RelativeLocation fromLocation, RelativeLocation toLocation)
-        {
-            var distance = (float)RelativeLocation.DistanceM(fromLocation, toLocation);
-            if (distance > 3)
+            public GroundSeen(GroundGrid grid)
             {
-                var translationStep = new RelativeLocation(
-                    (toLocation.NorthingM - fromLocation.NorthingM) / distance,
-                    (toLocation.EastingM - fromLocation.EastingM) / distance);
-                for (int edgeStep = 1; edgeStep < distance; edgeStep++)
+                Grid = grid;
+                Assert(Grid != null, "GroundSeen: Missing GroundGrid");
+
+                if (Grid.MinLocationM != null)
                 {
-                    var locn = new RelativeLocation(
-                        fromLocation.NorthingM + translationStep.NorthingM * edgeStep,
-                        fromLocation.EastingM + translationStep.EastingM * edgeStep);
-                    SeenPoint(locn);
+                    MinNorthingM = (int)Math.Floor(Grid.MinLocationM.NorthingM);
+                    MinEastingM = (int)Math.Floor(Grid.MinLocationM.EastingM);
+                }
+                if (Grid.maxCountryLocnM != null)
+                {
+                    MaxNorthingM = (int)Math.Floor(Grid.maxCountryLocnM.NorthingM);
+                    MaxEastingM = (int)Math.Floor(Grid.maxCountryLocnM.EastingM);
+                }
+
+                // Create a grid of booleans to indicate if a grid point has been seen
+                SeenGrid = new bool[IndexSize];
+                for (int n = 0; n < IndexSize; n++)
+                    SeenGrid[n] = false;
+            }
+
+
+            // Convert from Northing/Easting to a 1D index
+            private int GetIndex(RelativeLocation theLocation)
+            {
+                var theNorth = (int)Math.Floor(theLocation.NorthingM);
+                var theEast = (int)Math.Floor(theLocation.EastingM);
+
+                if ((theNorth < MinNorthingM) ||
+                    (theNorth >= MaxNorthingM) ||
+                    (theEast < MinEastingM) ||
+                    (theEast >= MaxEastingM))
+                    return UnknownValue;
+
+                int index =
+                    (theNorth - MinNorthingM) * EastingRangeM +
+                    (theEast - MinEastingM);
+
+                if ((index < 0) || (index >= IndexSize))
+                    return UnknownValue;
+
+                return index;
+            }
+
+
+            // Set point to seen
+            private void SeenPoint(RelativeLocation location)
+            {
+                var index = GetIndex(location);
+                if (index != UnknownValue)
+                    SeenGrid[index] = true;
+            }
+
+
+            // Set line to seen
+            private void SeenLine(RelativeLocation fromLocation, RelativeLocation toLocation)
+            {
+                var distance = (float)RelativeLocation.DistanceM(fromLocation, toLocation);
+                if (distance > 3)
+                {
+                    var translationStep = new RelativeLocation(
+                        (toLocation.NorthingM - fromLocation.NorthingM) / distance,
+                        (toLocation.EastingM - fromLocation.EastingM) / distance);
+                    for (int edgeStep = 1; edgeStep < distance; edgeStep++)
+                    {
+                        var locn = new RelativeLocation(
+                            fromLocation.NorthingM + translationStep.NorthingM * edgeStep,
+                            fromLocation.EastingM + translationStep.EastingM * edgeStep);
+                        SeenPoint(locn);
+                    }
+                }
+            }
+
+
+            // Given the (rotated) rectangle defined by the 4 corners, set the grid area as seen.
+            // Assuming we are painting a sequence of flightsteps, painting the edges and diagonals is sufficient.
+            public void SetSeen(RelativeLocation topLeftLocn, RelativeLocation topRightLocn, RelativeLocation bottomRightLocn, RelativeLocation bottomLeftLocn)
+            {
+                // Paint edges
+                SeenLine(bottomLeftLocn, bottomRightLocn);
+                SeenLine(topLeftLocn, topRightLocn);
+                SeenLine(bottomLeftLocn, topLeftLocn);
+                SeenLine(bottomRightLocn, topRightLocn);
+
+                // Paint diagonals
+                SeenLine(bottomLeftLocn, topRightLocn);
+                SeenLine(topLeftLocn, bottomRightLocn);
+            }
+
+
+            // Update all GroundDatum Seen values
+            public void FinaliseSeen()
+            {
+                foreach (var datum in Grid.Datums)
+                {
+                    var index = GetIndex(datum.FlightLocnM);
+                    if (index != UnknownValue)
+                        datum.Seen = SeenGrid[index];
                 }
             }
         }
-
-
-        // Given the (rotated) rectangle defined by the 4 corners, set the grid area as seen.
-        // Assuming we are painting a sequence of flightsteps, painting the edges and diagonals is sufficient.
-        public void SetSeen(RelativeLocation topLeftLocn, RelativeLocation topRightLocn, RelativeLocation bottomRightLocn, RelativeLocation bottomLeftLocn)
-        {
-            // Paint edges
-            SeenLine(bottomLeftLocn, bottomRightLocn);
-            SeenLine(topLeftLocn, topRightLocn);
-            SeenLine(bottomLeftLocn, topLeftLocn);
-            SeenLine(bottomRightLocn, topRightLocn);
-
-            // Paint diagonals
-            SeenLine(bottomLeftLocn, topRightLocn);
-            SeenLine(topLeftLocn, bottomRightLocn);
-        }
-
-
-        // Update all GroundDatum Seen values
-        public void FinaliseSeen()
-        {
-            foreach (var datum in Grid.Datums)
-            {
-                var index = GetIndex(datum.FlightLocnM);
-                if (index != UnknownValue)
-                    datum.Seen = SeenGrid[index];
-            }
-        }
+        */
     }
-    */
 }

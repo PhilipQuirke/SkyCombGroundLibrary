@@ -2,7 +2,6 @@
 using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundSpace;
 using System.Drawing;
-using System.Security.Cryptography;
 
 
 namespace SkyCombGround.PersistModel
@@ -55,6 +54,7 @@ namespace SkyCombGround.PersistModel
             string chartName3D, string chartTitle3D, 
             Color lowColor, Color highColor, int rowOffset)
         {
+/* Come back to this later
             try
             {
                 if ((dataStore == null) || (grid == null) || (grid.NumDatums == 0))
@@ -111,6 +111,7 @@ namespace SkyCombGround.PersistModel
             {
                 throw ThrowException("GroundSave.SavePivot", ex);
             }
+*/
         }
 
 
@@ -148,9 +149,6 @@ namespace SkyCombGround.PersistModel
                     GroundColors.SurfaceLowColor, GroundColors.SurfaceHighColor, 20);
 
                 dataStore.SetLastUpdateDateTime(GroundTabName);
-
-                // PQR if(newTab)
-                // PQR     SavePivots(dataStore);
             }
         }
     }
