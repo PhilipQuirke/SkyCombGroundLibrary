@@ -129,7 +129,7 @@ namespace SkyCombGround.PersistModel
             {
                 dataStore.SetTitles("Ground");
                 dataStore.SetTitleAndDataListColumn(GroundInputTitle, Chapter1TitleRow, 1, groundData.GetSettings());
-                dataStore.SetColumnWidth(LhsColOffset, 25);
+                dataStore.SetColumnWidth(LhsColOffset, 30);
                 dataStore.SetColumnWidth(LhsColOffset + LabelToValueCellOffset, 25);
 
                 SaveGrid(dataStore, groundData.DemGrid, DemTabName);
