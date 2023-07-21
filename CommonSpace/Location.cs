@@ -125,7 +125,7 @@ namespace SkyCombGround.CommonSpace
 
 
         // Return copy of this vector translated by the specified distance
-        public RelativeLocation Translate(RelativeLocation distance)
+        public RelativeLocation Translate(RelativeLocation? distance)
         {
             if (distance == null)
                 return this.Clone();
@@ -144,6 +144,7 @@ namespace SkyCombGround.CommonSpace
                 -this.EastingM);
         }
 
+
         public RelativeLocation Clone()
         {
             return new RelativeLocation(this);
@@ -151,7 +152,7 @@ namespace SkyCombGround.CommonSpace
 
 
         // Distance from location1 to location2 in meters.
-        public static double DistanceM(RelativeLocation location1, RelativeLocation location2)
+        public static double DistanceM(RelativeLocation? location1, RelativeLocation? location2)
         {
             if (location1 == null || location2 == null)
                 return 0;
@@ -166,7 +167,7 @@ namespace SkyCombGround.CommonSpace
         // Distance from Latitude/Longitude to Latitude/Longitude in meters.
         // Converts from global LOCATION coordinate system Latitude / Longitude 
         // to a local RELATIVE-DISTANCE coordinate system Easting (aka X axis) / Northing (aka Y axis) 
-        public static RelativeLocation DistanceM(GlobalLocation location1, GlobalLocation location2)
+        public static RelativeLocation DistanceM(GlobalLocation? location1, GlobalLocation? location2)
         {
             if (location1 == null || location2 == null)
                 return new RelativeLocation();
@@ -189,7 +190,7 @@ namespace SkyCombGround.CommonSpace
         }
 
 
-        public static RelativeLocation TravelM(RelativeLocation fromLocation, RelativeLocation toLocation)
+        public static RelativeLocation TravelM(RelativeLocation? fromLocation, RelativeLocation? toLocation)
         {
             RelativeLocation answer = new();
 
