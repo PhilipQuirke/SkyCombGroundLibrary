@@ -36,7 +36,7 @@ namespace SkyCombGround.GroundSpace
         public short MaxElevationQuarterM { get; set; }
         public short MinElevationQuarterM { get; set; }
 
-        // The Northing/Easting coverage of the datums (including BufferM)
+        // The Northing/Easting coverage of the datums (including BufferM on each side)
         // in the local coordinate system. (Not drone zero-based coordinates.)
         public int MaxCountryNorthingM { get; } // e.g. 5786068
         public int MinCountryNorthingM { get; } // e.g. 5786000
@@ -93,8 +93,8 @@ namespace SkyCombGround.GroundSpace
             return new RectangleF(
                 (float)MinCountryEastingM,
                 (float)MinCountryNorthingM,
-                (float)(MaxCountryEastingM - MinCountryEastingM + 1),
-                (float)(MaxCountryNorthingM - MinCountryNorthingM + 1));
+                NumCols,
+                NumRows);
         }
 
 
@@ -178,16 +178,18 @@ namespace SkyCombGround.GroundSpace
 
 
         // Convert from drone location (e.g. [14,3] ) to a grid index. 
-        private int DroneLocnToGridIndex(RelativeLocation droneLocnM)
+        private int DroneLocnToGridIndex(RelativeLocation droneLocnM, bool strict = true)
         {
-            int answer =
-                ((int)(droneLocnM.NorthingM) + GroundBufferM) *
-                (MaxCountryEastingM - MinCountryEastingM + 1) +
+            int index =
+                ((int)(droneLocnM.NorthingM) + GroundBufferM) * NumCols +
                 ((int)(droneLocnM.EastingM) + GroundBufferM);
 
-            AssertGoodIndex("DroneLocnToGridIndex", answer);
+            if (strict)
+                AssertGoodIndex("DroneLocnToGridIndex", index);
+            else if ((index < 0) || (index > NumDatums))
+                index = UnknownValue;
 
-            return answer;
+            return index;
         }
 
 
@@ -195,8 +197,7 @@ namespace SkyCombGround.GroundSpace
         private int CountryLocnToGridIndex(RelativeLocation countryLocnM)
         {
             int answer =
-                ((int)(countryLocnM.NorthingM) - MinCountryNorthingM) *
-                (MaxCountryEastingM - MinCountryEastingM + 1) +
+                ((int)(countryLocnM.NorthingM) - MinCountryNorthingM) * NumCols +
                 ((int)(countryLocnM.EastingM) - MinCountryEastingM);
 
             AssertGoodIndex("CountryLocnToGridIndex", answer);
@@ -235,16 +236,15 @@ namespace SkyCombGround.GroundSpace
         // distance from queryLocn to each of surrounding points is not important. 
         public float GetElevationByDroneLocn(RelativeLocation droneLocnM)
         {
-            int gridIndex = DroneLocnToGridIndex(droneLocnM);
+            // Because of GroundBufferM, the drone should not be near the edge of the grid.
+            // But objects in the area seen by the camera may be near or past the edge of the grid.
+            // And a lack of DEM & DSM Lidar data may mean that the grid is not as big as we want.
+            int gridIndex = DroneLocnToGridIndex(droneLocnM, false);
+            if(gridIndex == UnknownValue)
+                return UnknownValue;
 
             if (ElevationQuarterM[gridIndex] != UnknownValue)
                 return GridElevationQuarterMToM(ElevationQuarterM[gridIndex]);
-
-            // Because of GroundBufferM, the drone is not near the edge of the grid.
-            if (ElevationQuarterM[gridIndex + 1] != UnknownValue)
-                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex + 1]);
-            if (ElevationQuarterM[gridIndex - 1] != UnknownValue)
-                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex - 1]);
 
             return UnknownValue;
         }
@@ -252,12 +252,9 @@ namespace SkyCombGround.GroundSpace
 
         // Used with Loading from DataStore, to set the elevation of a grid point.
         // Row and Col are one-based
-        public float GetElevationMByGridIndex(int row, int col)
+        public float GetElevationMByGridIndex(int oneRow, int oneCol)
         {
-            int gridIndex =
-                (row - 1) *
-                (MaxCountryEastingM - MinCountryEastingM + 1) +
-                (col - 1);
+            int gridIndex = (oneRow - 1) * NumCols + (oneCol - 1);
 
             AssertGoodIndex("GetElevationByGridIndex", gridIndex);
 
@@ -296,12 +293,9 @@ namespace SkyCombGround.GroundSpace
 
 
         // Add a datum from spreadsheet. Row and col are 1 based
-        public void AddSettingDatum(int row, int col, float elevationM)
+        public void AddSettingDatum(int oneRow, int oneCol, float elevationM)
         {
-            int gridIndex =
-                 (row - 1) *
-                 (MaxCountryEastingM - MinCountryEastingM + 1) +
-                 (col - 1);
+            int gridIndex = (oneRow - 1) * NumCols + (oneCol - 1);
 
             AssertGoodIndex("AddSettingDatum", gridIndex);
 
