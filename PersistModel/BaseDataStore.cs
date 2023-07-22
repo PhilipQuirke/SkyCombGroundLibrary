@@ -8,7 +8,7 @@ using System.Drawing;
 namespace SkyCombGround.PersistModel
 {
 
-    public class GenericDataStore : ConfigBase
+    public class BaseDataStore : ConfigBase
     {
         // The name of the spreadsheet created as the DataStore
         public string DataStoreFileName { get; set; } = "";
@@ -21,7 +21,7 @@ namespace SkyCombGround.PersistModel
 
 
         // Open an existing DataStore 
-        public GenericDataStore(ExcelPackage store, string fileName)
+        public BaseDataStore(ExcelPackage store, string fileName)
         {
             DataStoreFileName = fileName;
             Store = store;
@@ -30,7 +30,7 @@ namespace SkyCombGround.PersistModel
 
 
         // Create a DataStore on disk & store the Files settings.
-        public GenericDataStore(string fileName)
+        public BaseDataStore(string fileName)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 

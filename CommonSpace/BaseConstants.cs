@@ -34,6 +34,7 @@ namespace SkyCombGround.CommonSpace
 
 
         public const string DateFormat = "yyyy-MM-dd HH:mm:ss.fff";
+        public const string ShortDateFormat = "yyyy-MM-dd HH:mm";
         public const string SpanFormat = "c";  // "HH:mm:ss.fff";
 
         public const float DegreesToRadians = (float)(Math.PI / 180.0);

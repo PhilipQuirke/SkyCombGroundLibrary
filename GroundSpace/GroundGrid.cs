@@ -10,11 +10,6 @@ namespace SkyCombGround.GroundSpace
         // The DJI_0094 test video has a MaxInputWidthM of 42 meters, so we add 20 meters to all sides.
         public const int GroundBufferM = 20;
 
-        // The 27.5 minute video DJI_20230630201405_0001_T.mp4
-        // covers 840 m x 974 m = 817,560 m2.
-        // Plus buffer gives so 880 m x 1014 m = 892,320 m2.
-        // That how many datums we need to store.
-        const int MaxDatums = 1000000;
 
         // The DEM & DSM data is available in a grid of 1 m x 1 m cells,
         // with heights in 0.25m increments.
@@ -67,7 +62,12 @@ namespace SkyCombGround.GroundSpace
                 return MaxCountryEastingM - MinCountryEastingM + 1;
             }
         }
+
+
         // Number of datums required to cover the ground area
+        // The 27.5 minute video DJI_20230630201405_0001_T.mp4
+        // covers 840 m x 974 m = 817,560 m2.
+        // Plus buffer gives so 880 m x 1014 m = 892,320 m2. So need to store 892K elevations
         public int NumDatums
         {
             get
@@ -78,11 +78,11 @@ namespace SkyCombGround.GroundSpace
 
 
         // Percentage of datums we found a valid elevation for
-        public float PercentDatumElevationsAvailable
+        public int PercentDatumElevationsAvailable
         {
             get
             {
-                return 100.0f * NumElevationsStored / NumDatums;
+                return (int) Math.Round(100.0f * NumElevationsStored / NumDatums);
             }
         }
 

@@ -126,7 +126,7 @@ namespace SkyCombGround.GroundSpace
 
 
     // Persist the list of book names in a datastore SkyCombIndex.xlsx
-    public class BookDataStore : GenericDataStore
+    public class BookDataStore : BaseDataStore
     {
         public BookDataStore(string fullfileName) : base(fullfileName)
         {

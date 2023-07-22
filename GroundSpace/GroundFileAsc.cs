@@ -68,7 +68,7 @@ namespace SkyCombGround.GroundSpace
 
 
                                 // Open the associated ASC to load the xllcorner & yllcorner values.
-                                var ascFileName = GenericDataStore.SwapFileNameExtension(prjFileName, ".asc");
+                                var ascFileName = BaseDataStore.SwapFileNameExtension(prjFileName, ".asc");
 
                                 if (System.IO.File.Exists(ascFileName))
                                 {
@@ -149,7 +149,7 @@ namespace SkyCombGround.GroundSpace
             {
                 // Open the associated ASC to load the xllcorner & yllcorner values.
                 var fullAscFileName = GroundDirectory + "\\" +
-                    book.FolderName + "\\" + GenericDataStore.SwapFileNameExtension(book.FileName, ".asc");
+                    book.FolderName + "\\" + BaseDataStore.SwapFileNameExtension(book.FileName, ".asc");
                 if (File.Exists(fullAscFileName))
                 {
                     StreamReader ascFile = new(fullAscFileName);

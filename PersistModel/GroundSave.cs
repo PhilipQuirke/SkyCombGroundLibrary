@@ -11,7 +11,7 @@ namespace SkyCombGround.PersistModel
     {
         // Save the ground/surface elevation data
         public static void SaveGrid(
-            GenericDataStore dataStore,
+            BaseDataStore dataStore,
             GroundGrid grid,
             string tabName)
         {
@@ -42,7 +42,7 @@ namespace SkyCombGround.PersistModel
 
         // Save the ground/surface elevation surface chart
         public static void SaveSurface(
-            GenericDataStore dataStore,
+            BaseDataStore dataStore,
             GroundGrid grid,
             string tabName,
             string chartName3D, string chartTitle3D, 
@@ -110,7 +110,7 @@ namespace SkyCombGround.PersistModel
 
 
         // Save ground data (if any) to the DataStore 
-        public static void Save(GenericDataStore dataStore, GroundData groundData, bool full)
+        public static void Save(BaseDataStore dataStore, GroundData groundData, bool full)
         {
             if ((dataStore == null) || (groundData == null))
                 return;
