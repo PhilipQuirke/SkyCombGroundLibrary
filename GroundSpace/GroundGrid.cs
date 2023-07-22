@@ -208,6 +208,9 @@ namespace SkyCombGround.GroundSpace
 
         private float GridElevationQuarterMToM(int quarterMs)
         {
+            if(quarterMs == UnknownValue)
+                return UnknownValue;    
+
             return 1.0f * quarterMs * VerticalUnitM;
         }
 
@@ -240,7 +243,7 @@ namespace SkyCombGround.GroundSpace
             // But objects in the area seen by the camera may be near or past the edge of the grid.
             // And a lack of DEM & DSM Lidar data may mean that the grid is not as big as we want.
             int gridIndex = DroneLocnToGridIndex(droneLocnM, false);
-            if(gridIndex == UnknownValue)
+            if (gridIndex == UnknownValue)
                 return UnknownValue;
 
             if (ElevationQuarterM[gridIndex] != UnknownValue)
@@ -251,7 +254,7 @@ namespace SkyCombGround.GroundSpace
 
 
         // Used with Loading from DataStore, to set the elevation of a grid point.
-        // Row and Col are one-based
+        // Row and Col are one-based. Can return UnknownValue.
         public float GetElevationMByGridIndex(int oneRow, int oneCol)
         {
             int gridIndex = (oneRow - 1) * NumCols + (oneCol - 1);
@@ -264,6 +267,13 @@ namespace SkyCombGround.GroundSpace
 
         private void AddDatum(int gridIndex, float elevationM)
         {
+            if (elevationM == UnknownValue)
+            { 
+                ElevationQuarterM[gridIndex] = UnknownValue;
+                // Do not change NumElevationsStored or Max/MinElevationQuarterM
+                return;
+            }
+
             short quarterMs = (short)(elevationM / VerticalUnitM);
 
             ElevationQuarterM[gridIndex] = quarterMs;
@@ -335,7 +345,7 @@ namespace SkyCombGround.GroundSpace
             // NumCols = ConfigBase.StringToInt(settings[offset + 10]);
             // NumDatums = ConfigBase.StringToInt(settings[offset + 11]);
         }
-
+    }
 
         /*
         // Class to calculate the portion of Ground Grid that was "seen" by the drone's video during flight.
@@ -460,5 +470,4 @@ namespace SkyCombGround.GroundSpace
             }
         }
         */
-    }
 }

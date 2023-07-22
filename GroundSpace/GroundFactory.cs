@@ -116,7 +116,7 @@ namespace SkyCombGround.GroundSpace
                 DemGrid.GetSettings("Dem", ref answer);
 
             if (DsmGrid != null)
-                DsmGrid.GetSettings("Dem", ref answer);
+                DsmGrid.GetSettings("Dsm", ref answer);
 
             return answer;
         }

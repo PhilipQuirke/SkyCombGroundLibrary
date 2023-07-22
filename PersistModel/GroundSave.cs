@@ -30,14 +30,8 @@ namespace SkyCombGround.PersistModel
                     return;
 
                 for (row = 1; row < grid.NumRows + 1; row++)
-                {
                     for (col = 1; col < grid.NumCols + 1; col++)
-                    {
-                        var cell = ws.Cells[row, col];
-                        cell.Value = grid.GetElevationMByGridIndex(row, col);
-                        //cell.Style.Numberformat.Format = (ndp == 1 ? "0.0" : ndp == 2 ? "0.00" : ndp == 3 ? "0.000" : "0.0000000");
-                    }
-                }
+                        ws.Cells[row, col].Value = grid.GetElevationMByGridIndex(row, col);
             }
             catch (Exception ex)
             {
