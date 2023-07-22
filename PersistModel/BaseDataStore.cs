@@ -155,6 +155,14 @@ namespace SkyCombGround.PersistModel
         }
 
 
+        public void SetInternalHyperLink(ExcelRange cells, string destinationTabName)
+        {
+            cells.Hyperlink = new Uri("#'" + destinationTabName + "'!A1", UriKind.Relative);
+            cells.Style.Font.UnderLine = true;
+            cells.Style.Font.Color.SetColor(Color.Blue);
+        }
+
+
         // Convert a one-based index to a column letter
         public static char ColumnIndexToChar(int index)
         {
