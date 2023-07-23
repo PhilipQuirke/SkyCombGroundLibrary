@@ -7,7 +7,6 @@ using System.Drawing;
 
 namespace SkyCombGround.PersistModel
 {
-
     public class BaseDataStore : ConfigBase
     {
         // The name of the spreadsheet created as the DataStore
@@ -158,6 +157,14 @@ namespace SkyCombGround.PersistModel
         public void SetInternalHyperLink(ExcelRange cells, string destinationTabName)
         {
             cells.Hyperlink = new Uri("#'" + destinationTabName + "'!A1", UriKind.Relative);
+            cells.Style.Font.UnderLine = true;
+            cells.Style.Font.Color.SetColor(Color.Blue);
+        }
+
+
+        public void SetExternalHyperLink(ExcelRange cells, string destinationURL)
+        {
+            cells.Hyperlink = new Uri(destinationURL, UriKind.Absolute);
             cells.Style.Font.UnderLine = true;
             cells.Style.Font.Color.SetColor(Color.Blue);
         }
