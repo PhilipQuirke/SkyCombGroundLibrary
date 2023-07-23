@@ -77,6 +77,7 @@ namespace SkyCombGround.CommonSpace
         public const string CategoryTabName = "Cat1";
         public const string ObjectCategoryTabName = "Cat2";
         public const string PopulationTabName = "Popln";
+        public const string HelpTabName = "Help";
 
 
         // Chart outline sizes
