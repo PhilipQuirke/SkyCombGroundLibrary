@@ -526,6 +526,7 @@ namespace SkyCombGround.PersistModel
                     { GroundTabName, "Ground and Surface summary and graphs" },
                     { DemTabName, "Ground elevation data" },
                     { DsmTabName, "Surface (aka tree-top) elevation data" },
+                    { SeenTabName, "Portion of ground 'seen' by drone" },
                     { "", "" },
                     { DroneTabName, "Summary drone and elevation data" },
                     { Sections1TabName, "Raw drone flight log data table" },

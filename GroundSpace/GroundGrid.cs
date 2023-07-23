@@ -23,7 +23,7 @@ namespace SkyCombGround.GroundSpace
         // In C#, short ints (signed 16-bit integer) can store values from -32,768 to 32,767
         // So a short int can store the DEM/DSM height values / VerticalUnitM.
         // We store the elevations in a Northing by Easting (2D array) in VerticalUnitM values
-        private short[] ElevationQuarterM { get; }
+        protected short[] ElevationQuarterM { get; }
         // Number of elevations values stored into the elevation array
         public int NumElevationsStored { get; set; }
 
@@ -82,7 +82,7 @@ namespace SkyCombGround.GroundSpace
         {
             get
             {
-                return (int) Math.Round(100.0f * NumElevationsStored / NumDatums);
+                return (int)Math.Round(100.0f * NumElevationsStored / NumDatums);
             }
         }
 
@@ -178,7 +178,7 @@ namespace SkyCombGround.GroundSpace
 
 
         // Convert from drone location (e.g. [14,3] ) to a grid index. 
-        private int DroneLocnToGridIndex(RelativeLocation droneLocnM, bool strict = true)
+        protected int DroneLocnToGridIndex(RelativeLocation droneLocnM, bool strict = true)
         {
             int index =
                 ((int)(droneLocnM.NorthingM) + GroundBufferM) * NumCols +
@@ -208,8 +208,8 @@ namespace SkyCombGround.GroundSpace
 
         private float GridElevationQuarterMToM(int quarterMs)
         {
-            if(quarterMs == UnknownValue)
-                return UnknownValue;    
+            if (quarterMs == UnknownValue)
+                return UnknownValue;
 
             return 1.0f * quarterMs * VerticalUnitM;
         }
@@ -268,7 +268,7 @@ namespace SkyCombGround.GroundSpace
         private void AddDatum(int gridIndex, float elevationM)
         {
             if (elevationM == UnknownValue)
-            { 
+            {
                 ElevationQuarterM[gridIndex] = UnknownValue;
                 // Do not change NumElevationsStored or Max/MinElevationQuarterM
                 return;
@@ -347,127 +347,67 @@ namespace SkyCombGround.GroundSpace
         }
     }
 
-        /*
-        // Class to calculate the portion of Ground Grid that was "seen" by the drone's video during flight.
-        public class GroundSeen : Constants
+
+    // Class to calculate the portion of Ground Grid that was "seen" by the drone's video during flight.
+    public class GroundSeen : GroundGrid
+    {
+        public GroundSeen(GroundGrid grid) :
+            base(false,
+                new RelativeLocation(grid.MinCountryNorthingM, grid.MinCountryEastingM),
+                new RelativeLocation(grid.MaxCountryNorthingM, grid.MaxCountryEastingM))
         {
-            private GroundGrid Grid;
-
-            private int MinNorthingM = UnknownValue;
-            private int MinEastingM = UnknownValue;
-            private int MaxNorthingM = UnknownValue;
-            private int MaxEastingM = UnknownValue;
-
-            public int NorthingRangeM { get { return MaxNorthingM - MinNorthingM + 1; } }
-            public int EastingRangeM { get { return MaxEastingM - MinEastingM + 1; } }
-
-            // We use a 1 meter grid for the area seen calculations
-            private int IndexSize { get { return NorthingRangeM * EastingRangeM; } }
-
-            private bool[]? SeenGrid = null;
+            // GroundSeen uses 0 as the "UnknownValue". 0 also means "not seen"
+            for (int i = 0; i < NumDatums; i++)
+                ElevationQuarterM[i] = 0;
+        }
 
 
-            public GroundSeen(GroundGrid grid)
+        public int M2Seen { get { return NumElevationsStored; } }
+
+
+        // Set point to seen
+        private void SeenDronePoint(RelativeLocation droneLocnM)
+        {
+            var index = DroneLocnToGridIndex(droneLocnM, false);
+
+            if (index != UnknownValue)
+                ElevationQuarterM[index] = 1;
+        }
+
+
+        // Set line to seen
+        private void SeenDroneLine(RelativeLocation fromDroneLocn, RelativeLocation toDroneLocn)
+        {
+            var distance = (float)RelativeLocation.DistanceM(fromDroneLocn, toDroneLocn);
+            if (distance > 3)
             {
-                Grid = grid;
-                Assert(Grid != null, "GroundSeen: Missing GroundGrid");
-
-                if (Grid.MinLocationM != null)
+                var translationStep = new RelativeLocation(
+                    (toDroneLocn.NorthingM - fromDroneLocn.NorthingM) / distance,
+                    (toDroneLocn.EastingM - fromDroneLocn.EastingM) / distance);
+                for (int edgeStep = 1; edgeStep < distance; edgeStep++)
                 {
-                    MinNorthingM = (int)Math.Floor(Grid.MinLocationM.NorthingM);
-                    MinEastingM = (int)Math.Floor(Grid.MinLocationM.EastingM);
-                }
-                if (Grid.maxCountryLocnM != null)
-                {
-                    MaxNorthingM = (int)Math.Floor(Grid.maxCountryLocnM.NorthingM);
-                    MaxEastingM = (int)Math.Floor(Grid.maxCountryLocnM.EastingM);
-                }
-
-                // Create a grid of booleans to indicate if a grid point has been seen
-                SeenGrid = new bool[IndexSize];
-                for (int n = 0; n < IndexSize; n++)
-                    SeenGrid[n] = false;
-            }
-
-
-            // Convert from Northing/Easting to a 1D index
-            private int GetIndex(RelativeLocation theLocation)
-            {
-                var theNorth = (int)Math.Floor(theLocation.NorthingM);
-                var theEast = (int)Math.Floor(theLocation.EastingM);
-
-                if ((theNorth < MinNorthingM) ||
-                    (theNorth >= MaxNorthingM) ||
-                    (theEast < MinEastingM) ||
-                    (theEast >= MaxEastingM))
-                    return UnknownValue;
-
-                int index =
-                    (theNorth - MinNorthingM) * EastingRangeM +
-                    (theEast - MinEastingM);
-
-                if ((index < 0) || (index >= IndexSize))
-                    return UnknownValue;
-
-                return index;
-            }
-
-
-            // Set point to seen
-            private void SeenPoint(RelativeLocation location)
-            {
-                var index = GetIndex(location);
-                if (index != UnknownValue)
-                    SeenGrid[index] = true;
-            }
-
-
-            // Set line to seen
-            private void SeenLine(RelativeLocation fromLocation, RelativeLocation toLocation)
-            {
-                var distance = (float)RelativeLocation.DistanceM(fromLocation, toLocation);
-                if (distance > 3)
-                {
-                    var translationStep = new RelativeLocation(
-                        (toLocation.NorthingM - fromLocation.NorthingM) / distance,
-                        (toLocation.EastingM - fromLocation.EastingM) / distance);
-                    for (int edgeStep = 1; edgeStep < distance; edgeStep++)
-                    {
-                        var locn = new RelativeLocation(
-                            fromLocation.NorthingM + translationStep.NorthingM * edgeStep,
-                            fromLocation.EastingM + translationStep.EastingM * edgeStep);
-                        SeenPoint(locn);
-                    }
-                }
-            }
-
-
-            // Given the (rotated) rectangle defined by the 4 corners, set the grid area as seen.
-            // Assuming we are painting a sequence of flightsteps, painting the edges and diagonals is sufficient.
-            public void SetSeen(RelativeLocation topLeftLocn, RelativeLocation topRightLocn, RelativeLocation bottomRightLocn, RelativeLocation bottomLeftLocn)
-            {
-                // Paint edges
-                SeenLine(bottomLeftLocn, bottomRightLocn);
-                SeenLine(topLeftLocn, topRightLocn);
-                SeenLine(bottomLeftLocn, topLeftLocn);
-                SeenLine(bottomRightLocn, topRightLocn);
-
-                // Paint diagonals
-                SeenLine(bottomLeftLocn, topRightLocn);
-                SeenLine(topLeftLocn, bottomRightLocn);
-            }
-
-
-            // Update all GroundDatum Seen values
-            public void FinaliseSeen()
-            {
-                foreach (var datum in Grid.Datums)
-                {
-                    var index = GetIndex(datum.FlightLocnM);
-                    if (index != UnknownValue)
-                        datum.Seen = SeenGrid[index];
+                    var locn = new RelativeLocation(
+                        fromDroneLocn.NorthingM + translationStep.NorthingM * edgeStep,
+                        fromDroneLocn.EastingM + translationStep.EastingM * edgeStep);
+                    SeenDronePoint(locn);
                 }
             }
         }
-        */
+
+
+        // Given the (rotated) rectangle defined by the 4 corners, set the grid area as seen.
+        // Assuming we are painting a sequence of flightsteps, painting the edges and diagonals is sufficient.
+        public void SeenDroneRect(RelativeLocation topLeftLocn, RelativeLocation topRightLocn, RelativeLocation bottomRightLocn, RelativeLocation bottomLeftLocn)
+        {
+            // Paint edges
+            SeenDroneLine(bottomLeftLocn, bottomRightLocn);
+            SeenDroneLine(topLeftLocn, topRightLocn);
+            SeenDroneLine(bottomLeftLocn, topLeftLocn);
+            SeenDroneLine(bottomRightLocn, topRightLocn);
+
+            // Paint diagonals
+            SeenDroneLine(bottomLeftLocn, topRightLocn);
+            SeenDroneLine(topLeftLocn, bottomRightLocn);
+        }
+    }
 }

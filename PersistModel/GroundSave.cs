@@ -10,7 +10,7 @@ namespace SkyCombGround.PersistModel
     public class GroundSave : BaseConstants
     {
         // Save the ground/surface elevation data
-        public static void SaveGrid(
+        public static bool SaveGrid(
             BaseDataStore dataStore,
             GroundGrid grid,
             string tabName)
@@ -20,14 +20,14 @@ namespace SkyCombGround.PersistModel
             try
             {
                 if ((dataStore == null) || (grid == null) || (grid.NumDatums == 0))
-                    return;
+                    return false;
 
                 if (dataStore.SelectWorksheet(tabName))
                     dataStore.ClearWorksheet();
 
                 (var newTab, var ws) = dataStore.SelectOrAddWorksheet(tabName);
                 if (ws == null)
-                    return;
+                    return false;
 
                 for (row = 1; row < grid.NumRows + 1; row++)
                     for (col = 1; col < grid.NumCols + 1; col++)
@@ -37,6 +37,8 @@ namespace SkyCombGround.PersistModel
             {
                 throw ThrowException("GroundSave.SaveData: Row=" + row + " Col=" + col, ex);
             }
+
+            return true;
         }
 
 
@@ -126,11 +128,14 @@ namespace SkyCombGround.PersistModel
                 dataStore.SetColumnWidth(LhsColOffset, 30);
                 dataStore.SetColumnWidth(LhsColOffset + LabelToValueCellOffset, 25);
 
-                SaveGrid(dataStore, groundData.DemGrid, DemTabName);
-                dataStore.SetLastUpdateDateTime(DemTabName);
+                if(SaveGrid(dataStore, groundData.DemGrid, DemTabName))
+                    dataStore.SetLastUpdateDateTime(DemTabName);
 
-                SaveGrid(dataStore, groundData.DsmGrid, DsmTabName);
-                dataStore.SetLastUpdateDateTime(DsmTabName);
+                if(SaveGrid(dataStore, groundData.DsmGrid, DsmTabName))
+                    dataStore.SetLastUpdateDateTime(DsmTabName);
+
+                if(SaveGrid(dataStore, groundData.SeenGrid, SeenTabName))
+                    dataStore.SetLastUpdateDateTime(SeenTabName);
 
                 dataStore.SelectWorksheet(GroundTabName);
 
