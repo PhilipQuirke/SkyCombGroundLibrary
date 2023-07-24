@@ -15,4 +15,4 @@ The folders are:
 - GroundSpace: From drone-flight-area, calculate and return the elevations (DEM & DSM) 
 - PersistModel: Save/load drone-flight-area ground data from/to the datastore (xls)
 
-In NZ, the GeoTIFFs can be obtained for free from LINZ as described in [SkyCombAnalystHelp-Groubnd](https://github.com/PhilipQuirke/SkyCombAnalystHelp/blob/main/Ground.md)
+In NZ, the GeoTIFFs can be obtained for free from LINZ as described in [SkyCombAnalystHelp-Ground](https://github.com/PhilipQuirke/SkyCombAnalystHelp/blob/main/Ground.md)
