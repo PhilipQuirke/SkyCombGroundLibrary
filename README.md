@@ -5,7 +5,7 @@ SkyComb Ground Library is a library that:
 - reads from a library of ground contour elevations (DEM & DSM) in GeoTIFF format, and 
 - generates a drone-flight-area DEM & DSM data set in local coordinates (NZTM)   
 
-This "ground data" library is used by the tools / libraries:
+This "ground data" library is incorporated into the tools / libraries:
 - [SkyComb Analyst](https://github.com/PhilipQuirke/SkyCombAnalyst/) 
 - [SkyComb Flights](https://github.com/PhilipQuirke/SkyCombFlights/)
 - [SkyComb Library](https://github.com/PhilipQuirke/SkyDroneLibrary/)
