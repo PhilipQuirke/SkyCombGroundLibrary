@@ -50,6 +50,13 @@ namespace SkyCombGround.CommonSpace
         {
             return Latitude.ToString(Format) + "," + Longitude.ToString(Format);
         }
+
+
+        public void AssertNZ()
+        {
+            if (Latitude < -47 || Latitude > -33 || Longitude < 165 || Longitude > 180)
+                throw new Exception("Location is not in New Zealand");
+        }
     }
 
 
@@ -145,7 +152,7 @@ namespace SkyCombGround.CommonSpace
         }
 
 
-        public RelativeLocation Clone()
+        public virtual RelativeLocation Clone()
         {
             return new RelativeLocation(this);
         }
@@ -164,16 +171,17 @@ namespace SkyCombGround.CommonSpace
         }
 
 
+
         // Distance from Latitude/Longitude to Latitude/Longitude in meters.
         // Converts from global LOCATION coordinate system Latitude / Longitude 
         // to a local RELATIVE-DISTANCE coordinate system Easting (aka X axis) / Northing (aka Y axis) 
-        public static RelativeLocation DistanceM(GlobalLocation? location1, GlobalLocation? location2)
+        public static DroneLocation DistanceM(GlobalLocation? location1, GlobalLocation? location2)
         {
             if (location1 == null || location2 == null)
-                return new RelativeLocation();
+                return new DroneLocation();
 
             if (location1.Latitude == location2.Latitude && location1.Longitude == location2.Longitude)
-                return new RelativeLocation();
+                return new DroneLocation();
 
             double latMidDegrees = (location1.Latitude + location2.Latitude) / 2.0;
             double latMidRadians = latMidDegrees * BaseConstants.DegreesToRadians;
@@ -186,7 +194,9 @@ namespace SkyCombGround.CommonSpace
             float northingM = (float)((location2.Latitude - location1.Latitude) * per_deg_lat);
             float eastingM = (float)((location2.Longitude - location1.Longitude) * per_deg_lon);
 
-            return new RelativeLocation(northingM, eastingM);
+            var answer = new DroneLocation(northingM, eastingM);
+            answer.AssertGood();
+            return answer;
         }
 
 
@@ -230,6 +240,86 @@ namespace SkyCombGround.CommonSpace
         static public PointF RotatePoint(PointF pointToRotate, double angleInRadians)
         {
             return RotatePoint(pointToRotate, new(0, 0), angleInRadians);
+        }
+
+    }
+
+
+    // A location in drone-specific coordinates.
+    public class DroneLocation : RelativeLocation
+    {
+        public DroneLocation(float northingM = 0, float eastingM = 0) : base(northingM, eastingM)
+        {
+        }   
+
+
+        public DroneLocation(DroneLocation location) : base(location)
+        {
+        }
+
+
+        public DroneLocation(string northingMString, string eastingMString) : base(northingMString, eastingMString)
+        {
+        }   
+
+
+        // This constructor mirrors the ToString function below.
+        public DroneLocation(string locationAsString) : base(locationAsString)
+        {
+        }
+
+
+        public override DroneLocation Clone()
+        {
+            return new DroneLocation(this);
+        }
+
+
+        // Assert that this location is in drone coordinate system & reasonable
+        public void AssertGood()
+        {
+            if (EastingM < 0 || EastingM > 99000 || NorthingM < 0 || NorthingM > 99000)
+                throw new Exception("Drone location is 99km from drone origin");
+        }
+    }
+
+
+    // A location in country-specific coordinates.
+    public class CountryLocation : RelativeLocation
+    {
+        public CountryLocation(float northingM = 0, float eastingM = 0) : base(northingM, eastingM)
+        {
+        }
+
+
+        public CountryLocation(CountryLocation location) : base(location)
+        {
+        }
+
+
+        public CountryLocation(string northingMString, string eastingMString) : base(northingMString, eastingMString)
+        {
+        }
+
+
+        // This constructor mirrors the ToString function below.
+        public CountryLocation(string locationAsString) : base(locationAsString)
+        {
+        }
+
+
+        public override CountryLocation Clone()
+        {
+            return new CountryLocation(this);
+        }
+
+
+        // Assert that this location is in country-specific coordinates.
+        // In NZ, NorthingM / EastingM should be greater than 1 million.
+        public void AssertGood()
+        {
+            if (EastingM < 100000 || EastingM > 3000000 || NorthingM < 1000000 || NorthingM > 9000000)
+                throw new Exception("Location is not in New Zealand");
         }
     }
 }
