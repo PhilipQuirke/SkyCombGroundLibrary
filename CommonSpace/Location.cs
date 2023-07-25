@@ -87,13 +87,6 @@ namespace SkyCombGround.CommonSpace
         }
 
 
-        public RelativeLocation(PointF location)
-        {
-            NorthingM = location.Y;
-            EastingM = location.X;
-        }
-
-
         public RelativeLocation(string northingMString, string eastingMString)
         {
             NorthingM = ConfigBase.StringToFloat(northingMString);
@@ -128,27 +121,6 @@ namespace SkyCombGround.CommonSpace
         public float DiagonalM()
         {
             return (float)Math.Sqrt(Math.Pow(EastingM, 2) + Math.Pow(NorthingM, 2));
-        }
-
-
-        // Return copy of this vector translated by the specified distance
-        public RelativeLocation Translate(RelativeLocation? distance)
-        {
-            if (distance == null)
-                return this.Clone();
-
-            return new RelativeLocation(
-                this.NorthingM + distance.NorthingM,
-                this.EastingM + distance.EastingM);
-        }
-
-
-        // Return negated copy of this vector
-        public RelativeLocation Negate()
-        {
-            return new RelativeLocation(
-                -this.NorthingM,
-                -this.EastingM);
         }
 
 
@@ -212,6 +184,65 @@ namespace SkyCombGround.CommonSpace
 
             return answer;
         }
+    }
+
+
+    // A location in drone-specific coordinates.
+    public class DroneLocation : RelativeLocation
+    {
+        public DroneLocation(float northingM = 0, float eastingM = 0) : base(northingM, eastingM)
+        {
+        }   
+
+
+        public DroneLocation(DroneLocation location) : base(location)
+        {
+        }
+
+
+        public DroneLocation(string northingMString, string eastingMString) : base(northingMString, eastingMString)
+        {
+        }   
+
+
+        // This constructor mirrors the ToString function below.
+        public DroneLocation(string locationAsString) : base(locationAsString)
+        {
+        }
+
+
+        public DroneLocation(PointF location)
+        {
+            NorthingM = location.Y;
+            EastingM = location.X;
+        }
+
+
+        public override DroneLocation Clone()
+        {
+            return new DroneLocation(this);
+        }
+
+
+        // Return copy of this vector translated by the specified distance
+        public DroneLocation Translate(DroneLocation? distance)
+        {
+            if (distance == null)
+                return this.Clone();
+
+            return new DroneLocation(
+                this.NorthingM + distance.NorthingM,
+                this.EastingM + distance.EastingM);
+        }
+
+
+        // Return negated copy of this vector
+        public DroneLocation Negate()
+        {
+            return new DroneLocation(
+                -this.NorthingM,
+                -this.EastingM);
+        }
 
 
         /// <summary>
@@ -240,38 +271,6 @@ namespace SkyCombGround.CommonSpace
         static public PointF RotatePoint(PointF pointToRotate, double angleInRadians)
         {
             return RotatePoint(pointToRotate, new(0, 0), angleInRadians);
-        }
-
-    }
-
-
-    // A location in drone-specific coordinates.
-    public class DroneLocation : RelativeLocation
-    {
-        public DroneLocation(float northingM = 0, float eastingM = 0) : base(northingM, eastingM)
-        {
-        }   
-
-
-        public DroneLocation(DroneLocation location) : base(location)
-        {
-        }
-
-
-        public DroneLocation(string northingMString, string eastingMString) : base(northingMString, eastingMString)
-        {
-        }   
-
-
-        // This constructor mirrors the ToString function below.
-        public DroneLocation(string locationAsString) : base(locationAsString)
-        {
-        }
-
-
-        public override DroneLocation Clone()
-        {
-            return new DroneLocation(this);
         }
 
 
