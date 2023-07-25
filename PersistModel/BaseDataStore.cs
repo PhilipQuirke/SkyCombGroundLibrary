@@ -507,21 +507,29 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        // Set the workbook properties
+        // Set the workbook properties for SkyCombAnalyst output
         public void SetWorkbookAnalystProperties()
         {
             Store.Workbook.Properties.Title = "SkyComb Analyst data store";
-            Store.Workbook.Properties.Author = "SkyComb Limited";
             Store.Workbook.Properties.Comments = "Produced by the SkyComb Analyst tool.";
+            Store.Workbook.Properties.Application = "SkyCombAnalyst.exe";
+
+            Store.Workbook.Properties.Author = "Philip Quirke";
+            Store.Workbook.Properties.Company = "SkyComb Limited";
+            Store.Workbook.Properties.AppVersion = CodeVersion;
         }
 
 
-        // Set the workbook properties
+        // Set the workbook properties for SkyCombFlights output
         public void SetWorkbookFlightsProperties()
         {
             Store.Workbook.Properties.Title = "SkyComb Flights data store";
-            Store.Workbook.Properties.Author = "SkyComb Limited";
             Store.Workbook.Properties.Comments = "Produced by the SkyComb Flights tool.";
+            Store.Workbook.Properties.Application = "SkyCombFlights.exe";
+
+            Store.Workbook.Properties.Author = "Philip Quirke";
+            Store.Workbook.Properties.Company = "SkyComb Limited";
+            Store.Workbook.Properties.AppVersion = CodeVersion;
         }
 
 
