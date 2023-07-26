@@ -7,8 +7,7 @@ namespace SkyCombGround.GroundSpace
     public class GroundGrid : BaseConstants
     {
         // The drone video footage extends beyond the flight path locations, so we add a buffer.
-        // The DJI_0094 test video has a MaxInputWidthM of 42 meters, so we add 20 meters to all sides.
-        public const int GroundBufferM = 20;
+        public const int GroundBufferM = 50;
 
 
         // The DEM & DSM data is available in a grid of 1 m x 1 m cells,
