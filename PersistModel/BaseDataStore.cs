@@ -226,7 +226,7 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        public void SetDataListColumn(ref int row, int col, DataPairList list, bool showUnknown = true, int extraColOffset = 0)
+        public void SetDataListColumn(ref int row, int col, DataPairList? list, bool showUnknown = true, int extraColOffset = 0)
         {
             if ((list == null) || (Worksheet == null))
                 return;
@@ -568,7 +568,8 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        // For the specified tabName, save when tab was updated and using what code version
+        // Update the Index tab with the current date/time for the 
+        // specified tabName. Also record the code version used.
         public void SetLastUpdateDateTime(string tabName)
         {
             if (SelectWorksheet(IndexTabName))
@@ -603,6 +604,21 @@ namespace SkyCombGround.PersistModel
             Close();
         }
 
+
+        // Save the bitmap to the datastore
+        public void SaveBitmap(Bitmap theBitmap, string name, int row, int col = 0, int percent = 100)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                // Save the bitmap into the memory stream as PNG format
+                theBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+
+                var picture = Worksheet.Drawings.AddPicture(name, stream);
+                picture.SetPosition(row, 0, col, 0);
+                picture.Border.Width = 0;
+                picture.SetSize(percent);
+            }
+        }
 
     }
 }
