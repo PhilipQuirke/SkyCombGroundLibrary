@@ -12,9 +12,9 @@ This "ground data" library is incorporated into the tools / libraries:
 - [SkyComb Library](https://github.com/PhilipQuirke/SkyDroneLibrary/)
 
 The code folders are:
-- CommonSpace: Constants and generic code shared by SkyCombGroundLibrary, SkyCombDroneLibrary, SkyCombFlights & SkyCombAnalyst
-- GroundSpace: From drone-flight-area, calculate and return the elevations (DEM & DSM) 
-- PersistModel: Save/load drone-flight-area ground data from/to the datastore (xls)
+- **CommonSpace:** Constants and generic code shared by SkyCombGroundLibrary, SkyCombDroneLibrary, SkyCombFlights & SkyCombAnalyst
+- **GroundSpace:** From drone-flight-area, calculate and return the elevations (DEM & DSM) 
+- **PersistModel:** Save/load drone-flight-area ground data from/to the datastore (xls)
 
 In NZ, the GeoTIFFs can be downloaded for free from LINZ.
 The [SkyCombAnalystHelp-Ground](https://github.com/PhilipQuirke/SkyCombAnalystHelp/blob/main/Ground.md) page describes
