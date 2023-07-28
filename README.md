@@ -16,6 +16,8 @@ The code folders are:
 - **GroundSpace:** From drone-flight-area, calculate and return the elevations (DEM & DSM) 
 - **PersistModel:** Save/load drone-flight-area ground data from/to the datastore (xls)
 
+This tools is currently aimed at New Zealand (NZ) drone flights. But is easily extensible to other countries.
+
 In NZ, the GeoTIFFs can be downloaded for free from LINZ.
 The [SkyCombAnalystHelp-Ground](https://github.com/PhilipQuirke/SkyCombAnalystHelp/blob/main/Ground.md) page describes
 this process and how to do the one-off process of setting up the local folder tree of DEM & DSM data files.
