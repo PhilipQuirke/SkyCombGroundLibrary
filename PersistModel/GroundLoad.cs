@@ -8,7 +8,7 @@ namespace SkyCombGround.PersistModel
     public class GroundLoad : BaseConstants
     {
         // Load Ground elevation settings
-        public static List<string> LoadSettings(BaseDataStore dataStore)
+        private static List<string> LoadSettings(BaseDataStore dataStore)
         {
             return dataStore.GetColumnSettingsIfAvailable(
                 GroundTabName, GroundInputTitle, 
@@ -17,9 +17,9 @@ namespace SkyCombGround.PersistModel
 
 
         // Load all Ground (DEM) or Surface (DSM) data from a XLS file 
-        public static void LoadGrid(
-            BaseDataStore dataStore, 
-            GroundGrid grid, 
+        private static void LoadGrid(
+            BaseDataStore? dataStore, 
+            GroundGrid? grid, 
             string tabName)
         {
             int row = 0;

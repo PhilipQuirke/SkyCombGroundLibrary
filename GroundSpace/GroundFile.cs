@@ -185,9 +185,9 @@ namespace SkyCombGround.GroundSpace
     // Build and save a list of the books in a datastore
     public abstract class BookCatalog : BaseConstants
     {
-        public BookNameList BookNames = null;
+        public BookNameList? BookNames = null;
 
-        public BookDataStore BookStore = null;
+        public BookDataStore? BookStore = null;
 
         // Ground directory e.g. D:\SkyComb\Ground_Data
         public string GroundDirectory = "";
