@@ -277,7 +277,7 @@ namespace SkyCombGround.CommonSpace
         // Assert that this location is in drone coordinate system & reasonable
         public void AssertGood()
         {
-            if (EastingM < 0 || EastingM > 99000 || NorthingM < 0 || NorthingM > 99000)
+            if (EastingM < -99000 || EastingM > 99000 || NorthingM < -99000 || NorthingM > 99000)
                 throw new Exception("Drone location is 99km from drone origin");
         }
     }

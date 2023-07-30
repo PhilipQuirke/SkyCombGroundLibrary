@@ -29,6 +29,14 @@ namespace SkyCombGround.CommonSpace
         }
 
 
+        // Assert that this area is reasonable
+        public void AssertGood()
+        {
+            if (Value.X < 0 || Value.X > 99000 || Value.Y < 0 || Value.Y > 99000)
+                throw new Exception("Area is bad");
+        }
+
+
         public float AreaM2()
         {
             return Value.X * Value.Y;
