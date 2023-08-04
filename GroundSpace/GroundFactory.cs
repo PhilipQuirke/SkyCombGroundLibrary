@@ -15,7 +15,7 @@ namespace SkyCombGround.GroundSpace
 
         public GroundGrid? DemGrid { get; set; }
         public GroundGrid? DsmGrid { get; set; }
-        public GroundSeen? SeenGrid { get; set; }
+        public GroundSwathe? SwatheGrid { get; set; }
 
         public GroundData(List<string>? settings = null)
         {
@@ -23,7 +23,7 @@ namespace SkyCombGround.GroundSpace
             MaxGlobalLocation = null;
             DemGrid = null;
             DsmGrid = null;
-            SeenGrid = null;
+            SwatheGrid = null;
 
             if (settings != null)
                 LoadSettings(settings);

@@ -347,15 +347,15 @@ namespace SkyCombGround.GroundSpace
     }
 
 
-    // Class to calculate the portion of Ground Grid that was "seen" by the drone's video during flight.
-    public class GroundSeen : GroundGrid
+    // Class to calculate the swathe of Ground Grid that was "seen" by the drone's video during flight.
+    public class GroundSwathe : GroundGrid
     {
-        public GroundSeen(GroundGrid grid) :
+        public GroundSwathe(GroundGrid grid) :
             base(false,
                 new RelativeLocation(grid.MinCountryNorthingM, grid.MinCountryEastingM),
                 new RelativeLocation(grid.MaxCountryNorthingM, grid.MaxCountryEastingM))
         {
-            // GroundSeen uses 0 as the "UnknownValue". 0 also means "not seen"
+            // GroundSwathe uses 0 as the "UnknownValue". 0 also means "not seen"
             for (int i = 0; i < NumDatums; i++)
                 ElevationQuarterM[i] = 0;
         }
@@ -365,7 +365,7 @@ namespace SkyCombGround.GroundSpace
 
 
         // Set point to seen
-        private void SeenDronePoint(RelativeLocation droneLocnM)
+        private void SwatheDronePoint(RelativeLocation droneLocnM)
         {
             var index = DroneLocnToGridIndex(droneLocnM, false);
 
@@ -375,7 +375,7 @@ namespace SkyCombGround.GroundSpace
 
 
         // Set line to seen
-        private void SeenDroneLine(RelativeLocation fromDroneLocn, RelativeLocation toDroneLocn)
+        private void SwatheDroneLine(RelativeLocation fromDroneLocn, RelativeLocation toDroneLocn)
         {
             var distance = (float)RelativeLocation.DistanceM(fromDroneLocn, toDroneLocn);
             if (distance > 3)
@@ -388,7 +388,7 @@ namespace SkyCombGround.GroundSpace
                     var locn = new RelativeLocation(
                         fromDroneLocn.NorthingM + translationStep.NorthingM * edgeStep,
                         fromDroneLocn.EastingM + translationStep.EastingM * edgeStep);
-                    SeenDronePoint(locn);
+                    SwatheDronePoint(locn);
                 }
             }
         }
@@ -396,17 +396,17 @@ namespace SkyCombGround.GroundSpace
 
         // Given the (rotated) rectangle defined by the 4 corners, set the grid area as seen.
         // Assuming we are painting a sequence of flightsteps, painting the edges and diagonals is sufficient.
-        public void SeenDroneRect(RelativeLocation topLeftLocn, RelativeLocation topRightLocn, RelativeLocation bottomRightLocn, RelativeLocation bottomLeftLocn)
+        public void SwatheDroneRect(RelativeLocation topLeftLocn, RelativeLocation topRightLocn, RelativeLocation bottomRightLocn, RelativeLocation bottomLeftLocn)
         {
             // Paint edges
-            SeenDroneLine(bottomLeftLocn, bottomRightLocn);
-            SeenDroneLine(topLeftLocn, topRightLocn);
-            SeenDroneLine(bottomLeftLocn, topLeftLocn);
-            SeenDroneLine(bottomRightLocn, topRightLocn);
+            SwatheDroneLine(bottomLeftLocn, bottomRightLocn);
+            SwatheDroneLine(topLeftLocn, topRightLocn);
+            SwatheDroneLine(bottomLeftLocn, topLeftLocn);
+            SwatheDroneLine(bottomRightLocn, topRightLocn);
 
             // Paint diagonals
-            SeenDroneLine(bottomLeftLocn, topRightLocn);
-            SeenDroneLine(topLeftLocn, bottomRightLocn);
+            SwatheDroneLine(bottomLeftLocn, topRightLocn);
+            SwatheDroneLine(topLeftLocn, bottomRightLocn);
         }
     }
 }

@@ -60,7 +60,7 @@ namespace SkyCombGround.CommonSpace
         public const string GroundTabName = "Ground";
         public const string DemTabName = "DEM";
         public const string DsmTabName = "DSM";
-        public const string SeenTabName = "Seen";
+        public const string SwatheTabName = "Swathe";
         public const string DroneTabName = "Drone";
         public const string Sections1TabName = "Sects1";
         public const string Sections2TabName = "Sects2";

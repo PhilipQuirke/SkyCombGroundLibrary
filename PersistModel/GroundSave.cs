@@ -1,7 +1,6 @@
-﻿using OfficeOpenXml.Drawing.Chart;
-using SkyCombGround.CommonSpace;
+﻿using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundSpace;
-using System.Drawing;
+
 
 
 namespace SkyCombGround.PersistModel
@@ -9,7 +8,7 @@ namespace SkyCombGround.PersistModel
     // Save meta-data about a drone flight, the videos taken, the flight log, and ground DEM and DSM elevations to a datastore, including graphs
     public class GroundSave : BaseConstants
     {
-        // Save the ground/surface/seen elevation data
+        // Save the ground-elevation/surface-elevation/swathe data
         private static bool SaveGrid(
             BaseDataStore? dataStore,
             GroundGrid? grid,
@@ -65,8 +64,8 @@ namespace SkyCombGround.PersistModel
                 if(SaveGrid(dataStore, groundData.DsmGrid, DsmTabName))
                     dataStore.SetLastUpdateDateTime(DsmTabName);
 
-                if(SaveGrid(dataStore, groundData.SeenGrid, SeenTabName))
-                    dataStore.SetLastUpdateDateTime(SeenTabName);
+                if(SaveGrid(dataStore, groundData.SwatheGrid, SwatheTabName))
+                    dataStore.SetLastUpdateDateTime(SwatheTabName);
 
                 dataStore.SelectWorksheet(GroundTabName);
 
