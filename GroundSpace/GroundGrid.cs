@@ -369,8 +369,11 @@ namespace SkyCombGround.GroundSpace
         {
             var index = DroneLocnToGridIndex(droneLocnM, false);
 
-            if (index != UnknownValue)
+            if((index != UnknownValue) && (ElevationQuarterM[index]== 0))
+            {
                 ElevationQuarterM[index] = 1;
+                NumElevationsStored++;
+            }
         }
 
 
