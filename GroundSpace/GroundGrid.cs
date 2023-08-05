@@ -266,6 +266,11 @@ namespace SkyCombGround.GroundSpace
 
         private void AddDatum(int gridIndex, float elevationM)
         {
+            if (ElevationQuarterM[gridIndex] != UnknownValue)
+                // We have already updated this grid point
+                // Do not change NumElevationsStored or Max/MinElevationQuarterM
+                return;
+
             if (elevationM == UnknownValue)
             {
                 ElevationQuarterM[gridIndex] = UnknownValue;
@@ -364,12 +369,17 @@ namespace SkyCombGround.GroundSpace
         public int M2Seen { get { return NumElevationsStored; } }
 
 
-        // Set point to seen
-        private void SwatheDronePoint(RelativeLocation droneLocnM)
+        // Set point to seen - the point is part of the drone swathe
+        private void DronePointSeen(RelativeLocation droneLocnM)
         {
             var index = DroneLocnToGridIndex(droneLocnM, false);
 
-            if((index != UnknownValue) && (ElevationQuarterM[index]== 0))
+            // With a camera pointing near horizontal, the area seen can
+            // extend qway past the grid area
+            if ((index < 0) || (index >= NumDatums))
+                return;
+                
+            if(ElevationQuarterM[index] == 0)
             {
                 ElevationQuarterM[index] = 1;
                 NumElevationsStored++;
@@ -377,8 +387,8 @@ namespace SkyCombGround.GroundSpace
         }
 
 
-        // Set line to seen
-        private void SwatheDroneLine(RelativeLocation fromDroneLocn, RelativeLocation toDroneLocn)
+        // Set line to seen - the line is part of the drone swathe
+        private void DroneLineSeen(RelativeLocation fromDroneLocn, RelativeLocation toDroneLocn)
         {
             var distance = (float)RelativeLocation.DistanceM(fromDroneLocn, toDroneLocn);
             if (distance > 3)
@@ -391,25 +401,27 @@ namespace SkyCombGround.GroundSpace
                     var locn = new RelativeLocation(
                         fromDroneLocn.NorthingM + translationStep.NorthingM * edgeStep,
                         fromDroneLocn.EastingM + translationStep.EastingM * edgeStep);
-                    SwatheDronePoint(locn);
+                    DronePointSeen(locn);
                 }
             }
         }
 
 
         // Given the (rotated) rectangle defined by the 4 corners, set the grid area as seen.
-        // Assuming we are painting a sequence of flightsteps, painting the edges and diagonals is sufficient.
-        public void SwatheDroneRect(RelativeLocation topLeftLocn, RelativeLocation topRightLocn, RelativeLocation bottomRightLocn, RelativeLocation bottomLeftLocn)
+        // The rectangle is part of the drone swathe.
+        // Assuming we are painting a sequence of flightsteps, painting the edges and diagonals
+        // seems sufficient to represent the seen area.
+        public void DroneRectSeen(RelativeLocation topLeftLocn, RelativeLocation topRightLocn, RelativeLocation bottomRightLocn, RelativeLocation bottomLeftLocn)
         {
             // Paint edges
-            SwatheDroneLine(bottomLeftLocn, bottomRightLocn);
-            SwatheDroneLine(topLeftLocn, topRightLocn);
-            SwatheDroneLine(bottomLeftLocn, topLeftLocn);
-            SwatheDroneLine(bottomRightLocn, topRightLocn);
+            DroneLineSeen(bottomLeftLocn, bottomRightLocn);
+            DroneLineSeen(topLeftLocn, topRightLocn);
+            DroneLineSeen(bottomLeftLocn, topLeftLocn);
+            DroneLineSeen(bottomRightLocn, topRightLocn);
 
             // Paint diagonals
-            SwatheDroneLine(bottomLeftLocn, topRightLocn);
-            SwatheDroneLine(topLeftLocn, bottomRightLocn);
+            DroneLineSeen(bottomLeftLocn, topRightLocn);
+            DroneLineSeen(topLeftLocn, bottomRightLocn);
         }
     }
 }
