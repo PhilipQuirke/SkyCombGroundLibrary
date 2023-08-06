@@ -235,13 +235,8 @@ namespace SkyCombGround.GroundSpace
 
                 if (groundDirectory != "")
                 {
-                    (double minCountryNorthingM, double minCountryEastingM) =
-                        NztmProjection.WgsToNztm(groundData.MinGlobalLocation.Latitude, groundData.MinGlobalLocation.Longitude);
-                    (double maxCountryNorthingM, double maxCountryEastingM) =
-                        NztmProjection.WgsToNztm(groundData.MaxGlobalLocation.Latitude, groundData.MaxGlobalLocation.Longitude);
-
-                    var minCountryM = new RelativeLocation((float)minCountryNorthingM, (float)minCountryEastingM);
-                    var maxCountryM = new RelativeLocation((float)maxCountryNorthingM, (float)maxCountryEastingM);
+                    var minCountryM = NztmProjection.WgsToNztm(groundData.MinGlobalLocation);
+                    var maxCountryM = NztmProjection.WgsToNztm(groundData.MaxGlobalLocation);
 
                     GroundDatumsTiff demDatums = new GroundDatumsTiffNz(groundDirectory, true, minCountryM, maxCountryM);
                     GroundDatumsTiff dsmDatums = new GroundDatumsTiffNz(groundDirectory, false, minCountryM, maxCountryM);

@@ -606,8 +606,11 @@ namespace SkyCombGround.PersistModel
 
 
         // Save the bitmap to the datastore
-        public void SaveBitmap(Bitmap theBitmap, string name, int row, int col = 0, int percent = 100)
+        public void SaveBitmap(Bitmap? theBitmap, string name, int row, int col = 0, int percent = 100)
         {
+            if(theBitmap == null)
+                return; 
+
             using (MemoryStream stream = new MemoryStream())
             {
                 // Save the bitmap into the memory stream as PNG format

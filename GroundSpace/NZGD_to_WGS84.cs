@@ -338,7 +338,13 @@ namespace SkyCombGround.GroundSpace
         {
             return geod_tm(nztmProjection, lon / rad2deg, lat / rad2deg);
         }
-
+        public static CountryLocation WgsToNztm(GlobalLocation location)
+        {
+            (double n, double e) = geod_tm(nztmProjection, location.Longitude / rad2deg, location.Latitude / rad2deg);
+            var answer = new CountryLocation((float)n, (float)e);
+            answer.AssertGood();
+            return answer;
+        }
 
         // Check that round-trip conversions of 2 sample NZ latitude/longitude coordinates give a very small error.
         public static void AssertGood()
