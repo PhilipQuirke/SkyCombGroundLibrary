@@ -4,6 +4,15 @@ using System.Drawing;
 
 namespace SkyCombGround.GroundSpace
 {
+    // Class supports drawing various backgrounds
+    public enum GroundType
+    {
+        DemElevations,  // Ground elevations
+        DsmElevations,  // Surface elevations
+        SwatheSeen      // Area overflown by drone and seen by video camera
+    }
+
+
     public class GroundGrid : BaseConstants
     {
         // The drone video footage extends beyond the flight path locations, so we add a buffer.
