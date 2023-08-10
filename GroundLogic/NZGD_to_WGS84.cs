@@ -1,7 +1,7 @@
 ﻿using SkyCombGround.CommonSpace;
 
 
-namespace SkyCombGround.GroundSpace
+namespace SkyCombGround.GroundLogic
 {
     // Based on C# code in https://gis.stackexchange.com/questions/225065/converting-nztm-new-zealand-transverse-mercator-to-lat-long/325294#325294
     public class Projection

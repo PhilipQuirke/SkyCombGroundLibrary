@@ -2,7 +2,7 @@
 using System.Drawing;
 
 
-namespace SkyCombGround.GroundSpace
+namespace SkyCombGround.GroundLogic
 {
     // Class supports drawing various backgrounds
     public enum GroundType

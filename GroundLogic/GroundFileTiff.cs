@@ -1,11 +1,10 @@
 ﻿using BitMiracle.LibTiff.Classic;
 using SkyCombGround.CommonSpace;
+using SkyCombGround.GroundModel;
 
 
 // Handles GeoTiff file with suffix ".tif"
-
-
-namespace SkyCombGround.GroundSpace
+namespace SkyCombGround.GroundLogic
 {
     // Read-only books containing location and the ground area covered
     public class BookCatalogTiff : BookCatalog
@@ -65,6 +64,10 @@ namespace SkyCombGround.GroundSpace
                                     continue;
                                 geoGcs = NzGeoGcs;
 
+                                // PQR Check for book with the same coverage.
+                                // If we have a book with the same coverage, we use the book with the greatest number of datums
+                                // This is a (real?) edge case where we have downloaded say DEMs twice and have a subset of DEMs in tile. 
+
                                 BookNames.Add(new(shortSubdir, shortFileName, isDem, geoGcs, width, height, originX, originY, 1, 0));
 
                                 tiff.Close();
@@ -95,7 +98,7 @@ namespace SkyCombGround.GroundSpace
 
 
         // Load datums from the book that are inside LocalArea
-        protected override void GetDatums(BookName book)
+        protected override void GetDatums(BookModel book)
         {
             if (Source == "")
                 Source = book.GeoGcs;

@@ -4,18 +4,24 @@
 // Return ground & surface elevation data from under the drone path.
 // Contains some code specific to New Zealand.
 // Refer https://github.com/PhilipQuirke/SkyCombAnalystHelp/Ground.md for more background.
-namespace SkyCombGround.GroundSpace
+namespace SkyCombGround.GroundLogic
 {
-    // Represents the elevation in meters above sea level, based on a drone flight path encompassing box.
+    // Represents ground controur data for a (drone flight path encompassing) box.
     public class GroundData : BaseConstants
     {
         // The location that we want ground data for
         public GlobalLocation? MinGlobalLocation;
         public GlobalLocation? MaxGlobalLocation;
 
+        // The ground elevation data
         public GroundGrid? DemGrid { get; set; }
+
+        // The ground surface (tree-top) data
         public GroundGrid? DsmGrid { get; set; }
+
+        // The portion of the encompassing box videoed during the drone flight.
         public GroundSwathe? SwatheGrid { get; set; }
+
 
         public GroundData(List<string>? settings = null)
         {
@@ -60,18 +66,9 @@ namespace SkyCombGround.GroundSpace
                 // Is the drone flight in New Zealand?
                 if (ContainedByGlobalLocation(-50, 165, -34, 179))
                 {
-                    // We prefer TIFF over ASC as the TIFF data is faster & smaller
-
                     // Using TIFF files in subfolders of the groundDirectory folder,
                     // return a list of unsorted DEM and DSM elevations inside the min/max location range.
                     (DemGrid, DsmGrid) = GroundTiffNZ.CalcElevations(this, groundDirectory);
-                    if (((DemGrid != null) && DemGrid.NumDatums > 0) ||
-                        ((DsmGrid != null) && DsmGrid.NumDatums > 0))
-                        return;
-
-                    // Using PRJ and ASC files in subfolders of the groundDirectory folder,
-                    // return a list of unsorted DEM and DSM elevations inside the min/max location range.
-                    (DemGrid, DsmGrid) = GroundAscNZ.CalcElevations(this, groundDirectory);
                     if (((DemGrid != null) && DemGrid.NumDatums > 0) ||
                         ((DsmGrid != null) && DsmGrid.NumDatums > 0))
                         return;
