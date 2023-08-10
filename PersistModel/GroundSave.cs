@@ -18,7 +18,7 @@ namespace SkyCombGround.PersistModel
             int col = 0;
             try
             {
-                if ((dataStore == null) || (grid == null) || (grid.NumDatums == 0))
+                if ((dataStore == null) || (grid == null) || (grid.NumElevationsStored <= 0))
                     return false;
 
                 if (dataStore.SelectWorksheet(tabName))

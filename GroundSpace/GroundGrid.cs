@@ -112,8 +112,8 @@ namespace SkyCombGround.GroundSpace
             Assert(MinCountryNorthingM < MaxCountryNorthingM, "GroundGrid: NorthingM ordering");
             Assert(MinCountryEastingM < MaxCountryEastingM, "GroundGrid: EastingM ordering");
 
-            Assert(MinCountryNorthingM > 5700000, "GroundGrid: NorthingM coord bad");
-            Assert(MinCountryEastingM > 1700000, "GroundGrid: EastingM coord bad");
+            Assert(MinCountryNorthingM > 5000000, "GroundGrid: NorthingM coord bad");  
+            Assert(MinCountryEastingM > 1350000, "GroundGrid: EastingM coord bad");  
 
             for (int i = 0; i < NumDatums; i++)
                 ElevationQuarterM[i] = UnknownValue;
