@@ -6,99 +6,36 @@ using SkyCombGround.GroundModel;
 // Handles GeoTiff file with suffix ".tif"
 namespace SkyCombGround.GroundLogic
 {
-    // Read-only books containing location and the ground area covered
-    public class BookCatalogTiff : BookCatalog
+
+    public class CountryGrid : GroundGrid
     {
-        public const string NzGeoGcs = "NZGD2000";
+        public string GroundDirectory = "";
 
 
-        public BookCatalogTiff(string groundDirectory) :
-            base(groundDirectory, groundDirectory + "\\SkyCombIndexTiff.xlsx")
+        public CountryGrid(string groundDirectory, bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
+         : base(isDem, minCountryLocnM, maxCountryLocnM)
         {
+            GroundDirectory = groundDirectory.TrimEnd('\\'); // Remove any trailing backslash
+            ElevationAccuracyM = 0.2f;
         }
 
 
-        // By scanning all folders in groundDirectory, find and return all TIF files 
-        public override void AddBookNames()
+        public void GetDatumsInLocationCoordinates(BookModelList usefulBooks)
         {
-            int fileProcessed = 0;
-
-            try
+            if (usefulBooks.Count > 0)
             {
-                if (GroundDirectory != "")
-                {
-                    // Read the names of the subdirectories
-                    string[] subdirs = Directory.GetDirectories(GroundDirectory);
-                    foreach (var subdir in subdirs)
-                    {
-                        // Read the names of the tiff files in the directory
-                        string[] tiffFileNames = Directory.GetFiles(subdir, "*.tif");
-                        foreach (var tiffFileName in tiffFileNames)
-                        {
-                            try
-                            {
-                                fileProcessed++;
+                foreach (var book in usefulBooks)
+                    if (book.IsDem == this.IsDem)
+                        GetDatums(book);
 
-                                var shortFileName = tiffFileName.Substring(subdir.Length + 1);
-                                var shortSubdir = subdir.Substring(GroundDirectory.Length + 1);
-
-                                var isDem =
-                                    tiffFileName.ToLower().Contains("dem_") ||
-                                    tiffFileName.ToLower().Contains("_dem");
-
-                                var tiff = Tiff.Open(tiffFileName, "r");
-
-                                int width = tiff.GetField(TiffTag.IMAGEWIDTH)[0].ToInt();
-                                int height = tiff.GetField(TiffTag.IMAGELENGTH)[0].ToInt();
-
-                                FieldValue[] modelTiePointTag = tiff.GetField(TiffTag.GEOTIFF_MODELTIEPOINTTAG);
-                                byte[] modelTransformation = modelTiePointTag[1].GetBytes();
-                                double originX = BitConverter.ToDouble(modelTransformation, 24); // e.g. 1924960
-                                double originY = BitConverter.ToDouble(modelTransformation, 32); // e.g. 5803440
-
-                                FieldValue[] geoScaleTag = tiff.GetField(TiffTag.GEOTIFF_GEOASCIIPARAMSTAG);
-                                if ((geoScaleTag == null) || (geoScaleTag.Length < 2))
-                                    continue;
-                                var geoGcs = geoScaleTag[1].ToString();
-                                if (!geoGcs.Contains(NzGeoGcs))
-                                    continue;
-                                geoGcs = NzGeoGcs;
-
-                                // PQR Check for book with the same coverage.
-                                // If we have a book with the same coverage, we use the book with the greatest number of datums
-                                // This is a (real?) edge case where we have downloaded say DEMs twice and have a subset of DEMs in tile. 
-
-                                BookNames.Add(new(shortSubdir, shortFileName, isDem, geoGcs, width, height, originX, originY, 1, 0));
-
-                                tiff.Close();
-                            }
-                            catch
-                            {
-                                fileProcessed--;
-                                // We ignore files we can't parse 
-                            }
-                        }
-                    }
-                }
+                if (NumDatums > 0)
+                    SetGapsToMinimum();
             }
-            catch
-            {
-                BookNames.Clear();
-            }
-        }
-    }
-
-
-    internal abstract class GroundDatumsTiff : GroundDatums
-    {
-        public GroundDatumsTiff(string groundDirectory, bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
-            : base(groundDirectory, isDem, minCountryLocnM, maxCountryLocnM)
-        {
         }
 
 
         // Load datums from the book that are inside LocalArea
-        protected override void GetDatums(BookModel book)
+        protected void GetDatums(BookModel book)
         {
             if (Source == "")
                 Source = book.GeoGcs;
@@ -212,9 +149,9 @@ namespace SkyCombGround.GroundLogic
 
     // Derived class specific to New Zealand and the GCS_NZGD_2000 data format.
     // #ExtendGroundSpace: For data sources from other countries, clone and modfiy this class's source ccode
-    internal class GroundDatumsTiffNz : GroundDatumsTiff
+    internal class NzGrid : CountryGrid
     {
-        public GroundDatumsTiffNz(string groundDirectory, bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
+        public NzGrid(string groundDirectory, bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
             : base(groundDirectory, isDem, minCountryLocnM, maxCountryLocnM)
         {
             NztmProjection.AssertGood();
@@ -225,11 +162,11 @@ namespace SkyCombGround.GroundLogic
     // Calculate ground DEM and DSM using TIFF files on disk for New Zealand locations
     // Refer https://github.com/PhilipQuirke/SkyCombAnalystHelp/Ground.md for more detail.
     // #ExtendGroundSpace: For data sources from other countries, clone and modfiy this class's source ccode
-    internal class GroundTiffNZ : BaseConstants
+    public class GroundTiffNZ : BaseConstants
     {
         // Using TIFF files in subfolders of the groundDirectory folder,
         // return a list of unsorted DEM and DSM elevations inside the min/max location range.
-        public static (GroundDatumsTiff? demDatums, GroundDatumsTiff? dsmDatums)
+        public static (CountryGrid? demDatums, CountryGrid? dsmDatums)
             CalcElevations(GroundData groundData, string groundDirectory)
         {
             try
@@ -241,18 +178,17 @@ namespace SkyCombGround.GroundLogic
                     var minCountryM = NztmProjection.WgsToNztm(groundData.MinGlobalLocation);
                     var maxCountryM = NztmProjection.WgsToNztm(groundData.MaxGlobalLocation);
 
-                    GroundDatumsTiff demDatums = new GroundDatumsTiffNz(groundDirectory, true, minCountryM, maxCountryM);
-                    GroundDatumsTiff dsmDatums = new GroundDatumsTiffNz(groundDirectory, false, minCountryM, maxCountryM);
+                    var demDatums = new NzGrid(groundDirectory, true, minCountryM, maxCountryM);
+                    var dsmDatums = new NzGrid(groundDirectory, false, minCountryM, maxCountryM);
 
                     // Create (slow) or open (fast) an index of the ground DEM/DSM books found in groundDirectory
-                    BookCatalogTiff catalog = new(groundDirectory);
+                    GroundIndex groundIndex = new(groundDirectory, demDatums.TargetCountryAreaM(), GroundIndex.NzGeoGcs, false); 
 
                     // Find the books that can provide ground data for the drone flight area.
-                    var neededBooks = catalog.OverlapsTargetArea(demDatums.TargetCountryAreaM(), BookCatalogTiff.NzGeoGcs, false);
-                    if (neededBooks.Count > 0)
+                    if (groundIndex.BookNames.Count > 0)
                     {
-                        demDatums.GetDatumsInLocationCoordinates(neededBooks);
-                        dsmDatums.GetDatumsInLocationCoordinates(neededBooks);
+                        demDatums.GetDatumsInLocationCoordinates(groundIndex.BookNames);
+                        dsmDatums.GetDatumsInLocationCoordinates(groundIndex.BookNames);
 
                         if ((demDatums.NumDatums == 0) || (demDatums.NumElevationsStored == 0))
                             demDatums = null;
@@ -270,5 +206,13 @@ namespace SkyCombGround.GroundLogic
 
             return (null, null);
         }
+
+
+        public static void RebuildIndex(string groundDirectory)
+        {
+            groundDirectory = groundDirectory.Trim('\\');
+            GroundIndex index = new(groundDirectory,false);
+        }
+
     }
 }

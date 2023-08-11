@@ -13,6 +13,7 @@ namespace SkyCombGround.GroundLogic
     }
 
 
+    // Holds ground elevation data at all locations in a rectangular area (grid).
     public class GroundGrid : BaseConstants
     {
         // The drone video footage extends beyond the flight path locations, so we add a buffer.

@@ -1,4 +1,5 @@
 ﻿using SkyCombGround.GroundModel;
+using System.Drawing;
 
 
 // Read & index ground & surface elevation data from files on disk 
@@ -35,7 +36,8 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        public void Load(BookModelList bookNames)
+        // Load the list of books from the datastore that intersects the target area
+        public int Load(BookModelList bookNames, RectangleF targetArea, string theGeoGcs, bool yAxisPositive)
         {
             int row = 2;
             try
@@ -53,7 +55,19 @@ namespace SkyCombGround.PersistModel
 
                         // Load the non-blank cells in this row into a BookName object
                         var book = new BookModel(GetRowSettings(row, 1));
-                        bookNames.Add(book);
+
+                        // If we have a GeoGcs check it matches
+                        if((theGeoGcs != "") && (book.GeoGcs != theGeoGcs))
+                            continue;
+
+                        RectangleF bookRect = book.GetCountryArea(yAxisPositive);
+
+                        // If we have a target area check it intersects
+                        if (!targetArea.IsEmpty)
+                            bookRect.Intersect(targetArea);
+
+                        if ((bookRect.Width > 0) && (bookRect.Height > 0))
+                            bookNames.Add(book);
 
                         row++;
                         cell = Worksheet.Cells[row, 1];
@@ -66,6 +80,8 @@ namespace SkyCombGround.PersistModel
             {
                 throw ThrowException("BookDataStore.Load: Row=" + row, ex);
             }
+
+            return row;
         }
     }
 }
