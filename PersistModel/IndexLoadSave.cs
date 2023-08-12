@@ -7,9 +7,9 @@ using System.Drawing;
 namespace SkyCombGround.PersistModel
 {
     // Persist the list of book names in a datastore SkyCombIndex.xlsx
-    public class BookLoadSave : BaseDataStore
+    public class IndexLoadSave : BaseDataStore
     {
-        public BookLoadSave(string fullfileName) : base(fullfileName)
+        public IndexLoadSave(string fullfileName) : base(fullfileName)
         {
         }
 
@@ -21,7 +21,7 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        public void Save(BookModelList bookNames)
+        public void Save(TileModelList bookNames)
         {
             Open();
 
@@ -30,14 +30,14 @@ namespace SkyCombGround.PersistModel
 
             int theRow = 0;
             foreach (var bookName in bookNames)
-                SetDataListRowKeysAndValues(ref theRow, bookName.GetSettings());
+                SetDataListRowKeysAndValues(ref theRow, bookName.Value.GetSettings());
 
             SaveAndClose();
         }
 
 
         // Load the list of books from the datastore that intersects the target area
-        public int Load(BookModelList bookNames, RectangleF targetArea, string theGeoGcs, bool yAxisPositive)
+        public int Load(TileModelList bookNames, RectangleF targetArea, string theGeoGcs, bool yAxisPositive)
         {
             int row = 2;
             try
@@ -54,7 +54,7 @@ namespace SkyCombGround.PersistModel
                             break;
 
                         // Load the non-blank cells in this row into a BookName object
-                        var book = new BookModel(GetRowSettings(row, 1));
+                        var book = new TileModel(GetRowSettings(row, 1));
 
                         // If we have a GeoGcs check it matches
                         if((theGeoGcs != "") && (book.GeoGcs != theGeoGcs))

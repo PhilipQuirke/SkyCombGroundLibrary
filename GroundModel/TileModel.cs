@@ -7,7 +7,7 @@ using System.Drawing;
 namespace SkyCombGround.GroundModel
 {
     // Read-only book containing book location and the ground area it covers
-    public class BookModel : BaseConstants
+    public class TileModel : BaseConstants
     {
         // Folder name the file is in e.g. lds-auckland-north-lidar-1m-dem-2016-2018-AAIGrid
         public string FolderName { get; set; }
@@ -33,7 +33,7 @@ namespace SkyCombGround.GroundModel
         public int NoDataValue { get; set; } = UnknownValue; // -999 is the most common "no value"
 
 
-        public BookModel(string folderName, string fileName, bool isDem, string geoGcs,
+        public TileModel(string folderName, string fileName, bool isDem, string geoGcs,
             int numCols, int numRows, double xllCorner, double yllCorner, double cellSize, int noDataValue)
         {
             FolderName = folderName;
@@ -49,7 +49,7 @@ namespace SkyCombGround.GroundModel
 
             AssertGood();
         }
-        public BookModel(List<string> settings)
+        public TileModel(List<string> settings)
         {
             FolderName = "";
             FileName = "";
@@ -73,9 +73,9 @@ namespace SkyCombGround.GroundModel
 
         public void AssertGood()
         {
-            Assert(NumCols > 0, "BookModel: NumCols Bad");
-            Assert(NumRows > 0, "BookModel: NumRows Bad");
-            Assert(CellSize > 0, "BookModel: CellSize Bad");
+            Assert(NumCols > 0, "TileModel: NumCols Bad");
+            Assert(NumRows > 0, "TileModel: NumRows Bad");
+            Assert(CellSize > 0, "TileModel: CellSize Bad");
         }
 
 
@@ -117,9 +117,12 @@ namespace SkyCombGround.GroundModel
     }
 
 
-    // Read-only books containing location and the ground area covered
-    public class BookModelList : List<BookModel>
+    // Read-only tiles containing location and the ground area covered
+    public class TileModelList : SortedList<string,TileModel>
     {
-
+        public void Add( TileModel model)
+        {             
+            Add(model.FileName, model);
+        }
     }
 }

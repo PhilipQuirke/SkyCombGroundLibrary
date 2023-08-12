@@ -20,13 +20,13 @@ namespace SkyCombGround.GroundLogic
         }
 
 
-        public void GetDatumsInLocationCoordinates(BookModelList usefulBooks)
+        public void GetDatumsInLocationCoordinates(TileModelList usefulBooks)
         {
             if (usefulBooks.Count > 0)
             {
                 foreach (var book in usefulBooks)
-                    if (book.IsDem == this.IsDem)
-                        GetDatums(book);
+                    if (book.Value.IsDem == this.IsDem)
+                        GetDatums(book.Value);
 
                 if (NumDatums > 0)
                     SetGapsToMinimum();
@@ -35,7 +35,7 @@ namespace SkyCombGround.GroundLogic
 
 
         // Load datums from the book that are inside LocalArea
-        protected void GetDatums(BookModel book)
+        protected void GetDatums(TileModel book)
         {
             if (Source == "")
                 Source = book.GeoGcs;
@@ -182,13 +182,13 @@ namespace SkyCombGround.GroundLogic
                     var dsmDatums = new NzGrid(groundDirectory, false, minCountryM, maxCountryM);
 
                     // Create (slow) or open (fast) an index of the ground DEM/DSM books found in groundDirectory
-                    GroundIndex groundIndex = new(groundDirectory, demDatums.TargetCountryAreaM(), GroundIndex.NzGeoGcs, false); 
+                    TileIndex groundIndex = new(groundDirectory, demDatums.TargetCountryAreaM(), TileIndex.NzGeoGcs, false); 
 
                     // Find the books that can provide ground data for the drone flight area.
-                    if (groundIndex.BookNames.Count > 0)
+                    if (groundIndex.Tiles.Count > 0)
                     {
-                        demDatums.GetDatumsInLocationCoordinates(groundIndex.BookNames);
-                        dsmDatums.GetDatumsInLocationCoordinates(groundIndex.BookNames);
+                        demDatums.GetDatumsInLocationCoordinates(groundIndex.Tiles);
+                        dsmDatums.GetDatumsInLocationCoordinates(groundIndex.Tiles);
 
                         if ((demDatums.NumDatums == 0) || (demDatums.NumElevationsStored == 0))
                             demDatums = null;
@@ -211,7 +211,7 @@ namespace SkyCombGround.GroundLogic
         public static void RebuildIndex(string groundDirectory)
         {
             groundDirectory = groundDirectory.Trim('\\');
-            GroundIndex index = new(groundDirectory,false);
+            TileIndex index = new(groundDirectory,false);
         }
 
     }
