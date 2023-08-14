@@ -2,7 +2,7 @@
 using System.Drawing;
 
 
-namespace SkyCombGround.GroundLogic
+namespace SkyCombGround.GroundModel
 {
     // Class supports drawing various backgrounds
     public enum GroundType
@@ -14,7 +14,7 @@ namespace SkyCombGround.GroundLogic
 
 
     // Holds ground elevation data at all locations in a rectangular area (grid).
-    public class GroundGrid : BaseConstants
+    public class GroundModel : BaseConstants
     {
         // The drone video footage extends beyond the flight path locations, so we add a buffer.
         public const int GroundBufferM = 50;
@@ -127,7 +127,7 @@ namespace SkyCombGround.GroundLogic
         }
 
 
-        public GroundGrid(bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
+        public GroundModel(bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
         {
             IsDem = isDem;
             Source = "";
@@ -146,7 +146,7 @@ namespace SkyCombGround.GroundLogic
         }
 
 
-        public GroundGrid(bool isDem, List<string> settings, int offset)
+        public GroundModel(bool isDem, List<string> settings, int offset)
         {
             IsDem = isDem;
             Source = "";
@@ -224,7 +224,7 @@ namespace SkyCombGround.GroundLogic
         }
 
 
-        // Return the minimum & maximum ground elevations (excluding UnknownValue)
+        // Return the minimum & maximum ground elevations (excluding UnknownValue) in meters
         public (float minElevationM, float maxElevationM) GetMinMaxElevationM()
         {
             return (GridElevationQuarterMToM(MinElevationQuarterM),
@@ -361,11 +361,43 @@ namespace SkyCombGround.GroundLogic
         }
     }
 
-
-    // Class to calculate the swathe of Ground Grid that was "seen" by the drone's video during flight.
-    public class GroundSwathe : GroundGrid
+    
+    public class GroundModelList : List<GroundModel>
     {
-        public GroundSwathe(GroundGrid grid) :
+        public GroundModelList()
+        {
+        }
+
+
+        // Return the minimum & maximum ground elevations (excluding UnknownValue) in meters
+        public (float minElevationM, float maxElevationM) GetMinMaxElevationM()
+        {
+            float minElevationM = - BaseConstants.UnknownValue;
+            float maxElevationM = BaseConstants.UnknownValue;
+
+            foreach(var groundModel in this)
+            {
+                (float currMinElevationM, float currMaxElevationM) = groundModel.GetMinMaxElevationM();
+
+                if( currMinElevationM != BaseConstants.UnknownValue)
+                    minElevationM = Math.Min(minElevationM, currMinElevationM);
+
+                if (currMaxElevationM != BaseConstants.UnknownValue)
+                    maxElevationM = Math.Max(maxElevationM, currMaxElevationM);
+            }
+
+            return (minElevationM, maxElevationM);
+        }
+
+    }
+
+
+
+
+    // Class to calculate the swathe of GroundModel that was "seen" by the drone's video during flight.
+    public class SwatheModel : GroundModel
+    {
+        public SwatheModel(GroundModel grid) :
             base(false,
                 new RelativeLocation(grid.MinCountryNorthingM, grid.MinCountryEastingM),
                 new RelativeLocation(grid.MaxCountryNorthingM, grid.MaxCountryEastingM))

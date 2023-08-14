@@ -6,7 +6,7 @@ using System.Drawing;
 // Refer https://github.com/PhilipQuirke/SkyCombAnalystHelp/Ground.md for more background
 namespace SkyCombGround.GroundModel
 {
-    // Read-only book containing book location and the ground area it covers
+    // Read-only TIFF containing physical location and ground coverage area
     public class TileModel : BaseConstants
     {
         // Folder name the file is in e.g. lds-auckland-north-lidar-1m-dem-2016-2018-AAIGrid

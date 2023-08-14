@@ -1,4 +1,5 @@
 ﻿using SkyCombGround.CommonSpace;
+using SkyCombGround.GroundModel;
 
 
 // Return ground & surface elevation data from under the drone path.
@@ -13,23 +14,30 @@ namespace SkyCombGround.GroundLogic
         public GlobalLocation? MinGlobalLocation;
         public GlobalLocation? MaxGlobalLocation;
 
+
         // The ground elevation data
-        public GroundGrid? DemGrid { get; set; }
+        public GroundModel.GroundModel? DemModel { get; set; }
 
         // The ground surface (tree-top) data
-        public GroundGrid? DsmGrid { get; set; }
+        public GroundModel.GroundModel? DsmModel { get; set; }
 
         // The portion of the encompassing box videoed during the drone flight.
-        public GroundSwathe? SwatheGrid { get; set; }
+        public GroundModel.SwatheModel? SwatheModel { get; set; }
+
+
+        public bool HasDemModel { get { return DemModel != null; } }
+        public bool HasDsmModel { get { return DsmModel != null; } }
+        public bool HasSwatheModel { get { return SwatheModel != null; } }
 
 
         public GroundData(List<string>? settings = null)
         {
             MinGlobalLocation = null;
             MaxGlobalLocation = null;
-            DemGrid = null;
-            DsmGrid = null;
-            SwatheGrid = null;
+
+            DemModel = null;
+            DsmModel = null;
+            SwatheModel = null;
 
             if (settings != null)
                 LoadSettings(settings);
@@ -68,9 +76,9 @@ namespace SkyCombGround.GroundLogic
                 {
                     // Using TIFF files in subfolders of the groundDirectory folder,
                     // return a list of unsorted DEM and DSM elevations inside the min/max location range.
-                    (DemGrid, DsmGrid) = GroundTiffNZ.CalcElevations(this, groundDirectory);
-                    if (((DemGrid != null) && DemGrid.NumDatums > 0) ||
-                        ((DsmGrid != null) && DsmGrid.NumDatums > 0))
+                    (DemModel, DsmModel) = GroundTiffNZ.CalcElevations(this, groundDirectory);
+                    if (((DemModel != null) && DemModel.NumDatums > 0) ||
+                        ((DsmModel != null) && DsmModel.NumDatums > 0))
                         return;
 
                     return;
@@ -110,11 +118,11 @@ namespace SkyCombGround.GroundLogic
                 {"Max Global Location", (MaxGlobalLocation == null ? UnknownString : MaxGlobalLocation.ToString())},
             };
 
-            if (DemGrid != null)
-                DemGrid.GetSettings("Dem", ref answer);
+            if (DemModel != null)
+                DemModel.GetSettings("Dem", ref answer);
 
-            if (DsmGrid != null)
-                DsmGrid.GetSettings("Dsm", ref answer);
+            if (DsmModel != null)
+                DsmModel.GetSettings("Dsm", ref answer);
 
             return answer;
         }
@@ -128,10 +136,10 @@ namespace SkyCombGround.GroundLogic
             MaxGlobalLocation = new GlobalLocation(settings[1]);
 
             if (settings.Count >= 14)
-                DemGrid = new(true, settings, 2);
+                DemModel = new(true, settings, 2);
 
             if (settings.Count >= 26)
-                DsmGrid = new(false, settings, 14);
+                DsmModel = new(false, settings, 14);
         }
     }
 

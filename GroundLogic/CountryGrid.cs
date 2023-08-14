@@ -7,7 +7,7 @@ using SkyCombGround.GroundModel;
 namespace SkyCombGround.GroundLogic
 {
 
-    public class CountryGrid : GroundGrid
+    public class CountryGrid : GroundModel.GroundModel
     {
         public string GroundDirectory = "";
 

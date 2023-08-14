@@ -1,4 +1,5 @@
 ﻿using SkyCombGround.CommonSpace;
+using SkyCombGround.GroundModel;
 using SkyCombGround.GroundLogic;
 
 
@@ -18,8 +19,8 @@ namespace SkyCombGround.PersistModel
 
         // Load all Ground (DEM) or Surface (DSM) data from a XLS file 
         private static void LoadGrid(
-            BaseDataStore? dataStore, 
-            GroundGrid? grid, 
+            BaseDataStore? dataStore,
+            GroundModel.GroundModel? grid, 
             string tabName)
         {
             int row = 0;
@@ -69,16 +70,16 @@ namespace SkyCombGround.PersistModel
                     // Load ground (DEM) elevations (if any)
                     if (dataStore.SelectWorksheet(DemTabName))
                     {
-                        LoadGrid(dataStore, groundData.DemGrid, DemTabName);
-                        groundData.DemGrid.AssertGood();
+                        LoadGrid(dataStore, groundData.DemModel, DemTabName);
+                        groundData.DemModel.AssertGood();
                     }
 
 
                     // Load surface (DSM) elevations (if any)
                     if (dataStore.SelectWorksheet(DsmTabName))
                     {
-                        LoadGrid(dataStore, groundData.DsmGrid, DsmTabName);
-                        groundData.DsmGrid.AssertGood();
+                        LoadGrid(dataStore, groundData.DsmModel, DsmTabName);
+                        groundData.DsmModel.AssertGood();
                     }
                 }
             }

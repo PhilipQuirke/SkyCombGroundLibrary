@@ -1,4 +1,5 @@
 ﻿using SkyCombGround.CommonSpace;
+using SkyCombGround.GroundModel;
 using SkyCombGround.GroundLogic;
 
 
@@ -11,7 +12,7 @@ namespace SkyCombGround.PersistModel
         // Save the ground-elevation/surface-elevation/swathe data
         private static bool SaveGrid(
             BaseDataStore? dataStore,
-            GroundGrid? grid,
+            GroundModel.GroundModel? grid,
             string tabName)
         {
             int row = 0;
@@ -58,13 +59,13 @@ namespace SkyCombGround.PersistModel
                 dataStore.SetColumnWidth(LhsColOffset, 30);
                 dataStore.SetColumnWidth(LhsColOffset + LabelToValueCellOffset, 25);
 
-                if(SaveGrid(dataStore, groundData.DemGrid, DemTabName))
+                if(SaveGrid(dataStore, groundData.DemModel, DemTabName))
                     dataStore.SetLastUpdateDateTime(DemTabName);
 
-                if(SaveGrid(dataStore, groundData.DsmGrid, DsmTabName))
+                if(SaveGrid(dataStore, groundData.DsmModel, DsmTabName))
                     dataStore.SetLastUpdateDateTime(DsmTabName);
 
-                if(SaveGrid(dataStore, groundData.SwatheGrid, SwatheTabName))
+                if(SaveGrid(dataStore, groundData.SwatheModel, SwatheTabName))
                     dataStore.SetLastUpdateDateTime(SwatheTabName);
 
                 dataStore.SelectWorksheet(GroundTabName);
