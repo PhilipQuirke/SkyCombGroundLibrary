@@ -15,6 +15,10 @@ namespace SkyCombGround.CommonSpace
         public static Color SurfaceHighColor = Color.FromArgb(198, 224, 197); // Light green. 
         public static Color SurfaceLowColor = Color.FromArgb(36, 62, 40); // Dark green. 
 
+        // Swathe color is used for the 'seen' / 'unseen' elevation
+        public static Color SwatheHighColor = SurfaceHighColor; // Seen
+        public static Color SwatheLowColor = Color.DarkGray; // Unseen
+
         // Good and bad data cells (based on error ranges and error thresholds) are shown in pale red and pale green
         public static Color BadValueColor = Color.FromArgb(255, 154, 136); // Similar to "tomato"
         public static Color GoodValueColor = Color.FromArgb(198, 224, 197); // Light green
