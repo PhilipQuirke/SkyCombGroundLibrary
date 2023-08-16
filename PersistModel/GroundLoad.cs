@@ -1,5 +1,4 @@
 ﻿using SkyCombGround.CommonSpace;
-using SkyCombGround.GroundModel;
 using SkyCombGround.GroundLogic;
 
 
@@ -9,9 +8,9 @@ namespace SkyCombGround.PersistModel
     public class GroundLoad : BaseConstants
     {
         // Load Ground elevation settings
-        private static List<string> LoadSettings(BaseDataStore dataStore)
+        private static List<string> LoadSettings(BaseDataStore droneDataStore)
         {
-            return dataStore.GetColumnSettingsIfAvailable(
+            return droneDataStore.GetColumnSettingsIfAvailable(
                 GroundTabName, GroundInputTitle, 
                 Chapter1TitleRow, LhsColOffset);
         }
@@ -19,7 +18,7 @@ namespace SkyCombGround.PersistModel
 
         // Load all Ground (DEM) or Surface (DSM) data from a XLS file 
         private static void LoadGrid(
-            BaseDataStore? dataStore,
+            BaseDataStore? droneDataStore,
             GroundModel.GroundModel? grid, 
             string tabName)
         {
@@ -27,13 +26,13 @@ namespace SkyCombGround.PersistModel
             int col = 0;
             try
             {
-                if ((grid != null) && (dataStore != null) && dataStore.SelectWorksheet(tabName))
+                if ((grid != null) && (droneDataStore != null) && droneDataStore.SelectWorksheet(tabName))
                 {
                     for( row = 1; row < grid.NumRows + 1; row++ )
                     {
                         for (col = 1; col < grid.NumCols + 1; col++)
                         {
-                            var cell = dataStore.Worksheet.Cells[row, col];
+                            var cell = droneDataStore.Worksheet.Cells[row, col];
                             if (cell != null && cell.Value != null)
                             {
                                 var elevationStr = cell.Value.ToString();
@@ -49,36 +48,36 @@ namespace SkyCombGround.PersistModel
             }
             catch (Exception ex)
             {
-                throw ThrowException("GroundLoad.LoadData: Row=" + row + " Col=" + col, ex);
+                throw ThrowException("GroundLoad.LoadGrid: Row=" + row + " Col=" + col, ex);
             }
         }
 
 
         // Load ground data (if any) from the DataStore 
-        public static GroundData? Load(BaseDataStore dataStore)
+        public static GroundData? Load(BaseDataStore droneDataStore)
         {
             GroundData? groundData = null;
 
             try
             {
-                if (dataStore.SelectWorksheet(GroundTabName))
+                if (droneDataStore.SelectWorksheet(GroundTabName))
                 {
                     // Load the summary (settings) data 
-                    groundData = GroundDataFactory.Create(LoadSettings(dataStore));
+                    groundData = GroundDataFactory.Create(LoadSettings(droneDataStore));
 
 
                     // Load ground (DEM) elevations (if any)
-                    if (dataStore.SelectWorksheet(DemTabName))
+                    if (droneDataStore.SelectWorksheet(DemTabName))
                     {
-                        LoadGrid(dataStore, groundData.DemModel, DemTabName);
+                        LoadGrid(droneDataStore, groundData.DemModel, DemTabName);
                         groundData.DemModel.AssertGood();
                     }
 
 
                     // Load surface (DSM) elevations (if any)
-                    if (dataStore.SelectWorksheet(DsmTabName))
+                    if (droneDataStore.SelectWorksheet(DsmTabName))
                     {
-                        LoadGrid(dataStore, groundData.DsmModel, DsmTabName);
+                        LoadGrid(droneDataStore, groundData.DsmModel, DsmTabName);
                         groundData.DsmModel.AssertGood();
                     }
                 }

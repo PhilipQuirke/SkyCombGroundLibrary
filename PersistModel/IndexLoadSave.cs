@@ -78,7 +78,7 @@ namespace SkyCombGround.PersistModel
             }
             catch (Exception ex)
             {
-                throw ThrowException("BookDataStore.Load: Row=" + row, ex);
+                throw ThrowException("IndexLoadSave.Load: Row=" + row, ex);
             }
 
             return row;

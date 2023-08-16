@@ -9,6 +9,13 @@ namespace SkyCombGround.PersistModel
 {
     public class BaseDataStore : ConfigBase
     {
+        // If we can't save a datastore, it is possible the file is open in Excel.
+        // Ask the user to close it. If they do, return true so we can retry.
+        public delegate bool CantAccessDataStore_InformUser_ReturnRetry();
+
+        public static CantAccessDataStore_InformUser_ReturnRetry? CantAccessDataStore_InformUser_ReturnRetry_delegate = null;
+
+
         // The name of the spreadsheet created as the DataStore
         public string DataStoreFileName { get; set; } = "";
         // A spreadsheet is used as the physical instantiation of the DataStore
@@ -49,17 +56,45 @@ namespace SkyCombGround.PersistModel
         }
 
 
+        // Save the existing datastore to disk.
+        public void Save()
+        {
+            try
+            {
+                Store.Save();
+            }
+            catch (Exception ex)
+            {
+                if (ex.ToString().Contains("Error saving file") &&
+                    (CantAccessDataStore_InformUser_ReturnRetry_delegate != null))
+                {
+                    // If we can't save a datastore, it is possible the file is open in Excel.
+                    // Ask the user to close it. If they do, retry the save.
+                    if (CantAccessDataStore_InformUser_ReturnRetry_delegate())
+                        Store.Save();
+                    else
+                        throw;
+                }
+                else
+                    throw;
+            }
+        }
+
+
         // Save (and close) the existing datastore to disk.
         public void SaveAndClose()
         {
-            Store.Save();
+            Save();
             Close();
         }
 
 
-        // Open the existing datastore 
+        // If necessary, open the existing datastore 
         public virtual void Open()
         {
+            if (IsOpen)
+                return;
+
             Store = new(DataStoreFileName);
         }
 
@@ -592,16 +627,6 @@ namespace SkyCombGround.PersistModel
                     row++;
                 }
             }
-        }
-
-
-        // Set and save the current date time in the Files tab
-        public void SaveLastUpdateDateTime(string tabName)
-        {
-            Open();
-            SetLastUpdateDateTime(tabName);
-            Store.Save();
-            Close();
         }
 
 
