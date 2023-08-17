@@ -23,9 +23,6 @@ namespace SkyCombGround.PersistModel
         public ExcelWorksheet? Worksheet { get; set; } = null;
 
 
-        public bool IsOpen => Store != null;
-
-
         // Open an existing DataStore 
         public BaseDataStore(ExcelPackage store, string fileName)
         {
@@ -41,8 +38,21 @@ namespace SkyCombGround.PersistModel
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             DataStoreFileName = fileName;
-            Store = new ExcelPackage();
+            Store = new();
             Worksheet = null;
+        }
+
+
+        public bool IsOpen => ((Store != null) && (Store.File != null));
+
+
+        // If necessary, open the existing datastore 
+        public virtual void Open()
+        {
+            if (IsOpen)
+                return;
+
+            Store = new(DataStoreFileName);
         }
 
 
@@ -86,16 +96,6 @@ namespace SkyCombGround.PersistModel
         {
             Save();
             Close();
-        }
-
-
-        // If necessary, open the existing datastore 
-        public virtual void Open()
-        {
-            if (IsOpen)
-                return;
-
-            Store = new(DataStoreFileName);
         }
 
 
