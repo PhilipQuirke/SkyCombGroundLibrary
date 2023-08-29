@@ -243,10 +243,10 @@ namespace SkyCombGround.GroundModel
         }
 
 
-        // For a "query" point inside the grid, interpolate the elevation, from the surrounding points.
-        // Assumes that the grid is 1m by 1m cells so the horizontal difference in
-        // distance from queryLocn to each of surrounding points is not important. 
-        public float GetElevationByDroneLocn(RelativeLocation droneLocnM)
+        // For a "query" point inside the grid, calculate the elevation.
+        // As the grid is 1m by 1m cells, the horizontal difference in
+        // distance from queryLocn to the closest point is not important. 
+        public float GetElevationByDroneLocn(DroneLocation droneLocnM)
         {
             // Because of GroundBufferM, the drone should not be near the edge of the grid.
             // But objects in the area seen by the camera may be near or past the edge of the grid.

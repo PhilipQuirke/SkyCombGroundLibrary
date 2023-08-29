@@ -245,6 +245,14 @@ namespace SkyCombGround.CommonSpace
         }
 
 
+        public DroneLocation Add(VelocityF delta, float factor = 1)
+        {
+            return new DroneLocation(
+                this.NorthingM + delta.Value.Y * factor,
+                this.EastingM + delta.Value.X * factor);
+        }
+
+
         /// <summary>
         /// Rotates one point around another
         /// </summary>
