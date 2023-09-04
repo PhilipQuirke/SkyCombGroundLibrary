@@ -1,4 +1,5 @@
-﻿using BitMiracle.LibTiff.Classic;
+﻿// Copyright SkyComb Limited 2023. All rights reserved. 
+using BitMiracle.LibTiff.Classic;
 using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundModel;
 

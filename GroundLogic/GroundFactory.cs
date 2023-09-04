@@ -1,5 +1,5 @@
-﻿using SkyCombGround.CommonSpace;
-using SkyCombGround.GroundModel;
+﻿// Copyright SkyComb Limited 2023. All rights reserved. 
+using SkyCombGround.CommonSpace;
 
 
 // Return ground & surface elevation data from under the drone path.
