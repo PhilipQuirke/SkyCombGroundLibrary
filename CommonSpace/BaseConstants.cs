@@ -74,7 +74,7 @@ namespace SkyCombGround.CommonSpace
         public const string FeaturesTabName = "Feats";
         public const string Objects1TabName = "Objs1";
         public const string Objects2TabName = "Objs2";
-        public const string Legs2TabName = "Legs2";
+        public const string SpanTabName = "Span";
         public const string CategoryTabName = "Cat1";
         public const string ObjectCategoryTabName = "Cat2";
         public const string PopulationTabName = "Popln";
@@ -133,8 +133,8 @@ namespace SkyCombGround.CommonSpace
         }
 
 
-        // Refer to the leg by a single letter name (instead of a number). Supports up to 52 legs.
-        public static string LegIdToName(int legId)
+        // Refer to the leg by a single letter name (instead of a number). Supports up to 52 objects.
+        public static string IdToLetter(int legId)
         {
             string answer = "";
 

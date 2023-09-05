@@ -594,7 +594,7 @@ namespace SkyCombGround.PersistModel
                     { FeaturesTabName, "Feature (cluster of hot pixels in one video frame) data table" },
                     { Objects1TabName, "Object (sequence of features across multiple video frames) data table" },
                     { Objects2TabName, "Object graphs - combines object, feature & block data" },
-                    { Legs2TabName, "Legs (in the blocks scope) data table - refines the Drone flight leg's altitude" },
+                    { SpanTabName, "Spans (in the blocks) data" },
                     { "", "" },
                     { ObjectCategoryTabName, "Master (valid) category data table" },
                     { CategoryTabName, "Object category (annotations) data table" },
