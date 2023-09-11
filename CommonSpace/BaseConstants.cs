@@ -75,8 +75,8 @@ namespace SkyCombGround.CommonSpace
         public const string Objects1TabName = "Objs1";
         public const string Objects2TabName = "Objs2";
         public const string SpanTabName = "Span";
-        public const string CategoryTabName = "Cat1";
-        public const string ObjectCategoryTabName = "Cat2";
+        public const string MasterCategoryTabName = "Cats";
+        public const string ObjectCategoryTabName = "ObjCat";
         public const string PopulationTabName = "Popln";
         public const string HelpTabName = "Help";
 

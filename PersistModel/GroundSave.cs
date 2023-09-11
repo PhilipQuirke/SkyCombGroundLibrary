@@ -69,6 +69,9 @@ namespace SkyCombGround.PersistModel
                     dataStore.SetLastUpdateDateTime(SwatheTabName);
 
                 dataStore.SelectWorksheet(GroundTabName);
+                dataStore.HideWorksheet(DemTabName);
+                dataStore.HideWorksheet(DsmTabName);
+                dataStore.HideWorksheet(SwatheTabName);
 
                 dataStore.SetLastUpdateDateTime(GroundTabName);
             }

@@ -142,6 +142,15 @@ namespace SkyCombGround.PersistModel
         }
 
 
+        // Hide an existing Worksheet
+        public void HideWorksheet(string worksheetName, bool hide = true)
+        {
+            var worksheet = ReferWorksheet(worksheetName);
+            if (worksheet != null)
+                worksheet.Hidden = (hide ? eWorkSheetHidden.Hidden : eWorkSheetHidden.Visible);
+        }
+
+
         public void TrimLastEmptyRows()
         {
             while (IsLastRowEmpty())
@@ -596,8 +605,8 @@ namespace SkyCombGround.PersistModel
                     { Objects2TabName, "Object graphs - combines object, feature & block data" },
                     { SpanTabName, "Spans (in the blocks) data" },
                     { "", "" },
-                    { ObjectCategoryTabName, "Master (valid) category data table" },
-                    { CategoryTabName, "Object category (annotations) data table" },
+                    { ObjectCategoryTabName, "Object category (annotations) data table" },
+                    { MasterCategoryTabName, "Master category data table" },
                     { PopulationTabName, "Categorised object population Graphs" },
                 };
         }
