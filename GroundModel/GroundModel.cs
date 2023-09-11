@@ -1,6 +1,7 @@
 ﻿// Copyright SkyComb Limited 2023. All rights reserved. 
 using SkyCombGround.CommonSpace;
 using System.Drawing;
+using System.Text;
 
 
 namespace SkyCombGround.GroundModel
@@ -17,6 +18,11 @@ namespace SkyCombGround.GroundModel
     // Holds ground elevation data at all locations in a rectangular area (grid).
     public class GroundModel : BaseConstants
     {
+        public static string DemTitle = "Surface (tree-top) elevations";
+        public static string DsmTitle = "Earth (ground) elevations";
+        public static string SwatheTitle = "Swathe seen";
+
+
         // The drone video footage extends beyond the flight path locations, so we add a buffer.
         public const int GroundBufferM = 50;
 
