@@ -8,11 +8,16 @@ namespace SkyCombGround.PersistModel
     public class GroundLoad : BaseConstants
     {
         // Load Ground elevation settings
-        private static List<string> LoadSettings(BaseDataStore droneDataStore)
+        private static (List<string>? groundSettings, List<string>? demSettings, List<string>? dsmSettings ) 
+            LoadSettings(BaseDataStore droneDataStore)
         {
-            return droneDataStore.GetColumnSettingsIfAvailable(
-                GroundTabName, GroundInputTitle, 
-                Chapter1TitleRow, LhsColOffset);
+            return (
+                droneDataStore.GetColumnSettingsIfAvailable(
+                    GroundTabName, GroundInputTitle, Chapter1TitleRow, LhsColOffset),
+                droneDataStore.GetColumnSettingsIfAvailable(
+                    GroundTabName, DemInputTitle, Chapter1TitleRow, MidColOffset),
+                droneDataStore.GetColumnSettingsIfAvailable(
+                    GroundTabName, DsmInputTitle, Chapter1TitleRow, RhsColOffset));
         }
 
 
@@ -63,14 +68,15 @@ namespace SkyCombGround.PersistModel
                 if (droneDataStore.SelectWorksheet(GroundTabName))
                 {
                     // Load the summary (settings) data 
-                    groundData = GroundDataFactory.Create(LoadSettings(droneDataStore));
+                    (var groundSettings, var demSettings, var dsmSettings) = LoadSettings(droneDataStore);
+                    groundData = GroundDataFactory.Create(groundSettings, demSettings, dsmSettings);
 
 
                     // Load ground (DEM) elevations (if any)
                     if (droneDataStore.SelectWorksheet(DemTabName))
                     {
                         LoadGrid(droneDataStore, groundData.DemModel, DemTabName);
-                        groundData.DemModel.AssertGood();
+                        groundData.DemModel.AssertListGood();
                     }
 
 
@@ -78,7 +84,7 @@ namespace SkyCombGround.PersistModel
                     if (droneDataStore.SelectWorksheet(DsmTabName))
                     {
                         LoadGrid(droneDataStore, groundData.DsmModel, DsmTabName);
-                        groundData.DsmModel.AssertGood();
+                        groundData.DsmModel.AssertListGood();
                     }
                 }
             }

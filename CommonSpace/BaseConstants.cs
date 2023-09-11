@@ -51,7 +51,10 @@ namespace SkyCombGround.CommonSpace
         public const string Main2Title = "DataStore";
         public const string IndexTitle = "Index";
         public const string FilesTitle = "Files";
-        public const string GroundInputTitle = "Ground Data";
+        public const string FlightLocationTitle = "Flight Location";
+        public const string GroundInputTitle = "Global Location";
+        public const string DemInputTitle = "Dem Data";
+        public const string DsmInputTitle = "Dsm Data";
 
 
         // Tab Names

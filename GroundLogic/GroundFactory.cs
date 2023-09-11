@@ -30,17 +30,22 @@ namespace SkyCombGround.GroundLogic
         public bool HasSwatheModel { get { return SwatheModel != null; } }
 
 
-        public GroundData(List<string>? settings = null)
+        public GroundData(List<string>? globalSettings, List<string>? demSettings, List<string>? dsmSettings)
         {
             MinGlobalLocation = null;
             MaxGlobalLocation = null;
-
             DemModel = null;
             DsmModel = null;
             SwatheModel = null;
 
-            if (settings != null)
-                LoadSettings(settings);
+            if (globalSettings != null)
+                LoadSettings(globalSettings);
+
+            if (demSettings != null)
+                DemModel = new(true, demSettings);
+
+            if (dsmSettings != null)
+                DsmModel = new(false, dsmSettings);
         }
 
 
@@ -112,43 +117,44 @@ namespace SkyCombGround.GroundLogic
         // Get the object's settings as datapairs (e.g. for saving to a datastore)
         public DataPairList GetSettings()
         {
-            var answer = new DataPairList()
-            {
+            return new DataPairList{
                 {"Min Global Location", (MinGlobalLocation == null ? UnknownString : MinGlobalLocation.ToString())},
                 {"Max Global Location", (MaxGlobalLocation == null ? UnknownString : MaxGlobalLocation.ToString())},
             };
+        }
 
+
+        public DataPairList? GetDemSettings()
+        {
             if (DemModel != null)
-                DemModel.GetSettings("Dem", ref answer);
+                return DemModel.GetSettings();
+            return null;
+        }
 
+
+        public DataPairList? GetDsmSettings()
+        {
             if (DsmModel != null)
-                DsmModel.GetSettings("Dsm", ref answer);
-
-            return answer;
+                return DsmModel.GetSettings();
+            return null;
         }
 
 
         // Load this object's settings from strings (loaded from a datastore)
         // This function must align to the above GetSettings function.
-        public void LoadSettings(List<string> settings)
+        public void LoadSettings(List<string> globalSettings)
         {
-            MinGlobalLocation = new GlobalLocation(settings[0]);
-            MaxGlobalLocation = new GlobalLocation(settings[1]);
-
-            if (settings.Count >= 14)
-                DemModel = new(true, settings, 2);
-
-            if (settings.Count >= 26)
-                DsmModel = new(false, settings, 14);
+            MinGlobalLocation = new GlobalLocation(globalSettings[0]);
+            MaxGlobalLocation = new GlobalLocation(globalSettings[1]);
         }
     }
 
 
     public class GroundDataFactory
     {
-        public static GroundData Create(List<string>? settings = null)
+        public static GroundData Create(List<string>? globalSettings = null, List<string>? demSettings = null, List<string>? dsmSettings = null)
         {
-            return new GroundData(settings);
+            return new GroundData(globalSettings, demSettings, dsmSettings);
         }
     }
 }

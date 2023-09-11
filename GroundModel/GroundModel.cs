@@ -1,7 +1,6 @@
 ﻿// Copyright SkyComb Limited 2023. All rights reserved. 
 using SkyCombGround.CommonSpace;
 using System.Drawing;
-using System.Text;
 
 
 namespace SkyCombGround.GroundModel
@@ -18,8 +17,8 @@ namespace SkyCombGround.GroundModel
     // Holds ground elevation data at all locations in a rectangular area (grid).
     public class GroundModel : BaseConstants
     {
-        public static string DemTitle = "Surface (tree-top) elevations";
-        public static string DsmTitle = "Earth (ground) elevations";
+        public static string DemTitle = "Surface (aka tree-top, DSM) elevations";
+        public static string DsmTitle = "Earth (aka ground, DEM) elevations";
         public static string SwatheTitle = "Swathe seen";
 
 
@@ -49,10 +48,10 @@ namespace SkyCombGround.GroundModel
 
         // The Northing/Easting coverage of the datums (including BufferM on each side)
         // in the local coordinate system. (Not drone zero-based coordinates.)
-        public int MaxCountryNorthingM { get; } // e.g. 5786068
-        public int MinCountryNorthingM { get; } // e.g. 5786000
-        public int MaxCountryEastingM { get; } // e.g. 1954744
-        public int MinCountryEastingM { get; } // e.g. 1954000
+        public int MaxCountryNorthingM { get; set; } // e.g. 5786068
+        public int MinCountryNorthingM { get; set; } // e.g. 5786000
+        public int MaxCountryEastingM { get; set; } // e.g. 1954744
+        public int MinCountryEastingM { get; set; } // e.g. 1954000
 
 
         // Where are we getting this elevation data from?
@@ -117,12 +116,6 @@ namespace SkyCombGround.GroundModel
         // Partial constructor initialisation of the GroundGrid
         private void Initialise()
         {
-            Assert(MinCountryNorthingM < MaxCountryNorthingM, "GroundGrid: NorthingM ordering");
-            Assert(MinCountryEastingM < MaxCountryEastingM, "GroundGrid: EastingM ordering");
-
-            Assert(MinCountryNorthingM > 5000000, "GroundGrid: NorthingM coord bad");  
-            Assert(MinCountryEastingM > 1350000, "GroundGrid: EastingM coord bad");  
-
             for (int i = 0; i < NumDatums; i++)
                 ElevationQuarterM[i] = UnknownValue;
 
@@ -139,8 +132,8 @@ namespace SkyCombGround.GroundModel
             IsDem = isDem;
             Source = "";
 
-            Assert(minCountryLocnM != null, "GroundGrid: minCountryLocnM missing");
-            Assert(maxCountryLocnM != null, "GroundGrid: maxCountryLocnM missing");
+            Assert(minCountryLocnM != null, "GroundModel: minCountryLocnM missing");
+            Assert(maxCountryLocnM != null, "GroundModel: maxCountryLocnM missing");
 
             MinCountryNorthingM = (int)(minCountryLocnM.NorthingM - GroundBufferM);
             MinCountryEastingM = (int)(minCountryLocnM.EastingM - GroundBufferM);
@@ -150,25 +143,22 @@ namespace SkyCombGround.GroundModel
             ElevationQuarterM = new short[NumDatums];
 
             Initialise();
+            AssertGood();
         }
 
 
-        public GroundModel(bool isDem, List<string> settings, int offset)
+        public GroundModel(bool isDem, List<string>? settings)
         {
             IsDem = isDem;
             Source = "";
 
-            Assert(settings != null, "GroundGrid: settings missing");
+            Assert(settings != null, "GroundModel: settings missing");
 
-            MinCountryEastingM = ConfigBase.StringToInt(settings[offset + 1]);
-            MinCountryNorthingM = ConfigBase.StringToInt(settings[offset + 2]);
-            MaxCountryEastingM = ConfigBase.StringToInt(settings[offset + 3]);
-            MaxCountryNorthingM = ConfigBase.StringToInt(settings[offset + 4]);
-
+            LoadSettings(settings);
             ElevationQuarterM = new short[NumDatums];
 
             Initialise();
-            LoadSettings(settings, offset);
+            AssertGood();
         }
 
 
@@ -179,18 +169,35 @@ namespace SkyCombGround.GroundModel
         }
 
 
-        // The list must have at least 4 points. Generally it has 100s to 1M points.
         public void AssertGood()
         {
-            FailIf(NumElevationsStored < 4, "GroundDatumList.AssertGood: Not enough ground data points.");
+            Assert(MinCountryNorthingM < MaxCountryNorthingM, "GroundModel: NorthingM ordering");
+            Assert(MinCountryEastingM < MaxCountryEastingM, "GroundModel: EastingM ordering");
+
+            Assert(MinCountryNorthingM > 5000000, "GroundModel: NorthingM coord bad");
+            Assert(MinCountryEastingM > 1350000, "GroundModel: EastingM coord bad");
+        }
+
+
+        // The list must have at least 4 points. Generally it has 1000s of points.
+        public void AssertListGood()
+        {
+            FailIf(NumElevationsStored < 4, "GroundModel.AssertListGood: Not enough ground data points.");
         }
 
 
         public void AssertGoodIndex(string usecase, int index)
         {
-            Assert(index >= 0, "GroundGrid." + usecase + ": answer low");
-            Assert(index < NumDatums, "GroundGrid." + usecase + ": answer high");
+            try
+            {
+                Assert(index >= 0, "GroundModel." + usecase + ": answer low");
+                Assert(index < NumDatums, "GroundModel." + usecase + ": answer high");
+            } catch (Exception ex)
+            {
+                   throw ThrowException(ex.ToString());
+            }
         }
+
 
 
         // Convert from drone location (e.g. [14,3] ) to a grid index. 
@@ -334,37 +341,44 @@ namespace SkyCombGround.GroundModel
         }
 
 
-        public void GetSettings(string prefix, ref DataPairList settings)
+        public DataPairList GetSettings()
         {
-            settings.Add(prefix + " Source", Source);
-            settings.Add(prefix + " Min Country Easting M", MinCountryEastingM);
-            settings.Add(prefix + " Min Country Northing M", MinCountryNorthingM);
-            settings.Add(prefix + " Max Country Easting M", MaxCountryEastingM);
-            settings.Add(prefix + " Max Country Northing M", MaxCountryNorthingM);
-            settings.Add(prefix + " Elevation Accuracy M", ElevationAccuracyM, 1);
-            settings.Add(prefix + " Max Elevation Quarter M", MaxElevationQuarterM);
-            settings.Add(prefix + " Min Elevation Quarter M", MinElevationQuarterM);
-            settings.Add(prefix + " Num Elevations Stored", NumElevationsStored);
-            settings.Add(prefix + " # Rows", NumRows);
-            settings.Add(prefix + " # Cols", NumCols);
-            settings.Add(prefix + " # Datums", NumDatums);
+            return new DataPairList{
+                { "Source", Source },
+                { "Min Country Easting M", MinCountryEastingM },
+                { "Min Country Northing M", MinCountryNorthingM },
+                { "Max Country Easting M", MaxCountryEastingM },
+                { "Max Country Northing M", MaxCountryNorthingM },
+                { "Elevation Accuracy M", ElevationAccuracyM, 1 },
+                { "Max Elevation Quarter M", MaxElevationQuarterM },
+                { "Min Elevation Quarter M", MinElevationQuarterM },
+                { "Num Elevations Stored", NumElevationsStored },
+                { "# Rows", NumRows },
+                { "# Cols", NumCols },
+                { "# Datums", NumDatums },
+            };
         }
 
 
-        public void LoadSettings(List<string> settings, int offset)
+        public void LoadSettings(List<string> settings)
         {
-            Source = settings[offset];
-            // minEastingM = ConfigBase.StringToInt(settings[offset + 1]);
-            // minNorthingM = ConfigBase.StringToInt(settings[offset + 2]);
-            // maxEastingM = ConfigBase.StringToInt(settings[offset + 3]);
-            // maxNorthingM = ConfigBase.StringToInt(settings[offset + 4]);
-            ElevationAccuracyM = ConfigBase.StringToFloat(settings[offset + 5]);
-            MaxElevationQuarterM = (short)ConfigBase.StringToInt(settings[offset + 6]);
-            MinElevationQuarterM = (short)ConfigBase.StringToInt(settings[offset + 7]);
-            NumElevationsStored = ConfigBase.StringToInt(settings[offset + 8]);
-            // NumRows = ConfigBase.StringToInt(settings[offset + 9]);
-            // NumCols = ConfigBase.StringToInt(settings[offset + 10]);
-            // NumDatums = ConfigBase.StringToInt(settings[offset + 11]);
+            Source = settings[0];
+            MinCountryEastingM = ConfigBase.StringToInt(settings[1]);
+            MinCountryNorthingM = ConfigBase.StringToInt(settings[2]);
+            MaxCountryEastingM = ConfigBase.StringToInt(settings[3]);
+            MaxCountryNorthingM = ConfigBase.StringToInt(settings[4]);
+
+            // minEastingM = ConfigBase.StringToInt(settings[1]);
+            // minNorthingM = ConfigBase.StringToInt(settings[2]);
+            // maxEastingM = ConfigBase.StringToInt(settings[3]);
+            // maxNorthingM = ConfigBase.StringToInt(settings[4]);
+            ElevationAccuracyM = ConfigBase.StringToFloat(settings[5]);
+            MaxElevationQuarterM = (short)ConfigBase.StringToInt(settings[6]);
+            MinElevationQuarterM = (short)ConfigBase.StringToInt(settings[7]);
+            NumElevationsStored = ConfigBase.StringToInt(settings[8]);
+            // NumRows = ConfigBase.StringToInt(settings[9]);
+            // NumCols = ConfigBase.StringToInt(settings[10]);
+            // NumDatums = ConfigBase.StringToInt(settings[11]);
         }
     }
 

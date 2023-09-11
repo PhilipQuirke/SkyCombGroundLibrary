@@ -43,7 +43,7 @@ namespace SkyCombGround.PersistModel
 
 
         // Save ground data (if any) to the DataStore 
-        public static void Save(BaseDataStore dataStore, GroundData groundData, bool full)
+        public static void Save(BaseDataStore? dataStore, GroundData? groundData, bool full)
         {
             if ((dataStore == null) || (groundData == null))
                 return;
@@ -55,11 +55,19 @@ namespace SkyCombGround.PersistModel
             if (full)
             {
                 dataStore.SetTitles("Ground");
-                dataStore.SetTitleAndDataListColumn(GroundInputTitle, Chapter1TitleRow, 1, groundData.GetSettings());
-                dataStore.SetColumnWidth(LhsColOffset, 30);
+
+                dataStore.SetTitleAndDataListColumn(GroundInputTitle, Chapter1TitleRow, LhsColOffset, groundData.GetSettings());
                 dataStore.SetColumnWidth(LhsColOffset + LabelToValueCellOffset, 25);
 
-                if(SaveGrid(dataStore, groundData.DemModel, DemTabName))
+                dataStore.SetTitleAndDataListColumn(DemInputTitle, Chapter1TitleRow, MidColOffset, groundData.GetDemSettings());
+                dataStore.SetColumnWidth(MidColOffset, 25);
+                dataStore.SetColumnWidth(MidColOffset + LabelToValueCellOffset, 10);
+
+                dataStore.SetTitleAndDataListColumn(DsmInputTitle, Chapter1TitleRow, RhsColOffset, groundData.GetDsmSettings());
+                dataStore.SetColumnWidth(RhsColOffset, 25);
+                dataStore.SetColumnWidth(RhsColOffset + LabelToValueCellOffset, 10);
+
+                if (SaveGrid(dataStore, groundData.DemModel, DemTabName))
                     dataStore.SetLastUpdateDateTime(DemTabName);
 
                 if(SaveGrid(dataStore, groundData.DsmModel, DsmTabName))
@@ -69,6 +77,7 @@ namespace SkyCombGround.PersistModel
                     dataStore.SetLastUpdateDateTime(SwatheTabName);
 
                 dataStore.SelectWorksheet(GroundTabName);
+
                 dataStore.HideWorksheet(DemTabName);
                 dataStore.HideWorksheet(DsmTabName);
                 dataStore.HideWorksheet(SwatheTabName);

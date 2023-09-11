@@ -313,7 +313,7 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        public void SetTitleAndDataListColumn(String title, int firstRow, int col, DataPairList list, bool showUnknown = true, int extraColOffset = 0)
+        public void SetTitleAndDataListColumn(String title, int firstRow, int col, DataPairList? list, bool showUnknown = true, int extraColOffset = 0)
         {
             int row = firstRow;
             SetTitle(ref row, col, title);
