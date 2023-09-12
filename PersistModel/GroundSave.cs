@@ -57,6 +57,7 @@ namespace SkyCombGround.PersistModel
                 dataStore.SetTitles("Ground");
 
                 dataStore.SetTitleAndDataListColumn(GroundInputTitle, Chapter1TitleRow, LhsColOffset, groundData.GetSettings());
+                dataStore.SetColumnWidth(LhsColOffset, 25);
                 dataStore.SetColumnWidth(LhsColOffset + LabelToValueCellOffset, 25);
 
                 dataStore.SetTitleAndDataListColumn(DemInputTitle, Chapter1TitleRow, MidColOffset, groundData.GetDemSettings());
