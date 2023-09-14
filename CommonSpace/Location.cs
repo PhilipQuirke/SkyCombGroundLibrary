@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 
 
 namespace SkyCombGround.CommonSpace
@@ -110,10 +109,10 @@ namespace SkyCombGround.CommonSpace
         }
 
 
-        // This is used for flight areas to show "302 x 279"
+        // This is used for flight areas to show "302 Northing x 279 Easting"
         public string ToString_Area()
         {
-            return NorthingM.ToString("0") + " x " + EastingM.ToString("0");
+            return NorthingM.ToString("0") + "m Northing x " + EastingM.ToString("0") + "m Easting";
         }
 
 

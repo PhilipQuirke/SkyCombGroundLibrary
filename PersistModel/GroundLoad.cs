@@ -86,6 +86,14 @@ namespace SkyCombGround.PersistModel
                         LoadGrid(droneDataStore, groundData.DsmModel, DsmTabName);
                         groundData.DsmModel.AssertListGood();
                     }
+
+
+                    // Load surface seen (Swathe) area (if any)
+                    if (droneDataStore.SelectWorksheet(SwatheTabName))
+                    {
+                        LoadGrid(droneDataStore, groundData.SwatheModel, SwatheTabName);
+                        groundData.SwatheModel.AssertListGood();
+                    }
                 }
             }
             catch (Exception ex)

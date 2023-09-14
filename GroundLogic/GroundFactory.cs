@@ -30,7 +30,10 @@ namespace SkyCombGround.GroundLogic
         public bool HasSwatheModel { get { return SwatheModel != null; } }
 
 
-        public GroundData(List<string>? globalSettings, List<string>? demSettings, List<string>? dsmSettings)
+        public GroundData(
+            List<string>? globalSettings, 
+            List<string>? demSettings,
+            List<string>? dsmSettings)
         {
             MinGlobalLocation = null;
             MaxGlobalLocation = null;
@@ -46,6 +49,10 @@ namespace SkyCombGround.GroundLogic
 
             if (dsmSettings != null)
                 DsmModel = new(false, dsmSettings);
+
+            // Reuse the DEM settings as the Swathe settings.
+            if (demSettings != null)
+                SwatheModel = new(demSettings);
         }
 
 
@@ -152,7 +159,10 @@ namespace SkyCombGround.GroundLogic
 
     public class GroundDataFactory
     {
-        public static GroundData Create(List<string>? globalSettings = null, List<string>? demSettings = null, List<string>? dsmSettings = null)
+        public static GroundData Create(
+            List<string>? globalSettings = null, 
+            List<string>? demSettings = null,
+            List<string>? dsmSettings = null)
         {
             return new GroundData(globalSettings, demSettings, dsmSettings);
         }

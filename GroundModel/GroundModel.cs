@@ -429,6 +429,11 @@ namespace SkyCombGround.GroundModel
         }
 
 
+        public SwatheModel(List<string>? settings) : base(false, settings)
+        {
+        }
+
+
         public int M2Seen { get { return NumElevationsStored; } }
 
 
