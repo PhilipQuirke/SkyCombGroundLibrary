@@ -1,5 +1,4 @@
 ﻿using SkyCombGround.CommonSpace;
-using SkyCombGround.GroundModel;
 using SkyCombGround.GroundLogic;
 
 
@@ -43,7 +42,7 @@ namespace SkyCombGround.PersistModel
 
 
         // Save ground data (if any) to the DataStore 
-        public static void Save(BaseDataStore? dataStore, GroundData? groundData, bool full)
+        public static void Save(BaseDataStore? dataStore, GroundData? groundData)
         {
             if ((dataStore == null) || (groundData == null))
                 return;
@@ -52,39 +51,36 @@ namespace SkyCombGround.PersistModel
             if (ws == null)
                 return;
 
-            if (full)
-            {
-                dataStore.SetTitles("Ground");
+            dataStore.SetTitles("Ground");
 
-                dataStore.SetTitleAndDataListColumn(GroundInputTitle, Chapter1TitleRow, LhsColOffset, groundData.GetSettings());
-                dataStore.SetColumnWidth(LhsColOffset, 25);
-                dataStore.SetColumnWidth(LhsColOffset + LabelToValueCellOffset, 25);
+            dataStore.SetTitleAndDataListColumn(GroundInputTitle, Chapter1TitleRow, LhsColOffset, groundData.GetSettings());
+            dataStore.SetColumnWidth(LhsColOffset, 25);
+            dataStore.SetColumnWidth(LhsColOffset + LabelToValueCellOffset, 25);
 
-                dataStore.SetTitleAndDataListColumn(DemInputTitle, Chapter1TitleRow, MidColOffset, groundData.GetDemSettings());
-                dataStore.SetColumnWidth(MidColOffset, 25);
-                dataStore.SetColumnWidth(MidColOffset + LabelToValueCellOffset, 10);
+            dataStore.SetTitleAndDataListColumn(DsmInputTitle, Chapter1TitleRow, MidColOffset, groundData.GetDsmSettings());
+            dataStore.SetColumnWidth(MidColOffset, 25);
+            dataStore.SetColumnWidth(MidColOffset + LabelToValueCellOffset, 10);
 
-                dataStore.SetTitleAndDataListColumn(DsmInputTitle, Chapter1TitleRow, RhsColOffset, groundData.GetDsmSettings());
-                dataStore.SetColumnWidth(RhsColOffset, 25);
-                dataStore.SetColumnWidth(RhsColOffset + LabelToValueCellOffset, 10);
+            dataStore.SetTitleAndDataListColumn(DemInputTitle, Chapter1TitleRow, RhsColOffset, groundData.GetDemSettings());
+            dataStore.SetColumnWidth(RhsColOffset, 25);
+            dataStore.SetColumnWidth(RhsColOffset + LabelToValueCellOffset, 10);
 
-                if (SaveGrid(dataStore, groundData.DemModel, DemTabName))
-                    dataStore.SetLastUpdateDateTime(DemTabName);
+            if (SaveGrid(dataStore, groundData.DsmModel, DsmTabName))
+                dataStore.SetLastUpdateDateTime(DsmTabName);
 
-                if(SaveGrid(dataStore, groundData.DsmModel, DsmTabName))
-                    dataStore.SetLastUpdateDateTime(DsmTabName);
+            if (SaveGrid(dataStore, groundData.DemModel, DemTabName))
+                dataStore.SetLastUpdateDateTime(DemTabName);
 
-                if(SaveGrid(dataStore, groundData.SwatheModel, SwatheTabName))
-                    dataStore.SetLastUpdateDateTime(SwatheTabName);
+            if(SaveGrid(dataStore, groundData.SwatheModel, SwatheTabName))
+                dataStore.SetLastUpdateDateTime(SwatheTabName);
 
-                dataStore.SelectWorksheet(GroundTabName);
+            dataStore.SelectWorksheet(GroundTabName);
 
-                dataStore.HideWorksheet(DemTabName);
-                dataStore.HideWorksheet(DsmTabName);
-                dataStore.HideWorksheet(SwatheTabName);
+            dataStore.HideWorksheet(DemTabName);
+            dataStore.HideWorksheet(DsmTabName);
+            dataStore.HideWorksheet(SwatheTabName);
 
-                dataStore.SetLastUpdateDateTime(GroundTabName);
-            }
+            dataStore.SetLastUpdateDateTime(GroundTabName);
         }
     }
 }

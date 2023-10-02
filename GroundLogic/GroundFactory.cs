@@ -15,43 +15,48 @@ namespace SkyCombGround.GroundLogic
         public GlobalLocation? MaxGlobalLocation;
 
 
-        // The ground elevation data
-        public GroundModel.GroundModel? DemModel { get; set; }
-
         // The ground surface (tree-top) data
         public GroundModel.GroundModel? DsmModel { get; set; }
+
+        // The ground elevation data
+        public GroundModel.GroundModel? DemModel { get; set; }
 
         // The portion of the encompassing box videoed during the drone flight.
         public GroundModel.SwatheModel? SwatheModel { get; set; }
 
 
-        public bool HasDemModel { get { return DemModel != null; } }
         public bool HasDsmModel { get { return DsmModel != null; } }
+        public bool HasDemModel { get { return DemModel != null; } }
         public bool HasSwatheModel { get { return SwatheModel != null; } }
 
 
         public GroundData(
             List<string>? globalSettings, 
-            List<string>? demSettings,
-            List<string>? dsmSettings)
+            List<string>? dsmSettings,
+            List<string>? demSettings)
         {
             MinGlobalLocation = null;
             MaxGlobalLocation = null;
-            DemModel = null;
             DsmModel = null;
+            DemModel = null;
             SwatheModel = null;
 
             if (globalSettings != null)
                 LoadSettings(globalSettings);
 
-            if (demSettings != null)
-                DemModel = new(true, demSettings);
+            bool haveDsmSettings = (dsmSettings != null) && (dsmSettings.Count > 0);
+            bool haveDemSettings = (demSettings != null) && (demSettings.Count > 0);
 
-            if (dsmSettings != null)
+            if (haveDsmSettings)
                 DsmModel = new(false, dsmSettings);
 
-            // Reuse the DEM settings as the Swathe settings.
-            if (demSettings != null)
+            if (haveDemSettings)
+                DemModel = new(true, demSettings);
+
+            // Reuse the DSM or DEM settings as the Swathe settings.
+            if(haveDsmSettings)
+                SwatheModel = new(dsmSettings);
+            else if (haveDemSettings)
                 SwatheModel = new(demSettings);
         }
 
@@ -161,10 +166,10 @@ namespace SkyCombGround.GroundLogic
     {
         public static GroundData Create(
             List<string>? globalSettings = null, 
-            List<string>? demSettings = null,
-            List<string>? dsmSettings = null)
+            List<string>? dsmSettings = null,
+            List<string>? demSettings = null)
         {
-            return new GroundData(globalSettings, demSettings, dsmSettings);
+            return new GroundData(globalSettings, dsmSettings, demSettings);
         }
     }
 }

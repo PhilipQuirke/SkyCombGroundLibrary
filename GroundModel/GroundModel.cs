@@ -8,8 +8,8 @@ namespace SkyCombGround.GroundModel
     // Class supports drawing various backgrounds
     public enum GroundType
     {
-        DemElevations,  // Ground elevations
         DsmElevations,  // Surface elevations
+        DemElevations,  // Ground elevations
         SwatheSeen      // Area overflown by drone and seen by video camera
     }
 
@@ -17,8 +17,8 @@ namespace SkyCombGround.GroundModel
     // Holds ground elevation data at all locations in a rectangular area (grid).
     public class GroundModel : BaseConstants
     {
-        public static string DemTitle = "Surface (aka tree-top, DSM) elevations";
-        public static string DsmTitle = "Earth (aka ground, DEM) elevations";
+        public static string DsmTitle = "Surface (aka tree-top, DSM) elevations";
+        public static string DemTitle = "Earth (aka ground, DEM) elevations";
         public static string SwatheTitle = "Swathe seen";
 
 

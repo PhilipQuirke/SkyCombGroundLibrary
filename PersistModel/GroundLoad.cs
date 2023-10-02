@@ -15,9 +15,9 @@ namespace SkyCombGround.PersistModel
                 droneDataStore.GetColumnSettingsIfAvailable(
                     GroundTabName, GroundInputTitle, Chapter1TitleRow, LhsColOffset),
                 droneDataStore.GetColumnSettingsIfAvailable(
-                    GroundTabName, DemInputTitle, Chapter1TitleRow, MidColOffset),
+                    GroundTabName, DsmInputTitle, Chapter1TitleRow, MidColOffset),
                 droneDataStore.GetColumnSettingsIfAvailable(
-                    GroundTabName, DsmInputTitle, Chapter1TitleRow, RhsColOffset));
+                    GroundTabName, DemInputTitle, Chapter1TitleRow, RhsColOffset));
         }
 
 
@@ -68,8 +68,8 @@ namespace SkyCombGround.PersistModel
                 if (droneDataStore.SelectWorksheet(GroundTabName))
                 {
                     // Load the summary (settings) data 
-                    (var groundSettings, var demSettings, var dsmSettings) = LoadSettings(droneDataStore);
-                    groundData = GroundDataFactory.Create(groundSettings, demSettings, dsmSettings);
+                    (var groundSettings, var dsmSettings, var demSettings) = LoadSettings(droneDataStore);
+                    groundData = GroundDataFactory.Create(groundSettings, dsmSettings, demSettings);
 
 
                     // Load ground (DEM) elevations (if any)
