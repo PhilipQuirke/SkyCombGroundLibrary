@@ -71,6 +71,7 @@ namespace SkyCombGround.CommonSpace
         public const string Steps1TabName = "Steps1";
         public const string Steps2TabName = "Steps2";
         public const string LegsTabName = "Legs";
+        public const string WayPointsTabName = "WayPts";
         public const string ProcessTabName = "Process";
         public const string Blocks1TabName = "Blks1";
         public const string Blocks2TabName = "Blks2";
