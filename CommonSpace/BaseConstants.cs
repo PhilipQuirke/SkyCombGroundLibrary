@@ -35,6 +35,7 @@ namespace SkyCombGround.CommonSpace
         public const float Epsilon = 0.000001f;
 
         public const string DateFormat = "yyyy-MM-dd HH:mm:ss.fff";
+        public const string MediumDateFormat = "yyyy-MM-dd HH:mm:ss";
         public const string ShortDateFormat = "yyyy-MM-dd HH:mm";
         public const string SpanFormat = "c";  // "HH:mm:ss.fff";
 
