@@ -32,7 +32,7 @@ namespace SkyCombGround.CommonSpace
         public const int UnknownSectionId = 999999;
         public const int UnknownStepId = UnknownSectionId;
 
-        public float Epsilon = 0.000001f;
+        public const float Epsilon = 0.000001f;
 
         public const string DateFormat = "yyyy-MM-dd HH:mm:ss.fff";
         public const string ShortDateFormat = "yyyy-MM-dd HH:mm";
