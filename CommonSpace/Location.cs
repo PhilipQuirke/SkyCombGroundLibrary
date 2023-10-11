@@ -68,8 +68,12 @@ namespace SkyCombGround.CommonSpace
 
         // Distance North (South if negative) in meters. Similar to Latitude 
         public float NorthingM { get; set; }
+        
         // Distance East (West if negative) in meters. Similar to Longitude
         public float EastingM { get; set; }
+
+        // Length of the vector in Meters
+        public float DiagonalM { get { return (float)Math.Sqrt(Math.Pow(EastingM, 2) + Math.Pow(NorthingM, 2)); } }
 
 
         public RelativeLocation(float northingM = 0, float eastingM = 0)
@@ -114,14 +118,6 @@ namespace SkyCombGround.CommonSpace
         {
             return NorthingM.ToString("0") + "m Northing x " + EastingM.ToString("0") + "m Easting";
         }
-
-
-        // Length of the vector in Meters
-        public float DiagonalM()
-        {
-            return (float)Math.Sqrt(Math.Pow(EastingM, 2) + Math.Pow(NorthingM, 2));
-        }
-
 
         public virtual RelativeLocation Clone()
         {
@@ -223,32 +219,62 @@ namespace SkyCombGround.CommonSpace
         }
 
 
-        // Return copy of this vector translated by the specified distance
-        public DroneLocation Translate(DroneLocation? distance)
-        {
-            if (distance == null)
-                return this.Clone();
-
-            return new DroneLocation(
-                this.NorthingM + distance.NorthingM,
-                this.EastingM + distance.EastingM);
-        }
-
-
-        // Return negated copy of this vector
-        public DroneLocation Negate()
-        {
-            return new DroneLocation(
-                -this.NorthingM,
-                -this.EastingM);
-        }
-
-
+        // Return a new DroneLocation equal to the sume of this and the specified vector
         public DroneLocation Add(VelocityF delta, float factor = 1)
         {
             return new DroneLocation(
                 this.NorthingM + delta.Value.Y * factor,
                 this.EastingM + delta.Value.X * factor);
+        }
+
+
+        // Return copy of this vector translated by the specified distance
+        public DroneLocation Translate(DroneLocation? distance, float factor = 1)
+        {
+            if (distance == null)
+                return this.Clone();
+
+            return new DroneLocation(
+                this.NorthingM + distance.NorthingM * factor,
+                this.EastingM + distance.EastingM * factor);
+        }
+
+
+        // Return a new DroneLocation equal to the sum of this and the other DroneLocation
+        public DroneLocation Add(DroneLocation other)
+        {
+            return Translate(other, +1);
+        }
+
+
+        // Return a new DroneLocation equal to the difference of this and the other DroneLocation
+        public DroneLocation Subtract(DroneLocation other)
+        {
+            return Translate(other, -1);
+        }
+
+
+        // Return a new DroneLocation equal to this location scaled by factor
+        public DroneLocation Multiply(float factor)
+        {
+            return new DroneLocation(
+                this.NorthingM * factor,
+                this.EastingM * factor);
+        }
+
+
+        // Return a new DroneLocation equal to the negated copy of this vector
+        public DroneLocation Negate( )
+        {
+            return Multiply(-1);
+        }
+
+
+        // Return a new DroneLocation equal to a unit vector of this location
+        public DroneLocation UnitVector()
+        {
+            var diagonalM = DiagonalM;
+            return Multiply(diagonalM == 0 ? 0 : 1 / diagonalM);
         }
 
 
