@@ -360,8 +360,11 @@ namespace SkyCombGround.GroundModel
         }
 
 
-        public void LoadSettings(List<string> settings)
+        public void LoadSettings(List<string>? settings)
         {
+            if( settings == null)
+                return; 
+
             Source = settings[0];
             MinCountryEastingM = ConfigBase.StringToInt(settings[1]);
             MinCountryNorthingM = ConfigBase.StringToInt(settings[2]);

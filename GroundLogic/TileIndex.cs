@@ -232,7 +232,7 @@ namespace SkyCombGround.GroundLogic
 
                 return true;
             }
-            catch( Exception ex)
+            catch
             {
                 Tiles.Clear();
                 return false;
