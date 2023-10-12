@@ -209,7 +209,7 @@ namespace SkyCombGround.GroundModel
 
             if (strict)
                 AssertGoodIndex("DroneLocnToGridIndex", index);
-            else if ((index < 0) || (index > NumDatums))
+            else if ((index < 0) || (index >= NumDatums))
                 index = UnknownValue;
 
             return index;
@@ -262,15 +262,23 @@ namespace SkyCombGround.GroundModel
         // distance from queryLocn to the closest point is not important. 
         public float GetElevationByDroneLocn(DroneLocation droneLocnM)
         {
-            // Because of GroundBufferM, the drone should not be near the edge of the grid.
-            // But objects in the area seen by the camera may be near or past the edge of the grid.
-            // And a lack of DEM & DSM Lidar data may mean that the grid is not as big as we want.
-            int gridIndex = DroneLocnToGridIndex(droneLocnM, false);
-            if (gridIndex == UnknownValue)
-                return UnknownValue;
+            int gridIndex = UnknownValue;
+            try
+            {
+                // Because of GroundBufferM, the drone should not be near the edge of the grid.
+                // But objects in the area seen by the camera may be near or past the edge of the grid.
+                // And a lack of DEM & DSM Lidar data may mean that the grid is not as big as we want.
+                gridIndex = DroneLocnToGridIndex(droneLocnM, false);
+                if (gridIndex == UnknownValue)
+                    return UnknownValue;
 
-            if (ElevationQuarterM[gridIndex] != UnknownValue)
-                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex]);
+                if (ElevationQuarterM[gridIndex] != UnknownValue)
+                    return GridElevationQuarterMToM(ElevationQuarterM[gridIndex]);
+            }
+            catch (Exception ex)
+            {
+                throw ThrowException(ex.ToString());
+            }
 
             return UnknownValue;
         }
