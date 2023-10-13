@@ -501,6 +501,29 @@ namespace SkyCombGround.GroundModel
             // Paint diagonals
             DroneLineSeen(bottomLeftLocn, topRightLocn);
             DroneLineSeen(topLeftLocn, bottomRightLocn);
+
+
+            // Paint the core (unrotated) rectangle contained within the four corners
+            List<float> northList = new List<float> {
+                topLeftLocn.NorthingM,
+                topRightLocn.NorthingM,
+                bottomRightLocn.NorthingM,
+                bottomLeftLocn.NorthingM};
+            northList.Sort(); // Sort in ascending order
+
+            List<float> eastList = new List<float> {
+                topLeftLocn.EastingM,
+                topRightLocn.EastingM,
+                bottomRightLocn.EastingM,
+                bottomLeftLocn.EastingM };
+            eastList.Sort(); // Sort in ascending order
+
+            for (float north = northList[1]; north <= northList[2]; north++)
+                for (float east = eastList[1]; east <= eastList[2]; east++)
+                {
+                    var locn = new RelativeLocation(north, east);
+                    DronePointSeen(locn);
+                }
         }
     }
 }
