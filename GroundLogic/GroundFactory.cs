@@ -1,5 +1,7 @@
 ﻿// Copyright SkyComb Limited 2023. All rights reserved. 
 using SkyCombGround.CommonSpace;
+using SkyCombGround.GroundModel;
+using System.Drawing;
 
 
 // Return ground & surface elevation data from under the drone path.
@@ -158,6 +160,21 @@ namespace SkyCombGround.GroundLogic
         {
             MinGlobalLocation = new GlobalLocation(globalSettings[0]);
             MaxGlobalLocation = new GlobalLocation(globalSettings[1]);
+        }
+
+
+        public GroundModel.GroundModel? GroundModelByType(GroundType groundType)
+        {
+            switch (groundType)
+            {
+                case GroundType.DsmElevations:
+                    return DsmModel;
+                case GroundType.DemElevations:
+                    return DemModel;
+                case GroundType.SwatheSeen:
+                    return SwatheModel;
+            }
+            return null;
         }
     }
 
