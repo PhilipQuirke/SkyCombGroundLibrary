@@ -151,6 +151,14 @@ namespace SkyCombGround.PersistModel
         }
 
 
+        public void DeleteWorksheet()
+        {
+            if (Worksheet != null)
+                // Delete the worksheet
+                Store.Workbook.Worksheets.Delete(Worksheet);
+        }
+
+
         public void TrimLastEmptyRows()
         {
             while (IsLastRowEmpty())
