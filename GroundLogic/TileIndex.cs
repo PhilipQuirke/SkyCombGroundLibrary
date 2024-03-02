@@ -14,12 +14,12 @@ namespace SkyCombGround.GroundLogic
     public class TileIndex : BaseConstants
     {
         public const string NzGeoGcs = "NZGD2000";
-        public const string IndexSuffix = "\\SkyCombIndexTiff.xlsx";
+        public const string IndexSuffix = "SkyCombIndexTiff.xlsx";
 
 
         // Ground directory e.g. D:\SkyComb\Ground_Data
         public string GroundDirectory = "";
-        public string IndexFileName { get { return GroundDirectory + IndexSuffix; } }
+        public string IndexFileName { get { return GroundDirectory + "\\" + IndexSuffix; } }
 
 
         public TileModelList Tiles;
@@ -69,7 +69,7 @@ namespace SkyCombGround.GroundLogic
             // If groundDirectory is not specified or is invalid then we may have not books.
             if (Tiles.Count > 0)
             {
-                string fullfileName = GroundDirectory + IndexSuffix;
+                string fullfileName = IndexFileName; // GroundDirectory + "\\" + IndexSuffix;
                 IndexLoadSave indexStore = new (fullfileName);
                 indexStore.Save(Tiles);
             }
