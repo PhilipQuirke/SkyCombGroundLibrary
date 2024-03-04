@@ -36,6 +36,29 @@ namespace SkyCombGround.PersistModel
         }
 
 
+        // Count the number of books in the datastore
+        public int Count()
+        {
+            int answer = 0;
+            try
+            {
+                Open();
+
+                if (SelectWorksheet(FilesTabName))
+                    if ((Worksheet != null) && (Worksheet.Dimension != null) && (Worksheet.Dimension.End != null))
+                        answer = Worksheet.Dimension.End.Row - 1;
+
+                Close();
+            }
+            catch (Exception ex)
+            {
+                throw ThrowException("IndexLoadSave.Count:", ex);
+            }
+
+            return answer;
+        }
+
+
         // Load the list of books from the datastore that intersects the target area
         public int Load(TileModelList bookNames, RectangleF targetArea, string theGeoGcs, bool yAxisPositive)
         {

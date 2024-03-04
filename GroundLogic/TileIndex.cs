@@ -1,80 +1,55 @@
-﻿// Copyright SkyComb Limited 2023. All rights reserved. 
+﻿// Copyright SkyComb Limited 2024. All rights reserved. 
 using BitMiracle.LibTiff.Classic;
 using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundModel;
 using SkyCombGround.PersistModel;
 using System.Drawing;
+using System.IO;
 
 
 // Read & index ground & surface elevation data from files on disk 
 // Refer https://github.com/PhilipQuirke/SkyCombAnalystHelp/Ground.md for more background
 namespace SkyCombGround.GroundLogic
 {
-    // Build and save a list (index) to the ground contour TIFFs in a datastore
+
+    // Build and save a list (index) to the ground contour TIFFs in a single directory into a datastore (xlsx)
     public class TileIndex : BaseConstants
     {
         public const string NzGeoGcs = "NZGD2000";
         public const string IndexSuffix = "SkyCombIndexTiff.xlsx";
 
 
-        // Ground directory e.g. D:\SkyComb\Ground_Data
-        public string GroundDirectory = "";
-        public string IndexFileName { get { return GroundDirectory + "\\" + IndexSuffix; } }
+        // Ground directory e.g. D:\SkyComb\Ground_Data\lds-canterbury-lidar-1m-dsm-2020-2023-GTiff\
+        public string GroundSubDirectory = "";
+        public string IndexFileName { get { return GroundSubDirectory + "\\" + IndexSuffix; } }
 
 
         public TileModelList Tiles;
 
 
-        // Normal constructor. Creates index if needed.
-        public TileIndex(string groundDirectory, RectangleF targetArea, string theGeoGcs, bool yAxisPositive)
+        // Normal constructor. Loads index
+        public TileIndex(string groundSubDirectory, RectangleF targetArea, string theGeoGcs, bool yAxisPositive)
         {
-            GroundDirectory = groundDirectory.TrimEnd('\\'); // Remove any trailing backslash
+            GroundSubDirectory = groundSubDirectory.TrimEnd('\\'); // Remove any trailing backslash
             Tiles = new();
 
 
-            // If we can't find the index, create one.
-            if (! IndexLoadSave.Exists(IndexFileName))
-                CreateTileIndex();
-
-
-            // Load the list of tiles from the datastore that intersects the target area
-            IndexLoadSave indexStore = new(IndexFileName);
-            indexStore.Load(Tiles, targetArea, theGeoGcs, yAxisPositive);
-        }
-
-
-        // Rebuild constructor. Rarely used. Updates index if needed. Slow.
-        public TileIndex(string groundDirectory, bool yAxisPositive)
-        {
-            GroundDirectory = groundDirectory.TrimEnd('\\'); // Remove any trailing backslash
-            Tiles = new();
-
-            RebuildTileIndex(yAxisPositive);
-        }
-
-
-        // Create an index of all the tiles in the ground directory. Very slow. Say 20mins
-        public void CreateTileIndex()
-        {
-            // Find all useful tiles so we can create a SkyCombIndexTiff.xlsx
-            AddTiles();
-
-            SaveTiles();
-        }
-
-
-        private void SaveTiles()
-        { 
-            // If we have tiles, create a tile index
-            // If groundDirectory is not specified or is invalid then we may have not books.
-            if (Tiles.Count > 0)
+            if (IndexLoadSave.Exists(IndexFileName))
             {
-                string fullfileName = IndexFileName; // GroundDirectory + "\\" + IndexSuffix;
-                IndexLoadSave indexStore = new (fullfileName);
-                indexStore.Save(Tiles);
+                // Load the list of tiles from the datastore that intersects the target area
+                IndexLoadSave indexStore = new(IndexFileName);
+                indexStore.Load(Tiles, targetArea, theGeoGcs, yAxisPositive);
             }
+        }
 
-            Tiles.Clear();
+
+        // Rebuild constructor. Rarely used. Creates / updates index if needed. Slow.
+        public TileIndex(string groundSubDirectory)
+        {
+            GroundSubDirectory = groundSubDirectory.TrimEnd('\\'); // Remove any trailing backslash
+            Tiles = new();
+
+            ValidateOrCreateTileIndex();
         }
 
 
@@ -110,133 +85,85 @@ namespace SkyCombGround.GroundLogic
         }
 
 
-        // By scanning all folders in groundDirectory, find and return all TIF files 
-        public void AddTiles()
+        // Load all tiles and create the index
+        public bool CreateTileIndex(string subdir)
         {
             int fileProcessed = 0;
 
             try
             {
-                if (GroundDirectory != "")
+                // Read the names of the tiff files in the directory
+                string[] tiffFileNames = Directory.GetFiles(subdir, "*.tif");
+                foreach (var tiffFileName in tiffFileNames)
                 {
-                    // Read the names of the subdirectories
-                    string[] subdirs = Directory.GetDirectories(GroundDirectory);
-                    foreach (var subdir in subdirs)
+                    try
                     {
-                        // Read the names of the tiff files in the directory
-                        string[] tiffFileNames = Directory.GetFiles(subdir, "*.tif");
-                        foreach (var tiffFileName in tiffFileNames)
-                        {
-                            try
-                            {
-                                fileProcessed++;
+                        fileProcessed++;
 
-                                var shortFileName = tiffFileName.Substring(subdir.Length + 1);
-                                var shortSubdir = subdir.Substring(GroundDirectory.Length + 1);
+                        var shortFileName = tiffFileName.Substring(subdir.Length + 1);
+                        var shortSubdir = new DirectoryInfo(subdir).Name;
 
-                                AddTile(tiffFileName, shortSubdir, shortFileName);
-                            }
-                            catch
-                            {
-                                fileProcessed--;
-                                // We ignore files we can't parse 
-                            }
-                        }
+                        AddTile(tiffFileName, shortSubdir, shortFileName);
+                    }
+                    catch
+                    {
+                        fileProcessed--;
+                        // We ignore files we can't parse 
                     }
                 }
+
+                // If we have tiles, create a tile index
+                bool success = (Tiles.Count > 0);
+                if (success)
+                {
+                    string fullfileName = IndexFileName;
+                    IndexLoadSave indexStore = new(fullfileName);
+                    indexStore.Save(Tiles);
+                    Tiles.Clear();
+                }
+
+                return success;
             }
             catch
             {
                 Tiles.Clear();
+                return false;
             }
         }
 
 
         // Usual case is that the user has obtained additional TIFFs and
         // wants to add them to the index. This is a slow process.
-        // Also check for any duplicates in the index.
-        private bool RebuildTileIndex(bool yAxisPositive)
+        private bool ValidateOrCreateTileIndex()
         {
-            if (GroundDirectory == "")
+            if (GroundSubDirectory == "")
                 return false;
 
-            // If we can't find the index, create one using standard method.
-            if (!IndexLoadSave.Exists(IndexFileName))
+            // If there are no TIFs in the directory, we dont need an index
+            string[] tiffFileNames = Directory.GetFiles(GroundSubDirectory, "*.tif");
+            if (tiffFileNames.Length == 0)
             {
-                CreateTileIndex();
-                return true;
-            }
-
-
-            // Load all the books from the datastore. Takes ~9 seconds.
-            IndexLoadSave bookStore = new(IndexFileName);
-            int lastDataStoreRow = bookStore.Load(Tiles, new(), "", yAxisPositive);
-
-
-            // Check that index is good
-            bool indexBad = false;
-            foreach(var outerBook in Tiles)
-            {
-                foreach (var innerBook in Tiles)
-                {
-                    if( string.Compare(outerBook.Value.FileName, innerBook.Value.FileName) <= 0 )
-                        continue;
-
-                    if ((outerBook.Value.XllCorner == innerBook.Value.XllCorner) &&
-                       (outerBook.Value.YllCorner == innerBook.Value.YllCorner) &&
-                       (outerBook.Value.IsDem == innerBook.Value.IsDem))
-                        indexBad = true;
-                }
-            }
-            if(indexBad)
-            {
-                // Delete the existing bad index file
                 File.Delete(IndexFileName);
-
-                // Create a clean index
-                CreateTileIndex();
                 return true;
             }
 
 
-            // Scan the folders and for each book found
-            // If the book is not in the index, add it.
-            try
+            // If an index exists and is up to date, we dont need to do anything
+            if (IndexLoadSave.Exists(IndexFileName))
             {
-                // Read the names of the subdirectories
-                string[] subdirs = Directory.GetDirectories(GroundDirectory);
-                foreach (var subdir in subdirs)
-                {
-                    // Read the names of the tiff files in the directory
-                    string[] tiffFileNames = Directory.GetFiles(subdir, "*.tif");
-                    foreach (var tiffFileName in tiffFileNames)
-                    {
-                        try
-                        {
-                            var shortFileName = tiffFileName.Substring(subdir.Length + 1);
-                            var shortSubdir = subdir.Substring(GroundDirectory.Length + 1);
+                IndexLoadSave bookStore = new(IndexFileName);
+                int numDataStoreRows = bookStore.Count();
 
-                            if (Tiles.TryGetValue(shortFileName, out var orgBook))
-                                continue;
+                if (numDataStoreRows == tiffFileNames.Length)
+                    return true; // Index is up to date 
 
-                            AddTile(tiffFileName, shortSubdir, shortFileName);
-                        }
-                        catch
-                        {
-                            // We ignore files we can't parse 
-                        }
-                    }
-                }
-
-                SaveTiles();
-
-                return true;
+                // Delete the existing index file as it is out of date
+                File.Delete(IndexFileName);
             }
-            catch
-            {
-                Tiles.Clear();
-                return false;
-            }   
+
+
+            // Create the SkyCombIndexTiff.xlsx containing the list of tiles
+            return CreateTileIndex(GroundSubDirectory);
         }
     }
 }

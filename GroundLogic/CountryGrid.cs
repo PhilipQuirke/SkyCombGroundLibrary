@@ -2,6 +2,8 @@
 using BitMiracle.LibTiff.Classic;
 using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundModel;
+using System.Drawing;
+using System.Text.RegularExpressions;
 
 
 // Handles GeoTiff file with suffix ".tif"
@@ -149,7 +151,7 @@ namespace SkyCombGround.GroundLogic
 
 
     // Derived class specific to New Zealand and the GCS_NZGD_2000 data format.
-    // #ExtendGroundSpace: For data sources from other countries, clone and modfiy this class's source ccode
+    // #ExtendGroundSpace: For data sources from other countries, clone and modify this class's source code
     internal class NzGrid : CountryGrid
     {
         public NzGrid(string groundDirectory, bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
@@ -162,9 +164,31 @@ namespace SkyCombGround.GroundLogic
 
     // Calculate ground DEM and DSM using TIFF files on disk for New Zealand locations
     // Refer https://github.com/PhilipQuirke/SkyCombAnalystHelp/Ground.md for more detail.
-    // #ExtendGroundSpace: For data sources from other countries, clone and modfiy this class's source ccode
+    // #ExtendGroundSpace: For data sources from other countries, clone and modify this class's source code
     public class GroundTiffNZ : BaseConstants
     {
+
+        // PQR: Assumes there is only one applicable (DEM or DSM) index. In rare cases, there may be 2 applicable indexes
+        // PQR: Assumes that each index has either DEM or DSM data but not both. This is a reasonable assumption.
+        public static TileIndex FindExistingIndex(string groundSubDirectory, RectangleF targetCountryAreaM, bool isDem)
+        {
+            // Open an index of the ground DEM/DSM books found in groundDirectory (or subdirectory)
+            TileIndex groundIndex = new(groundSubDirectory, targetCountryAreaM, TileIndex.NzGeoGcs, false);
+            if ((groundIndex.Tiles.Count > 0) && (groundIndex.Tiles.Values[0].IsDem == isDem))
+                return groundIndex;
+
+
+            // Recursively handle subfolders
+            string[] subfolders = Directory.GetDirectories(groundSubDirectory);
+            foreach (string subfolder in subfolders)
+                groundIndex = FindExistingIndex(subfolder, targetCountryAreaM, isDem);
+                if (groundIndex != null)
+                    return groundIndex;
+
+            return null;
+        }
+
+
         // Using TIFF files in subfolders of the groundDirectory folder,
         // return a list of unsorted DEM and DSM elevations inside the min/max location range.
         public static (CountryGrid? demDatums, CountryGrid? dsmDatums)
@@ -180,20 +204,23 @@ namespace SkyCombGround.GroundLogic
                     var maxCountryM = NztmProjection.WgsToNztm(groundData.MaxGlobalLocation);
 
                     var demDatums = new NzGrid(groundDirectory, true, minCountryM, maxCountryM);
-                    var dsmDatums = new NzGrid(groundDirectory, false, minCountryM, maxCountryM);
-
-                    // Create (slow) or open (fast) an index of the ground DEM/DSM books found in groundDirectory
-                    TileIndex groundIndex = new(groundDirectory, demDatums.TargetCountryAreaM(), TileIndex.NzGeoGcs, false); 
-
+                    // Open an index of the ground DEM books found in groundDirectory (or subdirectory)
+                    TileIndex groundIndex = FindExistingIndex(groundDirectory, demDatums.TargetCountryAreaM(), true);
                     // Find the books that can provide ground data for the drone flight area.
-                    if (groundIndex.Tiles.Count > 0)
+                    if ((groundIndex != null) && (groundIndex.Tiles.Count > 0))
                     {
                         demDatums.GetDatumsInLocationCoordinates(groundIndex.Tiles);
-                        dsmDatums.GetDatumsInLocationCoordinates(groundIndex.Tiles);
-
                         if ((demDatums.NumDatums == 0) || (demDatums.NumElevationsStored == 0))
                             demDatums = null;
+                    }
 
+                    var dsmDatums = new NzGrid(groundDirectory, false, minCountryM, maxCountryM);
+                    // Open an index of the ground DSM books found in groundDirectory (or subdirectory)
+                    groundIndex = FindExistingIndex(groundDirectory, demDatums.TargetCountryAreaM(), false);
+                    // Find the books that can provide ground data for the drone flight area.
+                    if ((groundIndex != null) && (groundIndex.Tiles.Count > 0))
+                    {
+                        dsmDatums.GetDatumsInLocationCoordinates(groundIndex.Tiles);
                         if ((dsmDatums.NumDatums == 0) || (dsmDatums.NumElevationsStored == 0))
                             dsmDatums = null;
                     }
@@ -209,10 +236,17 @@ namespace SkyCombGround.GroundLogic
         }
 
 
-        public static void RebuildIndex(string groundDirectory)
+        // Scan groundDirectory folder and sub-folders, building TIF indexes.
+        // For each folder or sub-folder containing TIFs, build a new index (spreadheet)
+        public static void RebuildIndexes(string folderPath)
         {
-            groundDirectory = groundDirectory.Trim('\\');
-            TileIndex index = new(groundDirectory,false);
+            // Maybe create an index for the current folder
+            new TileIndex(folderPath);
+
+            // Recursively handle subfolders
+            string[] subfolders = Directory.GetDirectories(folderPath);
+            foreach (string subfolder in subfolders)
+                RebuildIndexes(subfolder);
         }
 
     }
