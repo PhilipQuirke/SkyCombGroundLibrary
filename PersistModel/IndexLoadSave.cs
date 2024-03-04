@@ -60,7 +60,7 @@ namespace SkyCombGround.PersistModel
 
 
         // Load the list of books from the datastore that intersects the target area
-        public int Load(TileModelList bookNames, RectangleF targetArea, string theGeoGcs, bool yAxisPositive)
+        public void Load(TileModelList bookNames, RectangleF targetArea, string theGeoGcs, bool yAxisPositive)
         {
             int row = 2;
             try
@@ -103,8 +103,6 @@ namespace SkyCombGround.PersistModel
             {
                 throw ThrowException("IndexLoadSave.Load: Row=" + row, ex);
             }
-
-            return row;
         }
     }
 }

@@ -173,7 +173,7 @@ namespace SkyCombGround.GroundLogic
         public static TileIndex FindExistingIndex(string groundSubDirectory, RectangleF targetCountryAreaM, bool isDem)
         {
             // Open an index of the ground DEM/DSM books found in groundDirectory (or subdirectory)
-            TileIndex groundIndex = new(groundSubDirectory, targetCountryAreaM, TileIndex.NzGeoGcs, false);
+            TileIndex groundIndex = new(groundSubDirectory, targetCountryAreaM, TileIndex.NzGeoGcs, false, isDem);
             if ((groundIndex.Tiles.Count > 0) && (groundIndex.Tiles.Values[0].IsDem == isDem))
                 return groundIndex;
 
@@ -181,9 +181,11 @@ namespace SkyCombGround.GroundLogic
             // Recursively handle subfolders
             string[] subfolders = Directory.GetDirectories(groundSubDirectory);
             foreach (string subfolder in subfolders)
+            {
                 groundIndex = FindExistingIndex(subfolder, targetCountryAreaM, isDem);
                 if (groundIndex != null)
                     return groundIndex;
+            }
 
             return null;
         }

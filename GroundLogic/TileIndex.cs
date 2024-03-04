@@ -4,7 +4,6 @@ using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundModel;
 using SkyCombGround.PersistModel;
 using System.Drawing;
-using System.IO;
 
 
 // Read & index ground & surface elevation data from files on disk 
@@ -16,28 +15,31 @@ namespace SkyCombGround.GroundLogic
     public class TileIndex : BaseConstants
     {
         public const string NzGeoGcs = "NZGD2000";
-        public const string IndexSuffix = "SkyCombIndexTiff.xlsx";
+        public const string DemIndexSuffix = "SkyCombDemIndex.xlsx";
+        public const string DsmIndexSuffix = "SkyCombDsmIndex.xlsx";
 
-
+         
         // Ground directory e.g. D:\SkyComb\Ground_Data\lds-canterbury-lidar-1m-dsm-2020-2023-GTiff\
         public string GroundSubDirectory = "";
-        public string IndexFileName { get { return GroundSubDirectory + "\\" + IndexSuffix; } }
+        public string DemIndexFileName { get { return GroundSubDirectory + "\\" + DemIndexSuffix; } }
+        public string DsmIndexFileName { get { return GroundSubDirectory + "\\" + DsmIndexSuffix; } }
 
 
         public TileModelList Tiles;
 
 
         // Normal constructor. Loads index
-        public TileIndex(string groundSubDirectory, RectangleF targetArea, string theGeoGcs, bool yAxisPositive)
+        public TileIndex(string groundSubDirectory, RectangleF targetArea, string theGeoGcs, bool yAxisPositive, bool isDem)
         {
             GroundSubDirectory = groundSubDirectory.TrimEnd('\\'); // Remove any trailing backslash
             Tiles = new();
 
+            string fileName = isDem ? DemIndexFileName : DsmIndexFileName;
 
-            if (IndexLoadSave.Exists(IndexFileName))
+            if (IndexLoadSave.Exists(fileName))
             {
                 // Load the list of tiles from the datastore that intersects the target area
-                IndexLoadSave indexStore = new(IndexFileName);
+                IndexLoadSave indexStore = new(fileName);
                 indexStore.Load(Tiles, targetArea, theGeoGcs, yAxisPositive);
             }
         }
@@ -116,7 +118,8 @@ namespace SkyCombGround.GroundLogic
                 bool success = (Tiles.Count > 0);
                 if (success)
                 {
-                    string fullfileName = IndexFileName;
+                    bool isDem = Tiles.Values[0].IsDem;
+                    string fullfileName = isDem ? DemIndexFileName : DsmIndexFileName;
                     IndexLoadSave indexStore = new(fullfileName);
                     indexStore.Save(Tiles);
                     Tiles.Clear();
@@ -143,24 +146,27 @@ namespace SkyCombGround.GroundLogic
             string[] tiffFileNames = Directory.GetFiles(GroundSubDirectory, "*.tif");
             if (tiffFileNames.Length == 0)
             {
-                File.Delete(IndexFileName);
+                File.Delete(DsmIndexFileName);
+                File.Delete(DemIndexFileName);
                 return true;
             }
 
-
             // If an index exists and is up to date, we dont need to do anything
-            if (IndexLoadSave.Exists(IndexFileName))
-            {
-                IndexLoadSave bookStore = new(IndexFileName);
-                int numDataStoreRows = bookStore.Count();
+            for( int i = 0; i < 2; i++)
+            { 
+                string fileName = i == 0 ? DemIndexFileName : DsmIndexFileName;
+                if (IndexLoadSave.Exists(fileName))
+                {
+                    IndexLoadSave bookStore = new(fileName);
+                    int numDataStoreRows = bookStore.Count();
 
-                if (numDataStoreRows == tiffFileNames.Length)
-                    return true; // Index is up to date 
+                    if (numDataStoreRows == tiffFileNames.Length)
+                        return true; // Index is up to date 
 
-                // Delete the existing index file as it is out of date
-                File.Delete(IndexFileName);
+                    // Delete the existing index file as it is out of date
+                    File.Delete(fileName);
+                }
             }
-
 
             // Create the SkyCombIndexTiff.xlsx containing the list of tiles
             return CreateTileIndex(GroundSubDirectory);
