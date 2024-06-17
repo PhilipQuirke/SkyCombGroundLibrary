@@ -174,7 +174,7 @@ namespace SkyCombGround.GroundModel
             Assert(MinCountryNorthingM < MaxCountryNorthingM, "GroundModel: NorthingM ordering");
             Assert(MinCountryEastingM < MaxCountryEastingM, "GroundModel: EastingM ordering");
 
-            Assert(MinCountryNorthingM > 5000000, "GroundModel: NorthingM coord bad");
+            Assert(MinCountryNorthingM > 4500000, "GroundModel: NorthingM coord bad");
             Assert(MinCountryEastingM > 1350000, "GroundModel: EastingM coord bad");
         }
 

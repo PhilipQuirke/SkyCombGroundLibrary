@@ -230,8 +230,9 @@ namespace SkyCombGround.GroundLogic
                     return (demDatums, dsmDatums);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                throw ThrowException("GroundTiffNZ.CalcElevations", ex);
             }
 
             return (null, null);
