@@ -19,7 +19,7 @@ namespace SkyCombGround.GroundLogic
         public const string DsmIndexSuffix = "SkyCombDsmIndex.xlsx";
 
          
-        // Ground directory e.g. D:\SkyComb\Ground_Data\lds-canterbury-lidar-1m-dsm-2020-2023-GTiff\
+        // Ground directory e.g. D:\SkyComb\Data_Ground\lds-canterbury-lidar-1m-dsm-2020-2023-GTiff\
         public string GroundSubDirectory = "";
         public string DemIndexFileName { get { return GroundSubDirectory + "\\" + DemIndexSuffix; } }
         public string DsmIndexFileName { get { return GroundSubDirectory + "\\" + DsmIndexSuffix; } }

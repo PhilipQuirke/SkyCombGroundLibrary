@@ -527,35 +527,35 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        // Assuming that the file name is something like F:\SkyComb\Input_Data\Philip_Quirke\DJI_0027.SRT
-        // return the string F:\SkyComb\Ground_Data
+        // Assuming that the file name is something like F:\SkyComb\Data_Input\Philip_Quirke\DJI_0027.SRT
+        // return the string F:\SkyComb\Data_Ground
         public static string GuessGroundDataFolderFromFileName(string fileName)
         {
             if (fileName.Length < 15)
                 return "";
 
-            int pos = fileName.IndexOf("Input_Data");
+            int pos = fileName.IndexOf("Data_Input");
 
             if (pos < 0)
                 return "";
 
-            return fileName.Substring(0, pos) + "Ground_Data";
+            return fileName.Substring(0, pos) + "Data_Ground";
         }
 
 
-        // Assuming that the file name is something like F:\SkyComb\Input_Data\Philip_Quirke\DJI_0027.SRT
-        // return the string F:\SkyComb\Output_Data
+        // Assuming that the file name is something like F:\SkyComb\Data_Input\Philip_Quirke\DJI_0027.SRT
+        // return the string F:\SkyComb\Data_Output
         public static string GuessOutputDataFolderFromFileName(string fileName)
         {
             if (fileName.Length < 15)
                 return "";
 
-            int pos = fileName.IndexOf("Input_Data");
+            int pos = fileName.IndexOf("Data_Input");
 
             if (pos < 0)
                 return "";
 
-            return fileName.Substring(0, pos) + "Output_Data";
+            return fileName.Substring(0, pos) + "Data_Output";
         }
 
 
