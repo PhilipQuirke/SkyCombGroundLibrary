@@ -13,7 +13,8 @@ This "ground data" library is incorporated into the tools / libraries:
 
 The code folders are:
 - **CommonSpace:** Constants and generic code shared by SkyCombGroundLibrary, SkyCombDroneLibrary, SkyCombFlights & SkyCombAnalyst
-- **GroundSpace:** From drone-flight-area, calculate and return the elevations (DEM & DSM) 
+- **GroundModel:** In-memory structures for the ground data
+- **GroundLogic:** From drone-flight-area, calculate and return the elevations (DEM & DSM) 
 - **PersistModel:** Save/load drone-flight-area ground data from/to the datastore (xls)
 
 This tools is currently aimed at New Zealand (NZ) drone flights. But is easily extensible to other countries.
