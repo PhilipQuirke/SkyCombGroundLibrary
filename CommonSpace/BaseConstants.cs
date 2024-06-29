@@ -1,4 +1,4 @@
-﻿
+﻿// Copyright SkyComb Limited 2024. All rights reserved. 
 
 
 namespace SkyCombGround.CommonSpace
@@ -6,7 +6,7 @@ namespace SkyCombGround.CommonSpace
     public class BaseConstants : GroundColors
     {
         // The current version of the code base.
-        public static string CodeVersion = "6.6";
+        public static string CodeVersion = "7.0";
 
 
         // Number of decimal places for commonly used types of data
