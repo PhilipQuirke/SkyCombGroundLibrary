@@ -25,7 +25,7 @@ namespace SkyCombGroundLibrary.CommonSpace
                 return JsonConvert.DeserializeObject<JsonSettings>(json);
             }
 
-            return new JsonSettings
+            JsonSettings defaultSettings = new()
                 {
                     InputDirectory = "D:\\SkyComb\\Data_Input\\",
                     LinzApiKey = "66f3193296d44904880f5be1fa9fac44",
@@ -33,6 +33,10 @@ namespace SkyCombGroundLibrary.CommonSpace
                     YoloDirectory = "D:\\SkyComb\\Data_Yolo\\yolo_v8_s_e100.onnx",
                     OutputDirectory = "D:\\SkyComb\\Data_Output\\",
                 };
+
+            JsonSettings.SaveSettings(defaultSettings);
+
+            return defaultSettings;
         }
 
 
