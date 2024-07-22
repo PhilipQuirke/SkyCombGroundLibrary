@@ -4,7 +4,7 @@ using SkyCombGround.CommonSpace;
 
 namespace SkyCombGroundLibrary.CommonSpace
 {
-    public class JsonSettings : ConfigBase
+    public class JsonSettings : SettingsBase
     {
         private const string SettingsFileName = "skycomb_settings.json";
         private static readonly string SettingsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SettingsFileName);

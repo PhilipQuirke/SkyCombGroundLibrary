@@ -1,27 +1,10 @@
-﻿using System;
+﻿
 
 
 namespace SkyCombGround.CommonSpace
 {
     public class ConfigBase : BaseConstants
     {
-        // Name of directory containing input video and SRT files. Trailing "\" (if any) is trimmed
-        public string InputDirectory { get; set; } = "";
-
-        // New Zealand Land Information API key
-        public string LinzApiKey { get; set; } = "";
-
-        // Ground path containing static ground contour data. Trailing "\" (if any) is trimmed
-        public string GroundDirectory { get; set; } = "";
-
-        // Directory path/file to load YOLOv8 model from. If is a bare directory path, code appends "\yolo_v8_s_e100.onnx"
-        // yolo_v8_s_e100.onnx was generated in and exported from Supervisely.
-        public string YoloDirectory { get; set; } = "";
-
-        // Directory path to store created (video and spreadsheet) files into. Trailing "\" (if any) is trimmed
-        public string OutputDirectory { get; set; } = "";
-
-
         public static string CleanString(string input)
         {
             return input.Trim().ToLower();
@@ -121,6 +104,27 @@ namespace SkyCombGround.CommonSpace
 
             return answer;
         }
+
+    };
+
+
+    public class SettingsBase : ConfigBase
+    {
+        // Name of directory containing input video and SRT files. Trailing "\" (if any) is trimmed
+        public string InputDirectory { get; set; } = "";
+
+        // New Zealand Land Information API key
+        public string LinzApiKey { get; set; } = "";
+
+        // Ground path containing static ground contour data. Trailing "\" (if any) is trimmed
+        public string GroundDirectory { get; set; } = "";
+
+        // Directory path/file to load YOLOv8 model from. If is a bare directory path, code appends "\yolo_v8_s_e100.onnx"
+        // yolo_v8_s_e100.onnx was generated in and exported from Supervisely.
+        public string YoloDirectory { get; set; } = "";
+
+        // Directory path to store created (video and spreadsheet) files into. Trailing "\" (if any) is trimmed
+        public string OutputDirectory { get; set; } = "";
 
     };
 }
