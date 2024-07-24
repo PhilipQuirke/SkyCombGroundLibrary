@@ -38,11 +38,11 @@ namespace SkyCombGroundLibrary.CommonSpace
             }
 
             JsonSettings defaultSettings = GetSettingsJson(
-                    "D:\\SkyComb\\Data_Input\\",
+                    "d:\\skycomb\\data_input\\",
                     "66f3193296d44904880f5be1fa9fac44",
-                    "D:\\SkyComb\\Data_Ground\\",
-                    "D:\\SkyComb\\Data_Yolo\\yolo_v8_s_e100.onnx",
-                    "D:\\SkyComb\\Data_Output\\" );
+                    "d:\\skycomb\\data_ground\\",
+                    "d:\\skycomb\\data_yolo\\yolo_v8_s_e100.onnx",
+                    "d:\\skycomb\\data_output\\" );
 
             JsonSettings.SaveSettings(defaultSettings);
 
