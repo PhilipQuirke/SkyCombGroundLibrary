@@ -16,12 +16,11 @@ namespace SkyCombGroundLibrary.CommonSpace
             File.WriteAllText(SettingsFilePath, json);
         }
 
-        public static JsonSettings GetSettingsJson( string inputDirectory, string linzApiKey, string groundDirectory, string yoloDirectory, string outputDirectory)
+        public static JsonSettings GetSettingsJson( string inputDirectory, string groundDirectory, string yoloDirectory, string outputDirectory)
         {
             return new JsonSettings
             {
                 InputDirectory = inputDirectory,
-                LinzApiKey = linzApiKey,
                 GroundDirectory = groundDirectory,
                 YoloDirectory = yoloDirectory,
                 OutputDirectory = outputDirectory,
@@ -39,7 +38,6 @@ namespace SkyCombGroundLibrary.CommonSpace
 
             JsonSettings defaultSettings = GetSettingsJson(
                     "d:\\skycomb\\data_input\\",
-                    "66f3193296d44904880f5be1fa9fac44",
                     "d:\\skycomb\\data_ground\\",
                     "d:\\skycomb\\data_yolo\\yolo_v8_s_e100.onnx",
                     "d:\\skycomb\\data_output\\" );

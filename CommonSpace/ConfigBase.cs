@@ -114,7 +114,7 @@ namespace SkyCombGround.CommonSpace
         public string InputDirectory { get; set; } = "";
 
         // New Zealand Land Information API key
-        public string LinzApiKey { get; set; } = "";
+        //public string LinzApiKey { get; set; } = "";
 
         // Ground path containing static ground contour data. Trailing "\" (if any) is trimmed
         public string GroundDirectory { get; set; } = "";
