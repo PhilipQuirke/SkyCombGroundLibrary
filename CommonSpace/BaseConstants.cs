@@ -12,8 +12,8 @@ namespace SkyCombGround.CommonSpace
         // Number of decimal places for commonly used types of data
         public const int FpsNdp = 6;
         public const int LatLongNdp = 6;
-        public const int ElevationNdp = 1; // Used for DEM and DSM elevations. Lidar is +/- 0.2m
-        public const int HeightNdp = 2; // Used for Altitude & Height
+        public const int ElevationNdp = 1; // Used for Altitude, DEM and DSM elevations. Lidar is +/- 0.2m
+        public const int HeightNdp = 2; // Used for Object Height
         public const int AreaM2Ndp = 2;
         public const int AreaCM2Ndp = 0;
         public const int TemperatureNdp = 0;
