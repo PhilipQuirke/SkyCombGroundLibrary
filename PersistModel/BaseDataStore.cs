@@ -604,7 +604,6 @@ namespace SkyCombGround.PersistModel
                     { Steps1TabName, "Smoothed drone flight log data table" },
                     { Steps2TabName, "Smoothed drone flight log graphs" },
                     { LegsTabName, "Drone flight legs data table" },
-                    { WayPointsTabName, "Drone flight way points (optional)" },
                     { "", "" },
                     { ProcessTabName, "Summary image processing and object data"},
                     { Blocks1TabName, "Processing blocks (aka video frames) data table - combines Step, DEM, DSM, Leg & image data" },
