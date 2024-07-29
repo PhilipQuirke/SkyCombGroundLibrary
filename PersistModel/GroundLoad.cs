@@ -33,7 +33,8 @@ namespace SkyCombGround.PersistModel
             {
                 if ((grid != null) && (droneDataStore != null) && droneDataStore.SelectWorksheet(tabName))
                 {
-                    for( row = 1; row < grid.NumRows + 1; row++ )
+                    grid.NumElevationsStored = 0;
+                    for ( row = 1; row < grid.NumRows + 1; row++ )
                     {
                         for (col = 1; col < grid.NumCols + 1; col++)
                         {

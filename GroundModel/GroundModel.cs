@@ -39,7 +39,7 @@ namespace SkyCombGround.GroundModel
         // In C#, short ints (signed 16-bit integer) can store values from -32,768 to 32,767
         // So a short int can store the DEM/DSM height values / VerticalUnitM.
         // We store the elevations in a Northing by Easting (2D array) in VerticalUnitM values
-        protected short[] ElevationQuarterM { get; }
+        protected short[] ElevationQuarterM { get; set; }
         // Number of elevations values stored into the elevation array
         public int NumElevationsStored { get; set; } = UnknownValue;
 
@@ -120,10 +120,10 @@ namespace SkyCombGround.GroundModel
         // Partial constructor initialisation of the GroundGrid
         private void Initialise()
         {
+            ElevationQuarterM = new short[NumDatums];
             for (int i = 0; i < NumDatums; i++)
                 ElevationQuarterM[i] = UnknownValue;
 
-            NumElevationsStored = 0;
             MaxElevationQuarterM = UnknownValue;
             MinElevationQuarterM = UnknownValue;
 
@@ -135,6 +135,7 @@ namespace SkyCombGround.GroundModel
         {
             IsDem = isDem;
             Source = "";
+            NumElevationsStored = 0;
 
             Assert(minCountryLocnM != null, "GroundModel: minCountryLocnM missing");
             Assert(maxCountryLocnM != null, "GroundModel: maxCountryLocnM missing");
@@ -143,8 +144,6 @@ namespace SkyCombGround.GroundModel
             MinCountryEastingM = (int)(minCountryLocnM.EastingM - GroundBufferM);
             MaxCountryNorthingM = (int)(maxCountryLocnM.NorthingM + GroundBufferM);
             MaxCountryEastingM = (int)(maxCountryLocnM.EastingM + GroundBufferM);
-
-            ElevationQuarterM = new short[NumDatums];
 
             Initialise();
             AssertGood();
@@ -155,11 +154,11 @@ namespace SkyCombGround.GroundModel
         {
             IsDem = isDem;
             Source = "";
+            NumElevationsStored = 0;
 
             Assert(settings != null, "GroundModel: settings missing");
 
             LoadSettings(settings);
-            ElevationQuarterM = new short[NumDatums];
 
             Initialise();
             AssertGood();
