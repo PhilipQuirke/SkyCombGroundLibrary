@@ -59,7 +59,7 @@ namespace SkyCombGround.PersistModel
 
 
         // Load ground data (if any) from the DataStore 
-        public static GroundData? Load(BaseDataStore droneDataStore)
+        public static GroundData? Load(BaseDataStore droneDataStore, bool fullLoad)
         {
             GroundData? groundData = null;
 
@@ -73,7 +73,7 @@ namespace SkyCombGround.PersistModel
 
 
                     // Load ground (DEM) elevations (if any)
-                    if (droneDataStore.SelectWorksheet(DemTabName))
+                    if (fullLoad && droneDataStore.SelectWorksheet(DemTabName))
                     {
                         LoadGrid(droneDataStore, groundData.DemModel, DemTabName);
                         groundData.DemModel.AssertListGood();
@@ -81,7 +81,7 @@ namespace SkyCombGround.PersistModel
 
 
                     // Load surface (DSM) elevations (if any)
-                    if (droneDataStore.SelectWorksheet(DsmTabName))
+                    if (fullLoad && droneDataStore.SelectWorksheet(DsmTabName))
                     {
                         LoadGrid(droneDataStore, groundData.DsmModel, DsmTabName);
                         groundData.DsmModel.AssertListGood();
@@ -89,7 +89,7 @@ namespace SkyCombGround.PersistModel
 
 
                     // Load surface seen (Swathe) area (if any)
-                    if (droneDataStore.SelectWorksheet(SwatheTabName))
+                    if (fullLoad && droneDataStore.SelectWorksheet(SwatheTabName))
                     {
                         LoadGrid(droneDataStore, groundData.SwatheModel, SwatheTabName);
                         groundData.SwatheModel.AssertListGood();

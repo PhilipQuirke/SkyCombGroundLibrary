@@ -1,6 +1,7 @@
 ﻿// Copyright SkyComb Limited 2023. All rights reserved. 
 using SkyCombGround.CommonSpace;
 using System.Drawing;
+using System.Reflection.Metadata.Ecma335;
 
 
 namespace SkyCombGround.GroundModel
@@ -40,7 +41,7 @@ namespace SkyCombGround.GroundModel
         // We store the elevations in a Northing by Easting (2D array) in VerticalUnitM values
         protected short[] ElevationQuarterM { get; }
         // Number of elevations values stored into the elevation array
-        public int NumElevationsStored { get; set; }
+        public int NumElevationsStored { get; set; } = UnknownValue;
 
         // Min/Max elevation
         public short MaxElevationQuarterM { get; set; }
@@ -97,6 +98,9 @@ namespace SkyCombGround.GroundModel
         {
             get
             {
+                if(NumElevationsStored <= 0)
+                    return 0;
+
                 return (int)Math.Round(100.0f * NumElevationsStored / NumDatums);
             }
         }
