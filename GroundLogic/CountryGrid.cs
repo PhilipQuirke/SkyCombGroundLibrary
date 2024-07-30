@@ -139,6 +139,8 @@ namespace SkyCombGround.GroundLogic
                         }
                     }
 
+                    buffer = null;
+
                     tiff.Close();
                 }
             }
