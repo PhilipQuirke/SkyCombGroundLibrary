@@ -215,6 +215,15 @@ namespace SkyCombGround.CommonSpace
             Value = value.ToString("F" + ndp.ToString());
             Ndp = ndp;
         }
+
+
+        // Suppress this setting
+        public void Clear()
+        {
+            Key = "";
+            Value = " "; // PQR Add space to avoid printing "Unknown"
+            Ndp = UnknownValue;
+        }
     }
 
 
