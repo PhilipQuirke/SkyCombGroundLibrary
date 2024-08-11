@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
-using SkyCombGround.CommonSpace;
 
 
-namespace SkyCombGroundLibrary.CommonSpace
+namespace SkyCombGround.CommonSpace
 {
     public class JsonSettings : SettingsBase
     {
