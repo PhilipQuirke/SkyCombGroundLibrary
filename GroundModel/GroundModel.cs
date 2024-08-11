@@ -1,7 +1,6 @@
 ﻿// Copyright SkyComb Limited 2024. All rights reserved. 
 using SkyCombGround.CommonSpace;
 using System.Drawing;
-using System.Reflection.Metadata.Ecma335;
 
 
 namespace SkyCombGround.GroundModel
@@ -265,25 +264,24 @@ namespace SkyCombGround.GroundModel
         // distance from queryLocn to the closest point is not important. 
         public float GetElevationByDroneLocn(DroneLocation droneLocnM)
         {
-            int gridIndex = UnknownValue;
             try
             {
                 // Because of GroundBufferM, the drone should not be near the edge of the grid.
                 // But objects in the area seen by the camera may be near or past the edge of the grid.
                 // And a lack of DEM & DSM Lidar data may mean that the grid is not as big as we want.
-                gridIndex = DroneLocnToGridIndex(droneLocnM, false);
+                int gridIndex = DroneLocnToGridIndex(droneLocnM, false);
                 if (gridIndex == UnknownValue)
                     return UnknownValue;
 
-                if (ElevationQuarterM[gridIndex] != UnknownValue)
-                    return GridElevationQuarterMToM(ElevationQuarterM[gridIndex]);
+                if (ElevationQuarterM[gridIndex] == UnknownValue)
+                    return UnknownValue;
+
+                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex]);
             }
             catch (Exception ex)
             {
                 throw ThrowException(ex.ToString());
             }
-
-            return UnknownValue;
         }
 
 
