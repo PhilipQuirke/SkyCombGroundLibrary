@@ -9,7 +9,7 @@ using SkyCombGround.GroundModel;
 namespace SkyCombGround.GroundLogic
 {
     // Represents ground controur data for a (drone flight path encompassing) box.
-    public class GroundData : BaseConstants
+    public class GroundData : BaseConstants, IDisposable
     {
         // The location that we want ground data for
         public GlobalLocation? MinGlobalLocation;
@@ -59,6 +59,14 @@ namespace SkyCombGround.GroundLogic
                 SwatheModel = new(dsmSettings);
             else if (haveDemSettings)
                 SwatheModel = new(demSettings);
+        }
+
+
+        public void FreeResources()
+        {
+            DsmModel = null;
+            DemModel = null;
+            SwatheModel = null;
         }
 
 
@@ -122,6 +130,7 @@ namespace SkyCombGround.GroundLogic
             }
             catch (Exception ex)
             {
+                FreeResources();
                 throw ThrowException("GroundData.GlobalCalculateElevations", ex);
             }
         }
@@ -174,6 +183,32 @@ namespace SkyCombGround.GroundLogic
                     return SwatheModel;
             }
             return null;
+        }
+
+
+        private bool disposed = false;
+
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose managed resources
+                }
+
+                // Dispose unmanaged resources
+
+                disposed = true;
+            }
         }
     }
 
