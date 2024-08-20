@@ -32,7 +32,7 @@ namespace SkyCombGround.PersistModel
             foreach (var bookName in bookNames)
                 SetDataListRowKeysAndValues(ref theRow, bookName.Value.GetSettings());
 
-            SaveAndClose();
+            SaveAndFreeResources();
         }
 
 
@@ -48,7 +48,7 @@ namespace SkyCombGround.PersistModel
                     if ((Worksheet != null) && (Worksheet.Dimension != null) && (Worksheet.Dimension.End != null))
                         answer = Worksheet.Dimension.End.Row - 1;
 
-                Close();
+                FreeResources();
             }
             catch (Exception ex)
             {
@@ -97,7 +97,7 @@ namespace SkyCombGround.PersistModel
                     }
                 }
 
-                Close();
+                FreeResources();
             }
             catch (Exception ex)
             {

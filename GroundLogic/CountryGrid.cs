@@ -142,6 +142,7 @@ namespace SkyCombGround.GroundLogic
                     buffer = null;
 
                     tiff.Close();
+                    tiff = null;
                 }
             }
             catch (Exception ex)

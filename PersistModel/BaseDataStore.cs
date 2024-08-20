@@ -57,11 +57,11 @@ namespace SkyCombGround.PersistModel
 
 
         // Ensure we are not holding a file handle (or similar resources) open
-        public void Close()
+        public void FreeResources()
         {
-            if (IsOpen)
-                Store.Dispose();
+            Store?.Dispose();
             Store = null;
+
             Worksheet = null;
         }
 
@@ -92,10 +92,10 @@ namespace SkyCombGround.PersistModel
 
 
         // Save (and close) the existing datastore to disk.
-        public void SaveAndClose()
+        public void SaveAndFreeResources()
         {
             Save();
-            Close();
+            FreeResources();
         }
 
 
