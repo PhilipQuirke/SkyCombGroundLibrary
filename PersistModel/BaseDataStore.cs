@@ -5,9 +5,10 @@ using SkyCombGround.CommonSpace;
 using System.Drawing;
 
 
+
 namespace SkyCombGround.PersistModel
 {
-    public class BaseDataStore : ConfigBase
+    public class BaseDataStore : ConfigBase, IDisposable
     {
         // If we can't save a datastore, it is possible the file is open in Excel.
         // Ask the user to close it. If they do, return true so we can retry.
@@ -21,6 +22,8 @@ namespace SkyCombGround.PersistModel
         // A spreadsheet is used as the physical instantiation of the DataStore
         public ExcelPackage? Store { get; set; } = null;
         public ExcelWorksheet? Worksheet { get; set; } = null;
+
+        private bool _disposed = false;
 
 
         // Open an existing DataStore 
@@ -46,29 +49,30 @@ namespace SkyCombGround.PersistModel
         public bool IsOpen => ((Store != null) && (Store.File != null));
 
 
+
         // If necessary, open the existing datastore 
         public virtual void Open()
         {
             if (IsOpen)
                 return;
 
-            Store = new(DataStoreFileName);
+            Store = new ExcelPackage(new FileInfo(DataStoreFileName));
         }
 
 
         // Ensure we are not holding a file handle (or similar resources) open
         public void FreeResources()
         {
-            Store?.Dispose();
-            Store = null;
-
-            Worksheet = null;
+            Dispose(true);
         }
 
 
         // Save the existing datastore to disk.
         public void Save()
         {
+            if (Store == null)
+                throw new InvalidOperationException("Store is not initialized.");
+
             try
             {
                 Store.Save();
@@ -650,10 +654,10 @@ namespace SkyCombGround.PersistModel
         // Save the bitmap to the datastore
         public void SaveBitmap(Bitmap? theBitmap, string name, int row, int col = 0, int percent = 100)
         {
-            if(theBitmap == null)
-                return; 
+            if (theBitmap == null || Worksheet == null)
+                return;
 
-            using (MemoryStream stream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 // Save the bitmap into the memory stream as PNG format
                 theBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
@@ -665,5 +669,34 @@ namespace SkyCombGround.PersistModel
             }
         }
 
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    Worksheet = null;
+                    if (Store != null)
+                    {
+                        Store.Dispose();
+                        Store = null;
+                    }
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~BaseDataStore()
+        {
+            Dispose(false);
+        }
     }
 }
