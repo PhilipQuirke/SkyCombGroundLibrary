@@ -194,5 +194,18 @@ namespace SkyCombGround.CommonSpace
         {
             return ThrowException(reason + ": " + ex.Message);
         }
+
+
+        // Free up memory
+        public static void GcFreeMemory()
+        {
+            // Forces a garbage collection of all generations.
+            GC.Collect();
+            // Ensure that all finalizers have had a chance to run before the next line of code is executed.
+            GC.WaitForPendingFinalizers();
+            // Calling GC.Collect again after finalizers have run, collects any objects that were finalized.
+            GC.Collect();
+        }
+
     }
 }
