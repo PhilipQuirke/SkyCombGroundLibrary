@@ -5,7 +5,6 @@ using SkyCombGround.CommonSpace;
 using System.Drawing;
 
 
-
 namespace SkyCombGround.PersistModel
 {
     public class BaseDataStore : ConfigBase, IDisposable
@@ -26,28 +25,21 @@ namespace SkyCombGround.PersistModel
         private bool _disposed = false;
 
 
-        // Open an existing DataStore 
-        public BaseDataStore(ExcelPackage store, string fileName)
-        {
-            DataStoreFileName = fileName;
-            Store = store;
-            Worksheet = null;
-        }
-
-
-        // Create a DataStore on disk & store the Files settings.
-        public BaseDataStore(string fileName)
+        // Create or open a DataStore on disk 
+        public BaseDataStore(string fileName, bool create)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             DataStoreFileName = fileName;
-            Store = new();
+            if (create)
+                Store = new();
+            else
+                Store = new(fileName);
             Worksheet = null;
         }
 
 
         public bool IsOpen => ((Store != null) && (Store.File != null));
-
 
 
         // If necessary, open the existing datastore 
@@ -693,6 +685,7 @@ namespace SkyCombGround.PersistModel
                 _disposed = true;
             }
         }
+
 
         ~BaseDataStore()
         {
