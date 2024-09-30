@@ -3,6 +3,7 @@ using BitMiracle.LibTiff.Classic;
 using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundModel;
 using System.Drawing;
+using System.Text.RegularExpressions;
 
 
 // Handles GeoTiff file with suffix ".tif"
@@ -42,26 +43,47 @@ namespace SkyCombGround.GroundLogic
             if (Source == "")
                 Source = book.GeoGcs;
             else if (Source != book.GeoGcs)
+                // If we have data in multiple encoding formats for this area, 
+                // we only collect data for one encoding format.
                 return;
+
+            int northing = 0;
+            int easting = 0;
 
             try
             {
-                var tiffFileName = Path.Combine(GroundDirectory, book.FolderName, book.FileName);
-                if (!File.Exists(tiffFileName))
-                    return;
-
-                using (var tiff = Tiff.Open(tiffFileName, "r"))
+                // Open the Tiff file
+                var tiffFileName = GroundDirectory + "\\" +
+                    book.FolderName + "\\" + book.FileName;
+                if (File.Exists(tiffFileName))
                 {
+                    var tiff = Tiff.Open(tiffFileName, "r");
+
+                    // Refer https://bitmiracle.github.io/libtiff.net/help/api/BitMiracle.LibTiff.Classic.TiffTag.html 
+                    // for more detail on the following tags. Content includes:
+                    // GEOTIFF_MODELPIXELSCALETAG
+                    //      This tag is defining exact affine transformations between raster and model space.
+                    //      Used in interchangeable GeoTIFF files.
+                    // GEOTIFF_MODELTIEPOINTTAG
+                    //      This tag stores raster->model tiepoint pairs. Used in interchangeable GeoTIFF files.
+                    // GEOTIFF_MODELTRANSFORMATIONTAG
+                    //      This tag is optionally provided for defining exact affine transformations between raster and model space.
+                    //      Used in interchangeable GeoTIFF files.
+
                     int width = tiff.GetField(TiffTag.IMAGEWIDTH)[0].ToInt();
                     int height = tiff.GetField(TiffTag.IMAGELENGTH)[0].ToInt();
 
-                    var modelTiePointTag = tiff.GetField(TiffTag.GEOTIFF_MODELTIEPOINTTAG);
-                    var modelTransformation = modelTiePointTag[1].GetBytes();
-                    double originX = BitConverter.ToDouble(modelTransformation, 24);
-                    double originY = BitConverter.ToDouble(modelTransformation, 32);
+                    int samplesPerPixel = tiff.GetField(TiffTag.SAMPLESPERPIXEL)[0].ToInt();
+                    int bitsPerSample = tiff.GetField(TiffTag.BITSPERSAMPLE)[0].ToInt();
+                    int bytesPerSample = bitsPerSample / 8;
 
-                    var modelPixelScaleTag = tiff.GetField(TiffTag.GEOTIFF_MODELPIXELSCALETAG);
-                    var modelPixelScale = modelPixelScaleTag[1].GetBytes();
+                    FieldValue[] modelTiePointTag = tiff.GetField(TiffTag.GEOTIFF_MODELTIEPOINTTAG);
+                    byte[] modelTransformation = modelTiePointTag[1].GetBytes();
+                    double originX = BitConverter.ToDouble(modelTransformation, 24); // e.g. 1924960
+                    double originY = BitConverter.ToDouble(modelTransformation, 32); // e.g. 5803440
+
+                    FieldValue[] modelPixelScaleTag = tiff.GetField(TiffTag.GEOTIFF_MODELPIXELSCALETAG);
+                    byte[] modelPixelScale = modelPixelScaleTag[1].GetBytes();
                     double pixelSizeX = BitConverter.ToDouble(modelPixelScale, 0);
                     double pixelSizeY = BitConverter.ToDouble(modelPixelScale, 8);
 
@@ -69,47 +91,62 @@ namespace SkyCombGround.GroundLogic
                     int tileHeight = tiff.GetField(TiffTag.TILELENGTH)[0].ToInt();
                     var tileSize = tiff.TileSize();
                     var numTiles = tiff.NumberOfTiles();
+                    int tilesPerRow = (width + tileWidth - 1) / tileWidth; // Number of tiles in each row
+                    var tileRoom = tileSize * numTiles;
 
-                    var buffer = new byte[tileSize];
-                    var elevations = new float[tileWidth * tileHeight];
+                    var bufferSize = Math.Max(width * height * sizeof(float), tileRoom);
+                    var buffer = new byte[bufferSize];
+                    var offset = 0;
 
+
+                    // Read the full Tiff into memory. NZ Tiffs are ~1Mb. 
+                    for (var tileIndex = 0; tileIndex < numTiles; tileIndex++)
+                    {
+                        tiff.ReadEncodedTile(tileIndex, buffer, offset, -1);
+                        offset += tileSize;
+                    }
+
+
+                    // Traverse Tiff and for area overlapping CountryTargetAreaBuffered call AddDatum
                     double startY = originY + (pixelSizeY / 2.0);
                     double startX = originX + (pixelSizeX / 2.0);
 
-                    for (int tileY = 0; tileY < height; tileY += tileHeight)
+                    for (northing = 0; northing < height; northing++)
                     {
-                        for (int tileX = 0; tileX < width; tileX += tileWidth)
+                        double yLocation = startY - northing * pixelSizeY;
+                        if ((yLocation <= MaxCountryNorthingM) &&
+                            (yLocation >= MinCountryNorthingM))
                         {
-                            int tileIndex = tiff.ComputeTile(tileX, tileY, 0, 0);
-                            tiff.ReadTile(buffer, 0, tileX, tileY, 0, 0);
-                            Buffer.BlockCopy(buffer, 0, elevations, 0, buffer.Length);
-
-                            for (int y = 0; y < tileHeight && tileY + y < height; y++)
+                            for (easting = 0; easting < width; easting++)
                             {
-                                double yLocation = startY - (tileY + y) * pixelSizeY;
-                                if (yLocation > MaxCountryNorthingM || yLocation < MinCountryNorthingM)
-                                    continue;
-
-                                for (int x = 0; x < tileWidth && tileX + x < width; x++)
+                                double xLocation = startX + easting * pixelSizeX;
+                                if ((xLocation >= MinCountryEastingM) &&
+                                    (xLocation <= MaxCountryEastingM))
                                 {
-                                    double xLocation = startX + (tileX + x) * pixelSizeX;
-                                    if (xLocation < MinCountryEastingM || xLocation > MaxCountryEastingM)
-                                        continue;
+                                    int tileIndexX = easting / tileWidth;
+                                    int tileIndexY = northing / tileHeight;
+                                    int tileIndex = tileIndexY * tilesPerRow + tileIndexX;
 
-                                    float elevationM = elevations[y * tileWidth + x];
+                                    int tileOffsetX = easting % tileWidth;
+                                    int tileOffsetY = northing % tileHeight;
+                                    int tileOffset = (tileOffsetY * tileWidth + tileOffsetX) * sizeof(float);
+
+                                    float elevationM = BitConverter.ToSingle(buffer, tileOffset + tileIndex * tileSize);
+
                                     AddCountryDatum(new RelativeLocation((float)yLocation, (float)xLocation), elevationM);
                                 }
                             }
                         }
                     }
-                }
 
-                if (NumDatums > 0)
-                    SetGapsToMinimum();
+                    buffer = null;
+
+                    tiff.Close();
+                }
             }
             catch (Exception ex)
             {
-                throw ThrowException("CountryGrid.GetDatums", ex);
+                throw ThrowException("GroundDatumsTiff.GetDatums: northing=" + northing + " easting=" + easting, ex);
             }
         }
     }
