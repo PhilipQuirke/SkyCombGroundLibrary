@@ -1,5 +1,6 @@
 ﻿using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundLogic;
+using System.Text;
 
 
 namespace SkyCombGround.PersistModel
@@ -59,6 +60,50 @@ namespace SkyCombGround.PersistModel
         }
 
 
+        public static void LoadGridOptimized(
+             BaseDataStore? dataStore,
+             GroundModel.GroundModel? grid,
+             string tabName)
+        {
+            try
+            {
+                if (grid == null || dataStore == null || !dataStore.SelectWorksheet(tabName))
+                    return;
+
+                grid.NumElevationsStored = 0;
+
+                for (int row = 1; row <= grid.NumRows; row++)
+                {
+                    var rowData = new StringBuilder();
+                    for (int col = 1; ; col++)
+                    {
+                        var cell = dataStore.Worksheet.Cells[row, col];
+                        if (cell?.Value == null)
+                            break;
+                        rowData.Append(cell.Value.ToString());
+                    }
+
+                    string rowString = rowData.ToString();
+                    for (int col = 0; col < grid.NumCols; col++)
+                    {
+                        if (col * 4 + 4 <= rowString.Length)
+                        {
+                            string hexValue = rowString.Substring(col * 4, 4);
+                            int compressedValue = Convert.ToInt32(hexValue, 16);
+                            float elevation = compressedValue / (float)GroundScaleFactor;
+                            grid.AddSettingDatum(row, col + 1, elevation);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("OptimizedGridProcedures.LoadGridOptimized", ex);
+            }
+        }
+
+
+
         // Load ground data (if any) from the DataStore 
         public static GroundData? Load(BaseDataStore droneDataStore, bool fullLoad)
         {
@@ -76,7 +121,7 @@ namespace SkyCombGround.PersistModel
                     // Load ground (DEM) elevations (if any)
                     if (fullLoad && droneDataStore.SelectWorksheet(DemTabName))
                     {
-                        LoadGrid(droneDataStore, groundData.DemModel, DemTabName);
+                        LoadGridOptimized(droneDataStore, groundData.DemModel, DemTabName);
                         groundData.DemModel.AssertListGood();
                     }
 
@@ -84,7 +129,7 @@ namespace SkyCombGround.PersistModel
                     // Load surface (DSM) elevations (if any)
                     if (fullLoad && droneDataStore.SelectWorksheet(DsmTabName))
                     {
-                        LoadGrid(droneDataStore, groundData.DsmModel, DsmTabName);
+                        LoadGridOptimized(droneDataStore, groundData.DsmModel, DsmTabName);
                         groundData.DsmModel.AssertListGood();
                     }
 
@@ -92,7 +137,7 @@ namespace SkyCombGround.PersistModel
                     // Load surface seen (Swathe) area (if any)
                     if (fullLoad && droneDataStore.SelectWorksheet(SwatheTabName))
                     {
-                        LoadGrid(droneDataStore, groundData.SwatheModel, SwatheTabName);
+                        LoadGridOptimized(droneDataStore, groundData.SwatheModel, SwatheTabName);
                         groundData.SwatheModel.AssertListGood();
                     }
                 }

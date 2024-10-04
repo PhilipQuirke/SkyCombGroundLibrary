@@ -108,10 +108,11 @@ namespace SkyCombGround.CommonSpace
         public const int LabelToValueCellOffset = 1;
 
 
-        public float RadToDeg(float rad)
-        {
-            return (rad == UnknownValue ? rad : rad / DegreesToRadians);
-        }
+        // Ground Grid constants
+        protected const int GroundValuesPerCell = 75;
+        protected const int GroundScaleFactor = 4; // To preserve 0.25 intervals
+
+
         public float DegToRad(float deg)
         {
             return (deg == UnknownValue ? deg : deg * DegreesToRadians);

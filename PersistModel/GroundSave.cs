@@ -1,5 +1,6 @@
 ﻿using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundLogic;
+using System.Text;
 
 
 
@@ -41,6 +42,52 @@ namespace SkyCombGround.PersistModel
         }
 
 
+        public static bool SaveGridOptimized(
+            BaseDataStore? dataStore,
+            GroundModel.GroundModel? grid,
+            string tabName)
+        {
+            try
+            {
+                if (dataStore == null || grid == null || grid.NumElevationsStored <= 0)
+                    return false;
+
+                (var newTab, var ws) = dataStore.SelectOrAddWorksheet(tabName);
+                if (ws == null)
+                    return false;
+
+                dataStore.ClearWorksheet();
+
+                for (int row = 1; row <= grid.NumRows; row++)
+                {
+                    var rowData = new StringBuilder();
+                    for (int col = 1; col <= grid.NumCols; col++)
+                    {
+                        float elevation = grid.GetElevationMByGridIndex(row, col);
+                        // Convert to integer (multiply by ScaleFactor to preserve 0.25 intervals)
+                        int compressedValue = (int)(elevation * GroundScaleFactor);
+                        rowData.Append(compressedValue.ToString("X4")); // Use 4-digit hex to support higher values
+                    }
+
+                    // Split the row data into multiple cells if necessary
+                    string rowString = rowData.ToString();
+                    for (int i = 0; i < rowString.Length; i += GroundValuesPerCell * 4)
+                    {
+                        int cellIndex = i / (GroundValuesPerCell * 4) + 1;
+                        int length = Math.Min(GroundValuesPerCell * 4, rowString.Length - i);
+                        ws.Cells[row, cellIndex].Value = rowString.Substring(i, length);
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("OptimizedGridProcedures.SaveGridOptimized", ex);
+            }
+        }
+
+
         // Save ground data (if any) to the DataStore 
         public static void Save(BaseDataStore? dataStore, GroundData? groundData)
         {
@@ -65,13 +112,13 @@ namespace SkyCombGround.PersistModel
             dataStore.SetColumnWidth(RhsColOffset, 25);
             dataStore.SetColumnWidth(RhsColOffset + LabelToValueCellOffset, 10);
 
-            if (SaveGrid(dataStore, groundData.DsmModel, DsmTabName))
+            if (SaveGridOptimized(dataStore, groundData.DsmModel, DsmTabName))
                 dataStore.SetLastUpdateDateTime(DsmTabName);
 
-            if (SaveGrid(dataStore, groundData.DemModel, DemTabName))
+            if (SaveGridOptimized(dataStore, groundData.DemModel, DemTabName))
                 dataStore.SetLastUpdateDateTime(DemTabName);
 
-            if (SaveGrid(dataStore, groundData.SwatheModel, SwatheTabName))
+            if (SaveGridOptimized(dataStore, groundData.SwatheModel, SwatheTabName))
                 dataStore.SetLastUpdateDateTime(SwatheTabName);
 
             dataStore.SelectWorksheet(GroundTabName);
