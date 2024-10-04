@@ -68,7 +68,7 @@ namespace SkyCombGround.CommonSpace
 
         // Distance North (South if negative) in meters. Similar to Latitude 
         public float NorthingM { get; set; }
-        
+
         // Distance East (West if negative) in meters. Similar to Longitude
         public float EastingM { get; set; }
 
@@ -187,7 +187,7 @@ namespace SkyCombGround.CommonSpace
     {
         public DroneLocation(float northingM = 0, float eastingM = 0) : base(northingM, eastingM)
         {
-        }   
+        }
 
 
         public DroneLocation(DroneLocation location) : base(location)
@@ -197,7 +197,7 @@ namespace SkyCombGround.CommonSpace
 
         public DroneLocation(string northingMString, string eastingMString) : base(northingMString, eastingMString)
         {
-        }   
+        }
 
 
         // This constructor mirrors the ToString function below.
@@ -264,7 +264,7 @@ namespace SkyCombGround.CommonSpace
 
 
         // Return a new DroneLocation equal to the negated copy of this vector
-        public DroneLocation Negate( )
+        public DroneLocation Negate()
         {
             return Multiply(-1);
         }
@@ -285,7 +285,7 @@ namespace SkyCombGround.CommonSpace
         /// <param name="centerPoint">The center point of rotation.</param>
         /// <param name="angleInDegrees">The rotation angle in degrees.</param>
         /// <returns>Rotated point</returns>
-        static public PointF RotatePoint(PointF pointToRotate, PointF centerPoint, double angleInRadians)
+        public static PointF RotatePoint(PointF pointToRotate, PointF centerPoint, double angleInRadians)
         {
             double cosTheta = Math.Cos(angleInRadians);
             double sinTheta = Math.Sin(angleInRadians);
@@ -301,7 +301,7 @@ namespace SkyCombGround.CommonSpace
                     cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y)
             };
         }
-        static public PointF RotatePoint(PointF pointToRotate, double angleInRadians)
+        public static PointF RotatePoint(PointF pointToRotate, double angleInRadians)
         {
             return RotatePoint(pointToRotate, new(0, 0), angleInRadians);
         }

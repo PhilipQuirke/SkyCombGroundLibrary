@@ -119,10 +119,10 @@ namespace SkyCombGround.GroundModel
 
 
     // Read-only tiles containing location and the ground area covered
-    public class TileModelList : SortedList<string,TileModel>
+    public class TileModelList : SortedList<string, TileModel>
     {
-        public void Add( TileModel model)
-        {             
+        public void Add(TileModel model)
+        {
             Add(model.FileName, model);
         }
     }

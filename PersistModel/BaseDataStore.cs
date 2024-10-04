@@ -460,7 +460,7 @@ namespace SkyCombGround.PersistModel
             }
         }
 
- 
+
         public void BoldFreezeAndAutoFilterRow1(int cols)
         {
             // Prefix handles transition from "Z1" to "AA1"

@@ -8,7 +8,7 @@ namespace SkyCombGround.PersistModel
     public class GroundLoad : BaseConstants
     {
         // Load Ground elevation settings
-        private static (List<string>? groundSettings, List<string>? demSettings, List<string>? dsmSettings ) 
+        private static (List<string>? groundSettings, List<string>? demSettings, List<string>? dsmSettings)
             LoadSettings(BaseDataStore droneDataStore)
         {
             return (
@@ -24,7 +24,7 @@ namespace SkyCombGround.PersistModel
         // Load all Ground (DEM) or Surface (DSM) data from a XLS file 
         private static void LoadGrid(
             BaseDataStore? droneDataStore,
-            GroundModel.GroundModel? grid, 
+            GroundModel.GroundModel? grid,
             string tabName)
         {
             int row = 0;
@@ -34,7 +34,7 @@ namespace SkyCombGround.PersistModel
                 if ((grid != null) && (droneDataStore != null) && droneDataStore.SelectWorksheet(tabName))
                 {
                     grid.NumElevationsStored = 0;
-                    for ( row = 1; row < grid.NumRows + 1; row++ )
+                    for (row = 1; row < grid.NumRows + 1; row++)
                     {
                         for (col = 1; col < grid.NumCols + 1; col++)
                         {

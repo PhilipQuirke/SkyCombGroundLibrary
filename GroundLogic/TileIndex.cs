@@ -18,7 +18,7 @@ namespace SkyCombGround.GroundLogic
         public const string DemIndexSuffix = "SkyCombDemIndex.xlsx";
         public const string DsmIndexSuffix = "SkyCombDsmIndex.xlsx";
 
-         
+
         // Ground directory e.g. D:\SkyComb\Data_Ground\lds-canterbury-lidar-1m-dsm-2020-2023-GTiff\
         public string GroundSubDirectory = "";
         public string DemIndexFileName { get { return GroundSubDirectory + "\\" + DemIndexSuffix; } }
@@ -152,8 +152,8 @@ namespace SkyCombGround.GroundLogic
             }
 
             // If an index exists and is up to date, we dont need to do anything
-            for( int i = 0; i < 2; i++)
-            { 
+            for (int i = 0; i < 2; i++)
+            {
                 string fileName = i == 0 ? DemIndexFileName : DsmIndexFileName;
                 if (IndexLoadSave.Exists(fileName))
                 {

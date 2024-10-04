@@ -71,7 +71,7 @@ namespace SkyCombGround.PersistModel
             if (SaveGrid(dataStore, groundData.DemModel, DemTabName))
                 dataStore.SetLastUpdateDateTime(DemTabName);
 
-            if(SaveGrid(dataStore, groundData.SwatheModel, SwatheTabName))
+            if (SaveGrid(dataStore, groundData.SwatheModel, SwatheTabName))
                 dataStore.SetLastUpdateDateTime(SwatheTabName);
 
             dataStore.SelectWorksheet(GroundTabName);

@@ -80,7 +80,7 @@ namespace SkyCombGround.PersistModel
                         var book = new TileModel(GetRowSettings(row, 1));
 
                         // If we have a GeoGcs check it matches
-                        if((theGeoGcs != "") && (book.GeoGcs != theGeoGcs))
+                        if ((theGeoGcs != "") && (book.GeoGcs != theGeoGcs))
                             continue;
 
                         RectangleF bookRect = book.GetCountryArea(yAxisPositive);

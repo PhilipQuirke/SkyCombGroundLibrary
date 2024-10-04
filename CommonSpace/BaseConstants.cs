@@ -165,9 +165,9 @@ namespace SkyCombGround.CommonSpace
                 return UnknownValue;
 
             if ((letter >= 'A') && (letter <= 'Z'))
-                return (int)(name.ToCharArray()[0]) - (int)('A') + 1;
+                return name.ToCharArray()[0] - 'A' + 1;
 
-            return (int)(name.ToCharArray()[1]) - (int)('a') + 27;
+            return name.ToCharArray()[1] - 'a' + 27;
         }
 
 

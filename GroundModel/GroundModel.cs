@@ -97,7 +97,7 @@ namespace SkyCombGround.GroundModel
         {
             get
             {
-                if(NumElevationsStored <= 0)
+                if (NumElevationsStored <= 0)
                     return 0;
 
                 return (int)Math.Round(100.0f * NumElevationsStored / NumDatums);
@@ -109,8 +109,8 @@ namespace SkyCombGround.GroundModel
         public RectangleF TargetCountryAreaM()
         {
             return new RectangleF(
-                (float)MinCountryEastingM,
-                (float)MinCountryNorthingM,
+                MinCountryEastingM,
+                MinCountryNorthingM,
                 NumCols,
                 NumRows);
         }
@@ -194,9 +194,10 @@ namespace SkyCombGround.GroundModel
             {
                 Assert(index >= 0, "GroundModel." + usecase + ": answer low");
                 Assert(index < NumDatums, "GroundModel." + usecase + ": answer high");
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-                   throw ThrowException(ex.ToString());
+                throw ThrowException(ex.ToString());
             }
         }
 
@@ -371,8 +372,8 @@ namespace SkyCombGround.GroundModel
 
         public void LoadSettings(List<string>? settings)
         {
-            if( settings == null)
-                return; 
+            if (settings == null)
+                return;
 
             Source = settings[0];
             MinCountryEastingM = ConfigBase.StringToInt(settings[1]);
@@ -394,7 +395,7 @@ namespace SkyCombGround.GroundModel
         }
     }
 
-    
+
     public class GroundModelList : List<GroundModel>
     {
         public GroundModelList()
@@ -405,14 +406,14 @@ namespace SkyCombGround.GroundModel
         // Return the minimum & maximum ground elevations (excluding UnknownValue) in meters
         public (float minElevationM, float maxElevationM) GetMinMaxElevationM()
         {
-            float minElevationM = - BaseConstants.UnknownValue;
+            float minElevationM = -BaseConstants.UnknownValue;
             float maxElevationM = BaseConstants.UnknownValue;
 
-            foreach(var groundModel in this)
+            foreach (var groundModel in this)
             {
                 (float currMinElevationM, float currMaxElevationM) = groundModel.GetMinMaxElevationM();
 
-                if( currMinElevationM != BaseConstants.UnknownValue)
+                if (currMinElevationM != BaseConstants.UnknownValue)
                     minElevationM = Math.Min(minElevationM, currMinElevationM);
 
                 if (currMaxElevationM != BaseConstants.UnknownValue)
@@ -458,8 +459,8 @@ namespace SkyCombGround.GroundModel
             // extend qway past the grid area
             if ((index < 0) || (index >= NumDatums))
                 return;
-                
-            if(ElevationQuarterM[index] == 0)
+
+            if (ElevationQuarterM[index] == 0)
             {
                 ElevationQuarterM[index] = 1;
                 NumElevationsStored++;

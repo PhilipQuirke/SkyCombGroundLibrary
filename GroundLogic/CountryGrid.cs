@@ -3,7 +3,6 @@ using BitMiracle.LibTiff.Classic;
 using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundModel;
 using System.Drawing;
-using System.Text.RegularExpressions;
 
 
 // Handles GeoTiff file with suffix ".tif"

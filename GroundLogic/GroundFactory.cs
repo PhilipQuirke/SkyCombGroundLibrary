@@ -32,7 +32,7 @@ namespace SkyCombGround.GroundLogic
 
 
         public GroundData(
-            List<string>? globalSettings, 
+            List<string>? globalSettings,
             List<string>? dsmSettings,
             List<string>? demSettings)
         {
@@ -55,7 +55,7 @@ namespace SkyCombGround.GroundLogic
                 DemModel = new(true, demSettings);
 
             // Reuse the DSM or DEM settings as the Swathe settings.
-            if(haveDsmSettings)
+            if (haveDsmSettings)
                 SwatheModel = new(dsmSettings);
             else if (haveDemSettings)
                 SwatheModel = new(demSettings);
@@ -216,7 +216,7 @@ namespace SkyCombGround.GroundLogic
     public class GroundDataFactory
     {
         public static GroundData Create(
-            List<string>? globalSettings = null, 
+            List<string>? globalSettings = null,
             List<string>? dsmSettings = null,
             List<string>? demSettings = null)
         {
