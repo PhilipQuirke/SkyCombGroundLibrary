@@ -170,7 +170,7 @@ namespace SkyCombGround.GroundLogic
     {
 
         // PQR: Assumes there is only one applicable (DEM or DSM) index. In rare cases, there may be 2 applicable indexes
-        // PQR: Assumes that each index has either DEM or DSM data but not both. This is a reasonable assumption.
+        // Assumes that each index has either DEM or DSM data but not both. This is a reasonable assumption.
         public static TileIndex FindExistingIndex(string groundSubDirectory, RectangleF targetCountryAreaM, bool isDem)
         {
             // Open an index of the ground DEM/DSM books found in groundDirectory (or subdirectory)
