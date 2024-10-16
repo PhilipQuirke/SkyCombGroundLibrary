@@ -119,8 +119,7 @@ namespace SkyCombGround.CommonSpace
         // Ground path containing static ground contour data. Trailing "\" (if any) is trimmed
         public string GroundDirectory { get; set; } = "";
 
-        // Directory path/file to load YOLOv8 model from. If is a bare directory path, code appends "\yolo_v8_s_e100.onnx"
-        // yolo_v8_s_e100.onnx was generated in and exported from Supervisely.
+        // Directory path/file to load YOLOv8 model from.
         public string YoloDirectory { get; set; } = "";
 
         // Directory path to store created (video and spreadsheet) files into. Trailing "\" (if any) is trimmed

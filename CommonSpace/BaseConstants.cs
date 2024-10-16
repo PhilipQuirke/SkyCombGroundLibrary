@@ -31,6 +31,7 @@ namespace SkyCombGround.CommonSpace
         public const string UnknownString = "Unknown";
         public const int UnknownSectionId = 999999;
         public const int UnknownStepId = UnknownSectionId;
+        public const int UnknownHeight = -2;
 
         public const float Epsilon = 0.000001f;
 
