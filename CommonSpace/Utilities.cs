@@ -237,6 +237,13 @@ namespace SkyCombGround.CommonSpace
         {
             Add(new DataPair(key, value));
         }
+        public void AddInt_UnknownIsBlank(string key, int value)
+        {
+            if (value == BaseConstants.UnknownValue)
+                Add(new DataPair(key, " "));
+            else
+                Add(new DataPair(key, value));
+        }
         public void Add(string key, double value, int ndp)
         {
             Add(new DataPair(key, value, ndp));

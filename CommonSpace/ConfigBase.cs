@@ -41,6 +41,15 @@ namespace SkyCombGround.CommonSpace
         }
 
 
+        public static int StringToInt_BlankIsUnknown(string input)
+        {
+            if ((input == "") || (input == " "))
+                return UnknownValue;
+
+            return StringToInt(input);
+        }
+
+
         public static float StringToFloat(string input)
         {
             try
