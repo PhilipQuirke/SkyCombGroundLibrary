@@ -117,8 +117,18 @@ namespace SkyCombGround.CommonSpace
     };
 
 
+    public class RecentFile
+    {
+        public string Name { get; set; }
+        public string Path { get; set; }
+        public string Description { get; set; }
+        public int NumObjects { get; set; } = 0;
+    }
+
+
     public class SettingsBase : ConfigBase
     {
+
         // Name of directory containing input video and SRT files. Trailing "\" (if any) is trimmed
         public string InputDirectory { get; set; } = "";
 
@@ -133,6 +143,10 @@ namespace SkyCombGround.CommonSpace
 
         // Directory path to store created (video and spreadsheet) files into. Trailing "\" (if any) is trimmed
         public string OutputDirectory { get; set; } = "";
+        
+        // String to store list of files and related info
+        public List<RecentFile> RecentFiles { get; set; } = new();
+
 
     };
 }

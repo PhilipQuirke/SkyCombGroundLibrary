@@ -1,4 +1,7 @@
 ﻿using Newtonsoft.Json;
+using SkyCombGround.CommonSpace;
+using System.Collections.Generic;
+using System.Text.Json;
 
 
 namespace SkyCombGround.CommonSpace
@@ -15,16 +18,15 @@ namespace SkyCombGround.CommonSpace
             File.WriteAllText(SettingsFilePath, json);
         }
 
-        public static JsonSettings GetSettingsJson(string inputDirectory, string groundDirectory, string yoloDirectory, string outputDirectory)
+        public static JsonSettings GetSettingsJson(string inputDirectory, string groundDirectory
+            , string yoloDirectory, string outputDirectory, List<RecentFile> recentList) => new JsonSettings
         {
-            return new JsonSettings
-            {
-                InputDirectory = inputDirectory,
-                GroundDirectory = groundDirectory,
-                YoloDirectory = yoloDirectory,
-                OutputDirectory = outputDirectory,
-            };
-        }
+            InputDirectory = inputDirectory,
+            GroundDirectory = groundDirectory,
+            YoloDirectory = yoloDirectory,
+            OutputDirectory = outputDirectory,
+            RecentFiles = recentList
+        };
 
 
         public static JsonSettings LoadSettings()
@@ -36,10 +38,12 @@ namespace SkyCombGround.CommonSpace
             }
 
             JsonSettings defaultSettings = GetSettingsJson(
-                    "d:\\skycomb\\data_input\\",
-                    "d:\\skycomb\\data_ground\\",
-                    "d:\\skycomb\\data_yolo\\SkyCombYoloV8.onnx",
-                    "d:\\skycomb\\data_output\\");
+                    "c:\\skycomb\\data_input\\",
+                    "c:\\skycomb\\data_ground\\",
+                    "c:\\skycomb\\data_yolo\\SkyCombYoloV8.onnx",
+                    "c:\\skycomb\\data_output\\",
+                    new()
+                    );
 
             JsonSettings.SaveSettings(defaultSettings);
 
@@ -47,9 +51,19 @@ namespace SkyCombGround.CommonSpace
         }
 
 
-        public static bool SettingsExist()
+        public static bool SettingsExist() => File.Exists(SettingsFilePath);
+
+
+        public static void AddRecentFile(RecentFile newfile)
         {
-            return File.Exists(SettingsFilePath);
+            JsonSettings currentsettings = JsonSettings.LoadSettings();
+            currentsettings.RecentFiles.Add(newfile);
+            JsonSettings newsettings = JsonSettings.GetSettingsJson(currentsettings.InputDirectory
+                , currentsettings.GroundDirectory, currentsettings.YoloDirectory
+                , currentsettings.OutputDirectory, currentsettings.RecentFiles);
+            JsonSettings.SaveSettings(newsettings);
         }
     }
 }
+
+
