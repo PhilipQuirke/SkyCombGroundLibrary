@@ -1,6 +1,8 @@
 ﻿// Copyright SkyComb Limited 2024. All rights reserved. 
 
 
+using System.ComponentModel;
+
 namespace SkyCombGround.CommonSpace
 {
     public class ConfigBase : BaseConstants
@@ -145,7 +147,7 @@ namespace SkyCombGround.CommonSpace
         public string OutputDirectory { get; set; } = "";
         
         // String to store list of files and related info
-        public List<RecentFile> RecentFiles { get; set; } = new();
+        public BindingList<RecentFile> RecentFiles { get; set; } = new();
 
 
     };

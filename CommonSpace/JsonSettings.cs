@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SkyCombGround.CommonSpace;
 using System.Collections.Generic;
-using System.Text.Json;
+using System.ComponentModel;
 
 
 namespace SkyCombGround.CommonSpace
@@ -19,7 +19,7 @@ namespace SkyCombGround.CommonSpace
         }
 
         public static JsonSettings GetSettingsJson(string inputDirectory, string groundDirectory
-            , string yoloDirectory, string outputDirectory, List<RecentFile> recentList) => new JsonSettings
+            , string yoloDirectory, string outputDirectory, BindingList<RecentFile> recentList) => new JsonSettings
         {
             InputDirectory = inputDirectory,
             GroundDirectory = groundDirectory,
