@@ -134,9 +134,6 @@ namespace SkyCombGround.CommonSpace
         // Name of directory containing input video and SRT files. Trailing "\" (if any) is trimmed
         public string InputDirectory { get; set; } = "";
 
-        // New Zealand Land Information API key
-        //public string LinzApiKey { get; set; } = "";
-
         // Ground path containing static ground contour data. Trailing "\" (if any) is trimmed
         public string GroundDirectory { get; set; } = "";
 
@@ -147,8 +144,6 @@ namespace SkyCombGround.CommonSpace
         public string OutputDirectory { get; set; } = "";
         
         // String to store list of files and related info
-        public BindingList<RecentFile> RecentFiles { get; set; } = new();
-
-
+        public List<RecentFile> RecentFiles { get; set; } = new();
     };
 }

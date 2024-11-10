@@ -18,8 +18,9 @@ namespace SkyCombGround.CommonSpace
             File.WriteAllText(SettingsFilePath, json);
         }
 
+
         public static JsonSettings GetSettingsJson(string inputDirectory, string groundDirectory
-            , string yoloDirectory, string outputDirectory, BindingList<RecentFile> recentList) => new JsonSettings
+            , string yoloDirectory, string outputDirectory, List<RecentFile> recentList) => new JsonSettings
         {
             InputDirectory = inputDirectory,
             GroundDirectory = groundDirectory,
@@ -54,14 +55,32 @@ namespace SkyCombGround.CommonSpace
         public static bool SettingsExist() => File.Exists(SettingsFilePath);
 
 
-        public static void AddRecentFile(RecentFile newfile)
+        public static List<RecentFile> AddRecentFile(string newfilename, int numObjects)
         {
+
+            string newname = Path.GetFileName(newfilename);
+            string newpath = Path.GetDirectoryName(newfilename);
             JsonSettings currentsettings = JsonSettings.LoadSettings();
-            currentsettings.RecentFiles.Add(newfile);
+
+            // remove it if the file already exists in RecentFiles
+            currentsettings.RecentFiles.RemoveAll(p => (p.Name != null && p.Name.Contains(newname, StringComparison.OrdinalIgnoreCase)) &&
+                            (p.Path != null && p.Path.Contains(newpath, StringComparison.OrdinalIgnoreCase)));
+
+            RecentFile thisfile = new RecentFile
+            {
+                Name = newname,
+                Path = newpath,
+                Description = "Last read: " + DateTime.Now,
+                NumObjects = numObjects
+            };
+
+            currentsettings.RecentFiles.Add(thisfile);
+
             JsonSettings newsettings = JsonSettings.GetSettingsJson(currentsettings.InputDirectory
                 , currentsettings.GroundDirectory, currentsettings.YoloDirectory
                 , currentsettings.OutputDirectory, currentsettings.RecentFiles);
             JsonSettings.SaveSettings(newsettings);
+            return currentsettings.RecentFiles;
         }
     }
 }
