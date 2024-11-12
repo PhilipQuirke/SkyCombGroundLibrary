@@ -312,7 +312,7 @@ namespace SkyCombGround.PersistModel
             int row = 1;
             SetTitle(ref row, 1, PrefixTitle + " - " + title, LargeTitleFontSize);
 
-            if (title != IndexTabName)
+            if (title != IndexTitle)
             {
                 var link_cell = Worksheet.Cells[1, 8];
                 link_cell.Value = IndexTabName;
