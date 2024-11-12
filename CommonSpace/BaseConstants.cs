@@ -60,30 +60,27 @@ namespace SkyCombGround.CommonSpace
         public const string DsmInputTitle = "Dsm Data";
 
 
-        // Tab Names
+        // Datastore Tab Names
         public const string IndexTabName = "Index";
-        public const string FilesTabName = "Files";
-        public const string GroundTabName = "Ground";
-        public const string DemTabName = "DEM";
-        public const string DsmTabName = "DSM";
-        public const string SwatheTabName = "Swathe";
-        public const string DroneTabName = "Drone";
-        public const string Sections1TabName = "Sects1";
-        public const string Sections2TabName = "Sects2";
-        public const string Steps1TabName = "Steps1";
-        public const string Steps2TabName = "Steps2";
-        public const string LegsTabName = "Legs";
-        public const string ProcessTabName = "Process";
-        public const string Blocks1TabName = "Blks1";
-        public const string Blocks2TabName = "Blks2";
-        public const string PixelsTabName = "Pxls";
-        public const string FeaturesTabName = "Feats";
-        public const string Objects1TabName = "Objs1";
-        public const string Objects2TabName = "Objs2";
-        public const string SpanTabName = "Span";
-        public const string MasterCategoryTabName = "Cats";
-        public const string ObjectCategoryTabName = "ObjCat";
-        public const string PopulationTabName = "Popln";
+        public const string ObjectsReportTabName = "Objects";
+        public const string ProcessReportTabName = "Process";
+        public const string DroneReportTabName = "Drone";
+        public const string GroundReportTabName = "Ground";
+        public const string FileSettingsTabName = "FileSettings";
+        public const string DroneSettingsTabName = "DroneSettings";
+        public const string ProcessSettingsTabName = "ProcessSettings";
+        public const string ObjectsDataTabName = "ObjectsData";
+        public const string FeaturesDataTabName = "FeatureData";
+        public const string BlockDataTabName = "BlockData";
+        public const string SpanDataTabName = "SpanData";
+        public const string LegDataTabName = "LegData";
+        public const string StepDataTabName = "StepsData";
+        public const string SectionDataTabName = "SectionsData";
+        public const string DemDataTabName = "DemData";
+        public const string DsmDataTabName = "DsmData";
+        public const string SwatheDataTabName = "SwatheData";
+        public const string MasterCategoryTabName = "CatsData";
+        public const string ObjectCategoryTabName = "ObjCatData";
         public const string HelpTabName = "Help";
 
 
@@ -98,7 +95,7 @@ namespace SkyCombGround.CommonSpace
         public const int Chapter2TitleRow = 21;
         public const int Chapter3TitleRow = 38;
         public const int Chapter4TitleRow = 50;
-        public const int IndexContentRow = 5;
+        public const int IndexContentRow = 3;
 
 
         // Columns / Column offset

@@ -14,49 +14,11 @@ namespace SkyCombGround.PersistModel
         {
             return (
                 droneDataStore.GetColumnSettingsIfAvailable(
-                    GroundTabName, GroundInputTitle, Chapter1TitleRow, LhsColOffset),
+                    GroundReportTabName, GroundInputTitle, Chapter1TitleRow, LhsColOffset),
                 droneDataStore.GetColumnSettingsIfAvailable(
-                    GroundTabName, DsmInputTitle, Chapter1TitleRow, MidColOffset),
+                    GroundReportTabName, DsmInputTitle, Chapter1TitleRow, MidColOffset),
                 droneDataStore.GetColumnSettingsIfAvailable(
-                    GroundTabName, DemInputTitle, Chapter1TitleRow, RhsColOffset));
-        }
-
-
-        // Load all Ground (DEM) or Surface (DSM) data from a XLS file 
-        private static void LoadGrid(
-            BaseDataStore? droneDataStore,
-            GroundModel.GroundModel? grid,
-            string tabName)
-        {
-            int row = 0;
-            int col = 0;
-            try
-            {
-                if ((grid != null) && (droneDataStore != null) && droneDataStore.SelectWorksheet(tabName))
-                {
-                    grid.NumElevationsStored = 0;
-                    for (row = 1; row < grid.NumRows + 1; row++)
-                    {
-                        for (col = 1; col < grid.NumCols + 1; col++)
-                        {
-                            var cell = droneDataStore.Worksheet.Cells[row, col];
-                            if (cell != null && cell.Value != null)
-                            {
-                                var elevationStr = cell.Value.ToString();
-                                if ((elevationStr != null) && (elevationStr != ""))
-                                {
-                                    float elevationM = float.Parse(elevationStr);
-                                    grid.AddSettingDatum(row, col, elevationM);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ThrowException("GroundLoad.LoadGrid: Row=" + row + " Col=" + col, ex);
-            }
+                    GroundReportTabName, DemInputTitle, Chapter1TitleRow, RhsColOffset));
         }
 
 
@@ -111,7 +73,7 @@ namespace SkyCombGround.PersistModel
 
             try
             {
-                if (droneDataStore.SelectWorksheet(GroundTabName))
+                if (droneDataStore.SelectWorksheet(GroundReportTabName))
                 {
                     // Load the summary (settings) data 
                     (var groundSettings, var dsmSettings, var demSettings) = LoadSettings(droneDataStore);
@@ -119,25 +81,25 @@ namespace SkyCombGround.PersistModel
 
 
                     // Load ground (DEM) elevations (if any)
-                    if (fullLoad && droneDataStore.SelectWorksheet(DemTabName))
+                    if (fullLoad && droneDataStore.SelectWorksheet(DemDataTabName))
                     {
-                        LoadGridOptimized(droneDataStore, groundData.DemModel, DemTabName);
+                        LoadGridOptimized(droneDataStore, groundData.DemModel, DemDataTabName);
                         groundData.DemModel.AssertListGood();
                     }
 
 
                     // Load surface (DSM) elevations (if any)
-                    if (fullLoad && droneDataStore.SelectWorksheet(DsmTabName))
+                    if (fullLoad && droneDataStore.SelectWorksheet(DsmDataTabName))
                     {
-                        LoadGridOptimized(droneDataStore, groundData.DsmModel, DsmTabName);
+                        LoadGridOptimized(droneDataStore, groundData.DsmModel, DsmDataTabName);
                         groundData.DsmModel.AssertListGood();
                     }
 
 
                     // Load surface seen (Swathe) area (if any)
-                    if (fullLoad && droneDataStore.SelectWorksheet(SwatheTabName))
+                    if (fullLoad && droneDataStore.SelectWorksheet(SwatheDataTabName))
                     {
-                        LoadGridOptimized(droneDataStore, groundData.SwatheModel, SwatheTabName);
+                        LoadGridOptimized(droneDataStore, groundData.SwatheModel, SwatheDataTabName);
                         groundData.SwatheModel.AssertListGood();
                     }
                 }

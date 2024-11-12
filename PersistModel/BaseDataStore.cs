@@ -580,65 +580,44 @@ namespace SkyCombGround.PersistModel
             Store.Workbook.Properties.AppVersion = CodeVersion;
         }
 
-
         // Get the Index tab contents
-        public DataPairList GetIndex()
+        public (string, string, bool, string)[] GetIndex()
         {
-            return new DataPairList
-                {
-                    { IndexTabName, "This tab" },
-                    { FilesTabName, "List of drone input files and output files created" },
-                    { "", "" },
-                    { GroundTabName, "Ground and Surface summary and graphs" },
-                    { DemTabName, "Ground elevation data" },
-                    { DsmTabName, "Surface (aka tree-top) elevation data" },
-                    { SwatheTabName, "Swathe of ground seen by drone" },
-                    { "", "" },
-                    { DroneTabName, "Summary drone and elevation data" },
-                    { Sections1TabName, "Raw drone flight log data table" },
-                    { Sections2TabName, "Raw drone flight log graphs" },
-                    { LegsTabName, "Drone flight legs data table" },
-                    { Steps1TabName, "Smoothed drone flight log data table" },
-                    { Steps2TabName, "Smoothed drone flight log graphs" },
-                    { "", "" },
-                    { ProcessTabName, "Summary image processing and object data"},
-                    { Blocks1TabName, "Processing blocks (aka video frames) data table - combines Step, DEM, DSM, Leg & image data" },
-                    { Blocks2TabName, "Processing blocks (aka video frames) graphs" },
-                    { FeaturesTabName, "Feature (cluster of hot pixels in one video frame) data table" },
-                    { Objects1TabName, "Object (sequence of features across multiple video frames) data table" },
-                    { Objects2TabName, "Object graphs - combines object, feature & block data" },
-                    { SpanTabName, "Spans (in the blocks) data" },
-                    { "", "" },
-                    { ObjectCategoryTabName, "Object category (annotations) data table" },
-                    { MasterCategoryTabName, "Master category data table" },
-                };
-        }
-
-
-        // Update the Index tab with the current date/time for the 
-        // specified tabName. Also record the code version used.
-        public void SetLastUpdateDateTime(string tabName)
-        {
-            if (SelectWorksheet(IndexTabName))
+            return new[]
             {
-                var indexData = GetIndex();
-                int row = IndexContentRow;
-                foreach (var index in indexData)
-                {
-                    if (index.Key == tabName)
-                    {
-                        Worksheet.Cells[row, 3].Value = DateTime.Now.ToString();
-
-                        // Store the code version that stored the changed data. 
-                        // Helps if say the video was processed with an old version of the code,
-                        // but the object categories were assigned using a new version of the code.
-                        Worksheet.Cells[row, 4].Value = CodeVersion;
-                        break;
-                    }
-
-                    row++;
-                }
-            }
+                ("", "Table of Contents", false, "" ),
+                ("", "", false, "" ),
+                ("", "Reports", false, "" ),
+                (ObjectsReportTabName, "Object summary", true, "" ),
+                (ProcessReportTabName, "Processing summary", true, "" ),
+                (DroneReportTabName, "Drone summary", true, "" ),
+                (GroundReportTabName, "Ground data summary", true, "" ),
+                ("", "", false, "" ),
+                ("", "Settings", false, "" ),
+                (FileSettingsTabName, "Input and output files", true, "" ),
+                (DroneSettingsTabName, "Drone settings", true, "" ),
+                (ProcessSettingsTabName, "Image processing settings", true, "" ),
+                ("", "", false, "" ),
+                ("", "Data tables", false, "" ),
+                (ObjectsDataTabName, "Object data table", true, "" ),
+                (FeaturesDataTabName, "Object frame feature data table", true, "" ),
+                (BlockDataTabName, "Processing blocks data table", false, "" ),
+                (SpanDataTabName, "Processing spans data table", false, "" ),
+                (LegDataTabName, "Drone flight legs data table", false, "" ),
+                (StepDataTabName, "Smoothed drone flight log data table", false, "" ),
+                (SectionDataTabName, "Raw drone flight log data table", false, "" ),
+                (DemDataTabName, "Ground elevation data", false, "" ),
+                (DsmDataTabName, "Surface (aka tree-top) elevation data", false, "" ),
+                (SwatheDataTabName, "Swathe of ground seen by drone", false, "" ),
+                (ObjectCategoryTabName, "Object category (annotations) data table", false, "" ),
+                (MasterCategoryTabName, "Master category data table", false, "" ),
+                ("", "", false, "" ),
+                ("", "Online help", false, "" ),
+                ("", "Overview", false, @"https://github.com/PhilipQuirke/SkyCombAnalystHelp/blob/main/README.md" ),
+                ("", "Datastore", false, @"https://github.com/PhilipQuirke/SkyCombAnalystHelp/blob/main/DataStore.md" ),
+                ("", "", false, "" ),
+                ("", "Copyright 2024 SkyComb Limited. All rights reserved.", false, "" ),
+            };
         }
 
 

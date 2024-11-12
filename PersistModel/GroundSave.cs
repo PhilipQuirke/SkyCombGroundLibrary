@@ -9,39 +9,6 @@ namespace SkyCombGround.PersistModel
     // Save meta-data about a drone flight, the videos taken, the flight log, and ground DEM and DSM elevations to a datastore, including graphs
     public class GroundSave : BaseConstants
     {
-        // Save the ground-elevation/surface-elevation/swathe data
-        private static bool SaveGrid(
-            BaseDataStore? dataStore,
-            GroundModel.GroundModel? grid,
-            string tabName)
-        {
-            int row = 0;
-            int col = 0;
-            try
-            {
-                if ((dataStore == null) || (grid == null) || (grid.NumElevationsStored <= 0))
-                    return false;
-
-                if (dataStore.SelectWorksheet(tabName))
-                    dataStore.ClearWorksheet();
-
-                (var newTab, var ws) = dataStore.SelectOrAddWorksheet(tabName);
-                if (ws == null)
-                    return false;
-
-                for (row = 1; row < grid.NumRows + 1; row++)
-                    for (col = 1; col < grid.NumCols + 1; col++)
-                        ws.Cells[row, col].Value = grid.GetElevationMByGridIndex(row, col);
-            }
-            catch (Exception ex)
-            {
-                throw ThrowException("GroundSave.SaveData: Row=" + row + " Col=" + col, ex);
-            }
-
-            return true;
-        }
-
-
         public static bool SaveGridOptimized(
             BaseDataStore? dataStore,
             GroundModel.GroundModel? grid,
@@ -94,7 +61,7 @@ namespace SkyCombGround.PersistModel
             if ((dataStore == null) || (groundData == null))
                 return;
 
-            (var _, var ws) = dataStore.SelectOrAddWorksheet(GroundTabName);
+            (var _, var ws) = dataStore.SelectOrAddWorksheet(GroundReportTabName);
             if (ws == null)
                 return;
 
@@ -112,22 +79,15 @@ namespace SkyCombGround.PersistModel
             dataStore.SetColumnWidth(RhsColOffset, 25);
             dataStore.SetColumnWidth(RhsColOffset + LabelToValueCellOffset, 10);
 
-            if (SaveGridOptimized(dataStore, groundData.DsmModel, DsmTabName))
-                dataStore.SetLastUpdateDateTime(DsmTabName);
+            SaveGridOptimized(dataStore, groundData.DsmModel, DsmDataTabName);
+            SaveGridOptimized(dataStore, groundData.DemModel, DemDataTabName);
+            SaveGridOptimized(dataStore, groundData.SwatheModel, SwatheDataTabName);
 
-            if (SaveGridOptimized(dataStore, groundData.DemModel, DemTabName))
-                dataStore.SetLastUpdateDateTime(DemTabName);
+            dataStore.SelectWorksheet(GroundReportTabName);
 
-            if (SaveGridOptimized(dataStore, groundData.SwatheModel, SwatheTabName))
-                dataStore.SetLastUpdateDateTime(SwatheTabName);
-
-            dataStore.SelectWorksheet(GroundTabName);
-
-            dataStore.HideWorksheet(DemTabName);
-            dataStore.HideWorksheet(DsmTabName);
-            dataStore.HideWorksheet(SwatheTabName);
-
-            dataStore.SetLastUpdateDateTime(GroundTabName);
+            dataStore.HideWorksheet(DemDataTabName);
+            dataStore.HideWorksheet(DsmDataTabName);
+            dataStore.HideWorksheet(SwatheDataTabName);
         }
     }
 }

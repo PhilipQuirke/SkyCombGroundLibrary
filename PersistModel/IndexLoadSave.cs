@@ -9,6 +9,11 @@ namespace SkyCombGround.PersistModel
     // Persist the list of book names in a datastore SkyCombIndex.xlsx
     public class IndexLoadSave : BaseDataStore
     {
+
+        public const string FilesTabName = "Files";
+
+
+
         public IndexLoadSave(string fullfileName) : base(fullfileName, true)
         {
         }
