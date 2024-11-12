@@ -6,7 +6,7 @@ namespace SkyCombGround.CommonSpace
     public class BaseConstants : GroundColors
     {
         // The current version of the code base.
-        public static string CodeVersion = "9.0";
+        public static string CodeVersion = "9.5";
 
 
         // Number of decimal places for commonly used types of data
@@ -50,10 +50,13 @@ namespace SkyCombGround.CommonSpace
 
 
         // Titles
-        public const string Main1Title = "SkyComb Analyst";
-        public const string Main2Title = "DataStore";
-        public const string IndexTitle = "Index";
-        public const string FilesTitle = "Files";
+        public const string PrefixTitle = "SkyComb Analyst";
+        public const string IndexTitle = "Table of Contents";
+        public const string ObjectReportTitle = "Object Report";
+        public const string DroneReportTitle = "Drone Report";
+        public const string ProcessReportTitle = "Process Report";
+        public const string GroundReportTitle = "Ground Report";
+        public const string FilesTitle = "File Settings";
         public const string FlightLocationTitle = "Flight Location";
         public const string GroundInputTitle = "Global Location";
         public const string DemInputTitle = "Dem Data";
@@ -88,6 +91,7 @@ namespace SkyCombGround.CommonSpace
         public const int StandardChartCols = 13;
         public const int StandardChartRows = 15;
         public const int LargeChartRows = 2 * StandardChartRows;
+        public const int ChartFullWidthPixels = 2100;
 
 
         // Rows

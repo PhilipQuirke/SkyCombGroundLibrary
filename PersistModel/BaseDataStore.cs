@@ -306,14 +306,18 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        public void SetTitles(string title3)
+        // Add the title at top left and a hyperlink to the Index tab
+        public void SetLargeTitle(string title)
         {
             int row = 1;
-            SetTitle(ref row, 1, Main1Title, LargeTitleFontSize);
-            row = 1;
-            SetTitle(ref row, 2, Main2Title, LargeTitleFontSize);
-            row = 1;
-            SetTitle(ref row, 4, title3, LargeTitleFontSize);
+            SetTitle(ref row, 1, PrefixTitle + " - " + title, LargeTitleFontSize);
+
+            if (title != IndexTabName)
+            {
+                var link_cell = Worksheet.Cells[1, 8];
+                link_cell.Value = IndexTabName;
+                SetInternalHyperLink(link_cell, IndexTabName);
+            }
         }
 
 
@@ -585,8 +589,6 @@ namespace SkyCombGround.PersistModel
         {
             return new[]
             {
-                ("", "Table of Contents", false, "" ),
-                ("", "", false, "" ),
                 ("", "Reports", false, "" ),
                 (ObjectsReportTabName, "Object summary", true, "" ),
                 (ProcessReportTabName, "Processing summary", true, "" ),

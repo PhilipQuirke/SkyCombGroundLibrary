@@ -1,6 +1,7 @@
 ﻿using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundLogic;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 
@@ -55,17 +56,15 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        // Save ground data (if any) to the DataStore 
+        // Save ground data report and graphs
         public static void Save(BaseDataStore? dataStore, GroundData? groundData)
         {
             if ((dataStore == null) || (groundData == null))
                 return;
 
-            (var _, var ws) = dataStore.SelectOrAddWorksheet(GroundReportTabName);
-            if (ws == null)
-                return;
+            dataStore.SelectOrAddWorksheet(GroundReportTabName);
 
-            dataStore.SetTitles("Ground");
+            dataStore.SetLargeTitle(GroundReportTitle);
 
             dataStore.SetTitleAndDataListColumn(GroundInputTitle, Chapter1TitleRow, LhsColOffset, groundData.GetSettings());
             dataStore.SetColumnWidth(LhsColOffset, 25);
