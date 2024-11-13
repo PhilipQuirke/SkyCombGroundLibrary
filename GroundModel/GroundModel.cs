@@ -363,9 +363,6 @@ namespace SkyCombGround.GroundModel
                 { "Max Elevation Quarter M", MaxElevationQuarterM },
                 { "Min Elevation Quarter M", MinElevationQuarterM },
                 { "Num Elevations Stored", NumElevationsStored },
-                { "# Rows", NumRows },
-                { "# Cols", NumCols },
-                { "# Datums", NumDatums },
             };
         }
 
@@ -389,9 +386,6 @@ namespace SkyCombGround.GroundModel
             MaxElevationQuarterM = (short)ConfigBase.StringToInt(settings[6]);
             MinElevationQuarterM = (short)ConfigBase.StringToInt(settings[7]);
             NumElevationsStored = ConfigBase.StringToInt(settings[8]);
-            // NumRows = ConfigBase.StringToInt(settings[9]);
-            // NumCols = ConfigBase.StringToInt(settings[10]);
-            // NumDatums = ConfigBase.StringToInt(settings[11]);
         }
     }
 
