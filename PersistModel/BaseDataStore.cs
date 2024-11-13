@@ -591,7 +591,6 @@ namespace SkyCombGround.PersistModel
             {
                 ("", "Reports", false, "" ),
                 (ObjectsReportTabName, "Object summary", true, "" ),
-                (ProcessReportTabName, "Processing summary", true, "" ),
                 (DroneReportTabName, "Drone summary", true, "" ),
                 (GroundReportTabName, "Ground data summary", true, "" ),
                 ("", "", false, "" ),

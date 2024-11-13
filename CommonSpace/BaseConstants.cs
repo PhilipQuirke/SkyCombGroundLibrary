@@ -54,7 +54,6 @@ namespace SkyCombGround.CommonSpace
         public const string IndexTitle = "Table of Contents";
         public const string ObjectReportTitle = "Object Report";
         public const string DroneReportTitle = "Drone Report";
-        public const string ProcessReportTitle = "Process Report";
         public const string GroundReportTitle = "Ground Report";
         public const string FilesTitle = "File Settings";
         public const string FlightLocationTitle = "Flight Location";
@@ -66,7 +65,6 @@ namespace SkyCombGround.CommonSpace
         // Datastore Tab Names
         public const string IndexTabName = "Index";
         public const string ObjectsReportTabName = "Objects";
-        public const string ProcessReportTabName = "Process";
         public const string DroneReportTabName = "Drone";
         public const string GroundReportTabName = "Ground";
         public const string FileSettingsTabName = "FileSettings";
