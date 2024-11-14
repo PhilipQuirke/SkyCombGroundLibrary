@@ -310,13 +310,13 @@ namespace SkyCombGround.PersistModel
         public void SetLargeTitle(string title)
         {
             int row = 1;
-            SetTitle(ref row, 1, PrefixTitle + " - " + title, LargeTitleFontSize);
+            SetTitle(ref row, 2, PrefixTitle + " - " + title, LargeTitleFontSize);
 
             if (title != IndexTitle)
             {
-                var link_cell = Worksheet.Cells[1, 8];
-                link_cell.Value = IndexTabName;
-                SetInternalHyperLink(link_cell, IndexTabName);
+                var link_cell = Worksheet.Cells[1, 1];
+                link_cell.Value = HomeTabName;
+                SetInternalHyperLink(link_cell, HomeTabName);
             }
         }
 
@@ -590,9 +590,9 @@ namespace SkyCombGround.PersistModel
             return new[]
             {
                 ("", "Reports", false, "" ),
-                (ObjectsReportTabName, "Object summary", true, "" ),
+                (AnimalReportTabName, "Animal summary", true, "" ),
                 (DroneReportTabName, "Drone summary", true, "" ),
-                (GroundReportTabName, "Ground data summary", true, "" ),
+                (GroundReportTabName, "Ground summary", true, "" ),
                 ("", "", false, "" ),
                 ("", "Settings", false, "" ),
                 (FileSettingsTabName, "Input and output files", true, "" ),
@@ -600,8 +600,8 @@ namespace SkyCombGround.PersistModel
                 (ProcessSettingsTabName, "Image processing settings", true, "" ),
                 ("", "", false, "" ),
                 ("", "Data tables", false, "" ),
-                (ObjectsDataTabName, "Object data table", true, "" ),
-                (FeaturesDataTabName, "Object frame feature data table", true, "" ),
+                (AnimalsDataTabName, "Animal data table", true, "" ),
+                (AnimalImageDataTabName, "Animal image data table", true, "" ),
                 (BlockDataTabName, "Processing blocks data table", false, "" ),
                 (SpanDataTabName, "Processing spans data table", false, "" ),
                 (LegDataTabName, "Drone flight legs data table", false, "" ),
@@ -610,7 +610,7 @@ namespace SkyCombGround.PersistModel
                 (DemDataTabName, "Ground elevation data", false, "" ),
                 (DsmDataTabName, "Surface (aka tree-top) elevation data", false, "" ),
                 (SwatheDataTabName, "Swathe of ground seen by drone", false, "" ),
-                (ObjectCategoryTabName, "Object category (annotations) data table", false, "" ),
+                (AnimalCategoryTabName, "Animal category (annotations) data table", false, "" ),
                 (MasterCategoryTabName, "Master category data table", false, "" ),
                 ("", "", false, "" ),
                 ("", "Online help", false, "" ),

@@ -52,26 +52,26 @@ namespace SkyCombGround.CommonSpace
         // Titles
         public const string PrefixTitle = "SkyComb Analyst";
         public const string IndexTitle = "Table of Contents";
-        public const string ObjectReportTitle = "Object Report";
+        public const string AnimalReportTitle = "Animal Report";
         public const string DroneReportTitle = "Drone Report";
         public const string GroundReportTitle = "Ground Report";
         public const string FilesTitle = "File Settings";
         public const string FlightLocationTitle = "Flight Location";
         public const string GroundInputTitle = "Global Location";
-        public const string DemInputTitle = "Dem Data";
-        public const string DsmInputTitle = "Dsm Data";
+        public const string DemInputTitle = "DEM Data";
+        public const string DsmInputTitle = "DSM Data";
 
 
         // Datastore Tab Names
-        public const string IndexTabName = "Index";
-        public const string ObjectsReportTabName = "Objects";
+        public const string HomeTabName = "Home";
+        public const string AnimalReportTabName = "Animals"; // Aka Objects
         public const string DroneReportTabName = "Drone";
         public const string GroundReportTabName = "Ground";
         public const string FileSettingsTabName = "FileSettings";
         public const string DroneSettingsTabName = "DroneSettings";
         public const string ProcessSettingsTabName = "ProcessSettings";
-        public const string ObjectsDataTabName = "ObjectsData";
-        public const string FeaturesDataTabName = "FeatureData";
+        public const string AnimalsDataTabName = "AnimalsData"; // Aka Objects
+        public const string AnimalImageDataTabName = "ImageData"; // Aka Features. Aka Animal images
         public const string BlockDataTabName = "BlockData";
         public const string SpanDataTabName = "SpanData";
         public const string LegDataTabName = "LegData";
@@ -81,7 +81,7 @@ namespace SkyCombGround.CommonSpace
         public const string DsmDataTabName = "DsmData";
         public const string SwatheDataTabName = "SwatheData";
         public const string MasterCategoryTabName = "CatsData";
-        public const string ObjectCategoryTabName = "ObjCatData";
+        public const string AnimalCategoryTabName = "AnimalCatData";
         public const string HelpTabName = "Help";
 
 
