@@ -2,6 +2,7 @@
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing.Chart;
 using SkyCombGround.CommonSpace;
+using System.Collections.Generic;
 using System.Drawing;
 
 
@@ -252,22 +253,25 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        // Get (read) a vertical column of "key/value pair" settings until hit a blank key cel, & return the settings values.
+        // Get (read) a vertical column of "key/value pair" settings until hit a blank key cell, & return the settings values.
         public List<string> GetColumnSettings(int row, int keyCol, int valueCol)
         {
             List<string> settings = new();
 
-            var keyCell = Worksheet.Cells[row, keyCol];
-            var valueCell = Worksheet.Cells[row, valueCol];
-            while ((keyCell != null) && (keyCell.Value != null) && (keyCell.Value.ToString().Trim() != "") &&
-                    (valueCell != null) && (valueCell.Value != null))
+            if ((Worksheet != null) && (Worksheet.Cells != null))
             {
-                settings.Add(valueCell.Value.ToString());
+                var keyCell = Worksheet.Cells[row, keyCol];
+                var valueCell = Worksheet.Cells[row, valueCol];
+                while ((keyCell != null) && (keyCell.Value != null) && (keyCell.Value.ToString().Trim() != "") &&
+                        (valueCell != null) && (valueCell.Value != null))
+                {
+                    settings.Add(valueCell.Value.ToString());
 
-                // Advance a row
-                row++;
-                keyCell = Worksheet.Cells[row, keyCol];
-                valueCell = Worksheet.Cells[row, valueCol];
+                    // Advance a row
+                    row++;
+                    keyCell = Worksheet.Cells[row, keyCol];
+                    valueCell = Worksheet.Cells[row, valueCol];
+                }
             }
 
             return settings;
