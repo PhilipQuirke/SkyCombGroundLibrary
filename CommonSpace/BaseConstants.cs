@@ -89,7 +89,7 @@ namespace SkyCombGround.CommonSpace
         public const int StandardChartCols = 13;
         public const int StandardChartRows = 15;
         public const int LargeChartRows = 2 * StandardChartRows;
-        public const int ChartFullWidthPixels = 2100;
+        public const int ChartFullWidthPixels = 1400;
 
 
         // Rows

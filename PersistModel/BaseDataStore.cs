@@ -622,25 +622,6 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        // Save the bitmap to the datastore
-        public void SaveBitmap(Bitmap? theBitmap, string name, int row, int col = 0, int percent = 100)
-        {
-            if (theBitmap == null || Worksheet == null)
-                return;
-
-            using (var stream = new MemoryStream())
-            {
-                // Save the bitmap into the memory stream as PNG format
-                theBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-
-                var picture = Worksheet.Drawings.AddPicture(name, stream);
-                picture.SetPosition(row, 0, col, 0);
-                picture.Border.Width = 0;
-                picture.SetSize(percent);
-            }
-        }
-
-
         public void Dispose()
         {
             Dispose(true);
