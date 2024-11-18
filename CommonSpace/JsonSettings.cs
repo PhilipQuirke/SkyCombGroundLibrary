@@ -75,7 +75,7 @@ namespace SkyCombGround.CommonSpace
                 Name = newname,
                 Path = newpath,
                 Description = "Last read: " + DateTime.Now,
-                NumObjects = int.Max(numObjects, num)
+                NumObjects = (numObjects == 0 ? num : numObjects)
             };
 
             currentsettings.RecentFiles.Add(thisfile);
