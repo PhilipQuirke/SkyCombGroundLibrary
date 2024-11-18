@@ -57,21 +57,25 @@ namespace SkyCombGround.CommonSpace
 
         public static List<RecentFile> AddRecentFile(string newfilename, int numObjects)
         {
-
             string newname = Path.GetFileName(newfilename);
             string newpath = Path.GetDirectoryName(newfilename);
             JsonSettings currentsettings = JsonSettings.LoadSettings();
 
-            // remove it if the file already exists in RecentFiles
-            currentsettings.RecentFiles.RemoveAll(p => (p.Name != null && p.Name.Contains(newname, StringComparison.OrdinalIgnoreCase)) &&
-                            (p.Path != null && p.Path.Contains(newpath, StringComparison.OrdinalIgnoreCase)));
-
+            // nq pick up old numobjects if incoming is zero.
+            int num = 0;
+            int index = currentsettings.RecentFiles.FindIndex(p => (p.Name != null && p.Name.Contains(newname, StringComparison.OrdinalIgnoreCase)) &&
+                        (p.Path != null && p.Path.Contains(newpath, StringComparison.OrdinalIgnoreCase)));
+            if (index != -1)
+            {
+                num = currentsettings.RecentFiles[index].NumObjects;
+                currentsettings.RecentFiles.RemoveAt(index);
+            }
             RecentFile thisfile = new RecentFile
             {
                 Name = newname,
                 Path = newpath,
                 Description = "Last read: " + DateTime.Now,
-                NumObjects = numObjects
+                NumObjects = int.Max(numObjects, num)
             };
 
             currentsettings.RecentFiles.Add(thisfile);
