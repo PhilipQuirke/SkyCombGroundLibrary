@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
-using SkyCombGround.CommonSpace;
-using System.Collections.Generic;
-using System.ComponentModel;
+
 
 
 namespace SkyCombGround.CommonSpace
@@ -11,7 +9,6 @@ namespace SkyCombGround.CommonSpace
         private const string SettingsFileName = "skycomb_settings.json";
         private static readonly string SettingsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SettingsFileName);
 
-
         public static void SaveSettings(JsonSettings settings)
         {
             string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
@@ -20,30 +17,37 @@ namespace SkyCombGround.CommonSpace
 
 
         public static JsonSettings GetSettingsJson(string inputDirectory, string groundDirectory
-            , string yoloDirectory, string outputDirectory, List<RecentFile> recentList) => new JsonSettings
+            , string yoloDirectory, string outputDirectory, List<RecentFile> recentList
+            , MasterCategoryListJ categoryList) => new JsonSettings
         {
             InputDirectory = inputDirectory,
             GroundDirectory = groundDirectory,
             YoloDirectory = yoloDirectory,
             OutputDirectory = outputDirectory,
-            RecentFiles = recentList
+            RecentFiles = recentList,
+            CategoryList = categoryList
         };
-
 
         public static JsonSettings LoadSettings()
         {
-            if (File.Exists(SettingsFilePath))
+ 
+        if (File.Exists(SettingsFilePath))
             {
                 string json = File.ReadAllText(SettingsFilePath);
                 return JsonConvert.DeserializeObject<JsonSettings>(json);
             }
-
+            MasterCategoryListJ defaultCategoryList = [];
+            defaultCategoryList.Default();
+            ;
+            //          MasterCategoryListJ defaultCategoryList = [];
+            //            defaultCategoryList.Default();
             JsonSettings defaultSettings = GetSettingsJson(
                     "c:\\skycomb\\data_input\\",
                     "c:\\skycomb\\data_ground\\",
                     "c:\\skycomb\\data_yolo\\SkyCombYoloV8.onnx",
                     "c:\\skycomb\\data_output\\",
-                    new()
+                    new(),
+                    defaultCategoryList
                     );
 
             JsonSettings.SaveSettings(defaultSettings);
@@ -59,7 +63,7 @@ namespace SkyCombGround.CommonSpace
         {
             string newname = Path.GetFileName(newfilename);
             string newpath = Path.GetDirectoryName(newfilename);
-            JsonSettings currentsettings = JsonSettings.LoadSettings();
+            JsonSettings currentsettings = LoadSettings();
 
             // nq pick up old numobjects if incoming is zero.
             int num = 0;
@@ -80,10 +84,12 @@ namespace SkyCombGround.CommonSpace
 
             currentsettings.RecentFiles.Add(thisfile);
 
-            JsonSettings newsettings = JsonSettings.GetSettingsJson(currentsettings.InputDirectory
+            JsonSettings newsettings = GetSettingsJson(currentsettings.InputDirectory
                 , currentsettings.GroundDirectory, currentsettings.YoloDirectory
-                , currentsettings.OutputDirectory, currentsettings.RecentFiles);
-            JsonSettings.SaveSettings(newsettings);
+                , currentsettings.OutputDirectory, currentsettings.RecentFiles, currentsettings.CategoryList);
+
+            SaveSettings(newsettings);
+
             return currentsettings.RecentFiles;
         }
     }
