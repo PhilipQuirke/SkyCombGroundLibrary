@@ -1,8 +1,6 @@
 ﻿// Copyright SkyComb Limited 2024. All rights reserved. 
 
 
-using System.ComponentModel;
-
 namespace SkyCombGround.CommonSpace
 {
     public class ConfigBase : BaseConstants
@@ -143,7 +141,11 @@ namespace SkyCombGround.CommonSpace
         // Directory path to store created (video and spreadsheet) files into. Trailing "\" (if any) is trimmed
         public string OutputDirectory { get; set; } = "";
         
-        // String to store list of files and related info
+        // List of recent files and related info
         public List<RecentFile> RecentFiles { get; set; } = new();
+
+        // List of object categories, updated by user
+        public MasterCategoryListJ CategoryList { get; set; } = new();
+
     };
 }
