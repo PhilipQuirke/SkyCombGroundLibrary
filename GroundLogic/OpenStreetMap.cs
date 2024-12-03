@@ -2,6 +2,7 @@
 
 namespace SkyCombGroundLibrary.GroundLogic
 {
+    // Class to create a bitmap of the country side using OpenStreetMap. Needs internet access.
     public class OpenStreetMap
     {
         public Bitmap? Background { get; set; }
