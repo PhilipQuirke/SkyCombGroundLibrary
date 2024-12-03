@@ -1,30 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Net.Http;
+﻿using System.Drawing;
+
 
 namespace SkyCombGroundLibrary.GroundLogic
 {
     public class OpenStreetMap
     {
         public Bitmap? Background { get; set; }
-        public async Task Main(string[] args)
+
+
+        public async Task Main(double centreLat, double centreLon, int zoom = 13, int tileWidth = 2, int tileHeight = 2)
         {
-            // Transform data
-            double centreLat = Convert.ToDouble(args[0]);
-            double centreLon = Convert.ToDouble(args[1]);
-
-            // Map center and size
-            int zoom = 13; // Zoom level
-            int tileWidth = 2; // Number of tiles (width)
-            int tileHeight = 2; // Number of tiles (height)
-
             // Download and stitch map
             Background = await GetMap(centreLat, centreLon, zoom, tileWidth, tileHeight).ConfigureAwait(false);
         }
+
 
         private async Task<Bitmap> GetMap(double centerLat, double centerLon, int zoom, int tileWidth, int tileHeight)
         {
