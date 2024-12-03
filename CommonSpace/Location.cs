@@ -45,6 +45,12 @@ namespace SkyCombGround.CommonSpace
         }
 
 
+        public GlobalLocation Clone()
+        {
+            return new GlobalLocation(this);
+        }
+
+
         public override string ToString()
         {
             return Latitude.ToString(Format) + "," + Longitude.ToString(Format);
