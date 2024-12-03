@@ -1,34 +1,41 @@
 ﻿using System.Drawing;
 
-
 namespace SkyCombGroundLibrary.GroundLogic
 {
     public class OpenStreetMap
     {
         public Bitmap? Background { get; set; }
 
-
-        public async Task Main(double centreLat, double centreLon, int zoom = 13, int tileWidth = 2, int tileHeight = 2)
+        public async Task Main(double centreLat, double centreLon, int zoom = 13, int tileWidth = 2, int tileHeight = 2, bool drawCenterCross = true)
         {
-            // Download and stitch map
-            Background = await GetMap(centreLat, centreLon, zoom, tileWidth, tileHeight).ConfigureAwait(false);
+            Background = await GetMap(centreLat, centreLon, zoom, tileWidth, tileHeight, drawCenterCross).ConfigureAwait(false);
         }
 
-
-        private async Task<Bitmap> GetMap(double centerLat, double centerLon, int zoom, int tileWidth, int tileHeight)
+        private async Task<Bitmap> GetMap(double centerLat, double centerLon, int zoom, int tileWidth, int tileHeight, bool drawCenterCross)
         {
-            // Calculate center tile
-            int centerTileX = LongToTileX(centerLon, zoom);
-            int centerTileY = LatToTileY(centerLat, zoom);
+            int tileSize = 256;
 
-            // Create bitmap for stitched map
-            int tileSize = 256; // Tile size in pixels
+            // Get global pixel coordinates
+            double globalPixelX = (centerLon + 180.0) / 360.0 * (tileSize << zoom);
+            double globalPixelY = (1.0 - Math.Log(Math.Tan(centerLat * Math.PI / 180.0) +
+                                 1.0 / Math.Cos(centerLat * Math.PI / 180.0)) / Math.PI) / 2.0 * (tileSize << zoom);
+
+            // Calculate tile coordinates
+            int centerTileX = (int)(globalPixelX / tileSize);
+            int centerTileY = (int)(globalPixelY / tileSize);
+
+            // Calculate pixel offset within the full map
+            double relativeX = globalPixelX - (centerTileX * tileSize);
+            double relativeY = globalPixelY - (centerTileY * tileSize);
+
             Bitmap map = new Bitmap(tileWidth * tileSize, tileHeight * tileSize);
 
             using (Graphics g = Graphics.FromImage(map))
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; MapViewer/1.0)");
+
+                // Draw map tiles
                 for (int y = 0; y < tileHeight; y++)
                 {
                     for (int x = 0; x < tileWidth; x++)
@@ -51,37 +58,41 @@ namespace SkyCombGroundLibrary.GroundLogic
                         {
                             Console.WriteLine($"Failed to fetch tile: {response.StatusCode} - {response.ReasonPhrase}");
                         }
-                        /*
-                        try
-                        {
-                            byte[] tileData = await client.GetByteArrayAsync(url);
-                            using (MemoryStream ms = new MemoryStream(tileData))
-                            {
-                                Image tile = Image.FromStream(ms);
-                                g.DrawImage(tile, x * tileSize, y * tileSize, tileSize, tileSize);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Failed to download tile ({tileX}, {tileY}): {ex.Message}");
-                        }
-                        */
                     }
+                }
+
+                if (drawCenterCross)
+                {
+                    // Calculate the exact position in the final image
+                    int exactX = (int)(tileSize * (tileWidth / 2.0) + relativeX);
+                    int exactY = (int)(tileSize * (tileHeight / 2.0) + relativeY);
+                    int crossSize = 20;
+
+                    // Draw debug information
+                    // using (Font debugFont = new Font("Arial", 8))
+                    //using (Brush debugBrush = new SolidBrush(Color.Black))
+                    //{
+                    //    g.DrawString($"Zoom: {zoom}", debugFont, debugBrush, 10, 10);
+                    //    g.DrawString($"Lat: {centerLat:F6}", debugFont, debugBrush, 10, 25);
+                    //    g.DrawString($"Lon: {centerLon:F6}", debugFont, debugBrush, 10, 40);
+                    //    g.DrawString($"Pixel: ({exactX}, {exactY})", debugFont, debugBrush, 10, 55);
+                    //}
+
+                    // Draw the cross
+                    using (Pen redPen = new Pen(Color.Red, 2))
+                    {
+                        g.DrawLine(redPen, exactX - crossSize, exactY, exactX + crossSize, exactY);
+                        g.DrawLine(redPen, exactX, exactY - crossSize, exactX, exactY + crossSize);
+                    }
+                }
+
+                using (Pen borderPen = new Pen(Color.Black, 1))
+                {
+                    g.DrawRectangle(borderPen, 0, 0, map.Width - 1, map.Height - 1);
                 }
             }
 
             return map;
         }
-
-        private int LongToTileX(double lon, int zoom)
-        {
-            return (int)((lon + 180.0) / 360.0 * (1 << zoom));
-        }
-
-        private int LatToTileY(double lat, int zoom)
-        {
-            return (int)((1.0 - Math.Log(Math.Tan(lat * Math.PI / 180.0) + 1.0 / Math.Cos(lat * Math.PI / 180.0)) / Math.PI) / 2.0 * (1 << zoom));
-        }
     }
 }
-
