@@ -12,19 +12,21 @@ namespace SkyCombGroundLibrary.GroundLogic
 
         public Bitmap? Background { get; set; }
 
-        public async Task Main(double centreLat, double centreLon, int zoom = 13, int tileWidth = 2, int tileHeight = 2, bool drawCenterCross = true)
+        public async Task Main(GlobalLocation center, GlobalLocation? range, int zoom)
         {
-            Background = await GetMap(centreLat, centreLon, zoom, tileWidth, tileHeight, drawCenterCross).ConfigureAwait(false);
+            Background = await GetMap(center, range, zoom).ConfigureAwait(false);
         }
 
-        private async Task<Bitmap> GetMap(double centerLat, double centerLon, int zoom, int tileWidth, int tileHeight, bool drawCenterCross)
+        private async Task<Bitmap> GetMap(GlobalLocation center, GlobalLocation? range, int zoom)
         {
             int tileSize = 256;
+            int tileWidth = 2;
+            int tileHeight = 2;
 
             // Get global pixel coordinates
-            double globalPixelX = (centerLon + 180.0) / 360.0 * (tileSize << zoom);
-            double globalPixelY = (1.0 - Math.Log(Math.Tan(centerLat * Math.PI / 180.0) +
-                                 1.0 / Math.Cos(centerLat * Math.PI / 180.0)) / Math.PI) / 2.0 * (tileSize << zoom);
+            double globalPixelX = (center.Longitude + 180.0) / 360.0 * (tileSize << zoom);
+            double globalPixelY = (1.0 - Math.Log(Math.Tan(center.Latitude * Math.PI / 180.0) +
+                                 1.0 / Math.Cos(center.Latitude * Math.PI / 180.0)) / Math.PI) / 2.0 * (tileSize << zoom);
 
             // Calculate tile coordinates
             int centerTileX = (int)(globalPixelX / tileSize);
@@ -67,37 +69,33 @@ namespace SkyCombGroundLibrary.GroundLogic
                     }
                 }
 
-                if (drawCenterCross)
+                using (Pen redPen = new Pen(Color.Red, 2))
                 {
-                    // Calculate the exact position in the final image
-                    int exactX = (int)(tileSize * (tileWidth / 2.0) + relativeX);
-                    int exactY = (int)(tileSize * (tileHeight / 2.0) + relativeY);
-                    int crossSize = 20;
-
-                    // Draw the cross
-                    using (Pen redPen = new Pen(Color.Red, 2))
+                    if (range != null)
                     {
+                        // Calculate the exact position in the final image
+                        int exactX = (int)(tileSize * (tileWidth / 2.0) + relativeX);
+                        int exactY = (int)(tileSize * (tileHeight / 2.0) + relativeY);
+                        int crossSize = 20;
+
+                        // Draw the cross
                         g.DrawLine(redPen, exactX - crossSize, exactY, exactX + crossSize, exactY);
                         g.DrawLine(redPen, exactX, exactY - crossSize, exactX, exactY + crossSize);
                     }
-                }
-                else
-                {
-                    // Calculate the dimensions of the smaller map in pixels on the larger map
-                    double zoomFactor = Math.Pow(2, SmallAreaZoom - LargeAreaZoom);
-
-                    int smallerMapWidth = (int)(tileWidth * tileSize * zoomFactor);
-                    int smallerMapHeight = (int)(tileHeight * tileSize * zoomFactor);
-
-                    int rectangleX = (int)(tileSize * (tileWidth / 2.0) + relativeX - smallerMapWidth / 2);
-                    int rectangleY = (int)(tileSize * (tileHeight / 2.0) + relativeY - smallerMapHeight / 2);
-
-                    using (Pen bluePen = new Pen(Color.Red, 2))
+                    else
                     {
-                        g.DrawRectangle(bluePen, rectangleX, rectangleY, smallerMapWidth, smallerMapHeight);
+                        // Calculate the dimensions of the smaller map in pixels on the larger map
+                        double zoomFactor = Math.Pow(2, SmallAreaZoom - LargeAreaZoom);
+
+                        int smallerMapWidth = (int)(tileWidth * tileSize * zoomFactor);
+                        int smallerMapHeight = (int)(tileHeight * tileSize * zoomFactor);
+
+                        int rectangleX = (int)(tileSize * (tileWidth / 2.0) + relativeX - smallerMapWidth / 2);
+                        int rectangleY = (int)(tileSize * (tileHeight / 2.0) + relativeY - smallerMapHeight / 2);
+
+                        g.DrawRectangle(redPen, rectangleX, rectangleY, smallerMapWidth, smallerMapHeight);
                     }
                 }
-
 
                 using (Pen borderPen = new Pen(Color.Black, 1))
                 {
@@ -110,12 +108,15 @@ namespace SkyCombGroundLibrary.GroundLogic
 
 
         // Get a larger and smaller view of the area around globalLocation
-        public static (Bitmap?, Bitmap?) GetTwoMaps(OpenStreetMap map, GlobalLocation globalLocation)
+        public static (Bitmap?, Bitmap?) GetTwoMaps(
+            OpenStreetMap map, 
+            GlobalLocation globalLocation, // centre of flight area
+            GlobalLocation? globalRange) // rectangle around the centre
         {
-            map.Main(globalLocation.Latitude, globalLocation.Longitude, 10, 2, 2, false).Wait();
+            map.Main(globalLocation, null, SmallAreaZoom).Wait();
             Bitmap? bitmap1 = new Bitmap(map.Background);
 
-            map.Main(globalLocation.Latitude, globalLocation.Longitude, LargeAreaZoom, 2, 2, true).Wait();
+            map.Main(globalLocation, globalRange, LargeAreaZoom).Wait();
             Bitmap? bitmap2 = new Bitmap(map.Background);
 
             return (bitmap1, bitmap2);
