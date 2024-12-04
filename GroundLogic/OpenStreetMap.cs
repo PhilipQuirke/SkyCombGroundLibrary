@@ -36,7 +36,7 @@ namespace SkyCombGroundLibrary.GroundLogic
             double relativeX = globalPixelX - (centerTileX * tileSize);
             double relativeY = globalPixelY - (centerTileY * tileSize);
 
-            Bitmap map = new Bitmap(tileWidth * tileSize, tileHeight * tileSize);
+            Bitmap map = new(tileWidth * tileSize, tileHeight * tileSize);
 
             using (Graphics g = Graphics.FromImage(map))
             using (HttpClient client = new HttpClient())
