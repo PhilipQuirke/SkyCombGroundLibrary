@@ -109,10 +109,11 @@ namespace SkyCombGroundLibrary.GroundLogic
 
         // Get a larger and smaller view of the area around globalLocation
         public static (Bitmap?, Bitmap?) GetTwoMaps(
-            OpenStreetMap map, 
             GlobalLocation globalLocation, // centre of flight area
             GlobalLocation? globalRange) // rectangle around the centre
         {
+            OpenStreetMap map = new();
+
             map.Main(globalLocation, null, SmallAreaZoom).Wait();
             Bitmap? bitmap1 = new Bitmap(map.Background);
 
