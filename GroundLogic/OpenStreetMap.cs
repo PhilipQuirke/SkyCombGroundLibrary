@@ -73,14 +73,14 @@ namespace SkyCombGroundLibrary.GroundLogic
                 {
                     if (range != null)
                     {
-                        // Calculate the exact position in the final image
-                        int exactX = (int)(tileSize * (tileWidth / 2.0) + relativeX);
-                        int exactY = (int)(tileSize * (tileHeight / 2.0) + relativeY);
-                        int crossSize = 20;
+                        // Calculate rectangle dimensions based on range
+                        double rangeWidth = range.Longitude / 360.0 * (tileSize << zoom);
+                        double rangeHeight = range.Latitude/ 360.0 * (tileSize << zoom);
 
-                        // Draw the cross
-                        g.DrawLine(redPen, exactX - crossSize, exactY, exactX + crossSize, exactY);
-                        g.DrawLine(redPen, exactX, exactY - crossSize, exactX, exactY + crossSize);
+                        int exactX = (int)(tileSize * (tileWidth / 2.0) + relativeX - rangeWidth / 2);
+                        int exactY = (int)(tileSize * (tileHeight / 2.0) + relativeY - rangeHeight / 2);
+
+                        g.DrawRectangle(redPen, exactX, exactY, (int)rangeWidth, (int)rangeHeight);
                     }
                     else
                     {
