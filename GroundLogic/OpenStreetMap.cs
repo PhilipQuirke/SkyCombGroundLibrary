@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using SkyCombGround.CommonSpace;
+using System.Drawing;
 
 namespace SkyCombGroundLibrary.GroundLogic
 {
@@ -94,6 +95,19 @@ namespace SkyCombGroundLibrary.GroundLogic
             }
 
             return map;
+        }
+
+
+        // Get a larger and smaller view of the area around globalLocation
+        public static (Bitmap?, Bitmap?) GetTwoMaps(OpenStreetMap map, GlobalLocation globalLocation)
+        {
+            map.Main(globalLocation.Latitude, globalLocation.Longitude, 10, 2, 2).Wait();
+            Bitmap? bitmap1 = new Bitmap(map.Background);
+
+            map.Main(globalLocation.Latitude, globalLocation.Longitude, 14, 2, 2).Wait();
+            Bitmap? bitmap2 = new Bitmap(map.Background);
+
+            return (bitmap1, bitmap2);
         }
     }
 }
