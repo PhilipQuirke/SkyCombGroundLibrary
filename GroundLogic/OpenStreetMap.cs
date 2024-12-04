@@ -6,6 +6,10 @@ namespace SkyCombGroundLibrary.GroundLogic
     // Class to create a bitmap of the country side using OpenStreetMap. Needs internet access.
     public class OpenStreetMap
     {
+        public const int LargeAreaZoom = 14;
+        public const int SmallAreaZoom = 10;
+
+
         public Bitmap? Background { get; set; }
 
         public async Task Main(double centreLat, double centreLon, int zoom = 13, int tileWidth = 2, int tileHeight = 2, bool drawCenterCross = true)
@@ -70,16 +74,6 @@ namespace SkyCombGroundLibrary.GroundLogic
                     int exactY = (int)(tileSize * (tileHeight / 2.0) + relativeY);
                     int crossSize = 20;
 
-                    // Draw debug information
-                    // using (Font debugFont = new Font("Arial", 8))
-                    //using (Brush debugBrush = new SolidBrush(Color.Black))
-                    //{
-                    //    g.DrawString($"Zoom: {zoom}", debugFont, debugBrush, 10, 10);
-                    //    g.DrawString($"Lat: {centerLat:F6}", debugFont, debugBrush, 10, 25);
-                    //    g.DrawString($"Lon: {centerLon:F6}", debugFont, debugBrush, 10, 40);
-                    //    g.DrawString($"Pixel: ({exactX}, {exactY})", debugFont, debugBrush, 10, 55);
-                    //}
-
                     // Draw the cross
                     using (Pen redPen = new Pen(Color.Red, 2))
                     {
@@ -87,6 +81,23 @@ namespace SkyCombGroundLibrary.GroundLogic
                         g.DrawLine(redPen, exactX, exactY - crossSize, exactX, exactY + crossSize);
                     }
                 }
+                else
+                {
+                    // Calculate the dimensions of the smaller map in pixels on the larger map
+                    double zoomFactor = Math.Pow(2, SmallAreaZoom - LargeAreaZoom);
+
+                    int smallerMapWidth = (int)(tileWidth * tileSize * zoomFactor);
+                    int smallerMapHeight = (int)(tileHeight * tileSize * zoomFactor);
+
+                    int rectangleX = (int)(tileSize * (tileWidth / 2.0) + relativeX - smallerMapWidth / 2);
+                    int rectangleY = (int)(tileSize * (tileHeight / 2.0) + relativeY - smallerMapHeight / 2);
+
+                    using (Pen bluePen = new Pen(Color.Red, 2))
+                    {
+                        g.DrawRectangle(bluePen, rectangleX, rectangleY, smallerMapWidth, smallerMapHeight);
+                    }
+                }
+
 
                 using (Pen borderPen = new Pen(Color.Black, 1))
                 {
@@ -101,10 +112,10 @@ namespace SkyCombGroundLibrary.GroundLogic
         // Get a larger and smaller view of the area around globalLocation
         public static (Bitmap?, Bitmap?) GetTwoMaps(OpenStreetMap map, GlobalLocation globalLocation)
         {
-            map.Main(globalLocation.Latitude, globalLocation.Longitude, 10, 2, 2).Wait();
+            map.Main(globalLocation.Latitude, globalLocation.Longitude, 10, 2, 2, false).Wait();
             Bitmap? bitmap1 = new Bitmap(map.Background);
 
-            map.Main(globalLocation.Latitude, globalLocation.Longitude, 14, 2, 2).Wait();
+            map.Main(globalLocation.Latitude, globalLocation.Longitude, LargeAreaZoom, 2, 2, true).Wait();
             Bitmap? bitmap2 = new Bitmap(map.Background);
 
             return (bitmap1, bitmap2);
