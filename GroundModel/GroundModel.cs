@@ -28,7 +28,7 @@ namespace SkyCombGround.GroundModel
 
         // The DEM & DSM data is available in a grid of 1 m x 1 m cells,
         // with heights in 0.25m increments.
-        const float VerticalUnitM = 0.25f;
+        public const float VerticalUnitM = 0.25f;
 
 
         // Is this DEM data? Else is DSM data. 
