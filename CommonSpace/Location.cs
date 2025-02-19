@@ -62,6 +62,14 @@ namespace SkyCombGround.CommonSpace
             if (Latitude < -47 || Latitude > -33 || Longitude < 165 || Longitude > 180)
                 throw new Exception("Location is not in New Zealand");
         }
+
+
+        static public bool DifferentLocations( GlobalLocation location1, GlobalLocation location2)
+        {
+            return
+                Math.Abs(location1.Latitude - location2.Latitude) > 0.0000005 ||
+                Math.Abs(location1.Longitude - location2.Longitude) > 0.0000005;
+        }
     }
 
 
