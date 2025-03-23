@@ -82,6 +82,7 @@ namespace SkyCombGround.CommonSpace
         public const string SwatheDataTabName = "SwatheData";
         public const string MasterCategoryTabName = "CatsData";
         public const string AnimalCategoryTabName = "AnimalCatData";
+        public const string PivotsTabName = "Pivots";
         public const string HelpTabName = "Help";
 
 
