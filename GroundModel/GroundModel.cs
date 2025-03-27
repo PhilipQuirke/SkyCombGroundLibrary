@@ -263,14 +263,14 @@ namespace SkyCombGround.GroundModel
         // For a "query" point inside the grid, calculate the elevation.
         // As the grid is 1m by 1m cells, the horizontal difference in
         // distance from queryLocn to the closest point is not important. 
-        public float GetElevationByDroneLocn(DroneLocation droneLocnM)
+        public float GetElevationByDroneLocn(DroneLocation droneLocnM, bool strict = false)
         {
             try
             {
                 // Because of GroundBufferM, the drone should not be near the edge of the grid.
                 // But objects in the area seen by the camera may be near or past the edge of the grid.
                 // And a lack of DEM & DSM Lidar data may mean that the grid is not as big as we want.
-                int gridIndex = DroneLocnToGridIndex(droneLocnM, false);
+                int gridIndex = DroneLocnToGridIndex(droneLocnM, strict);
                 if (gridIndex == UnknownValue)
                     return UnknownValue;
 
