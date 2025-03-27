@@ -23,9 +23,9 @@ namespace SkyCombGround.PersistModel
 
 
         public static void LoadGridOptimized(
-             BaseDataStore? dataStore,
-             GroundModel.GroundModel? grid,
-             string tabName)
+           BaseDataStore? dataStore,
+           GroundModel.GroundModel? grid,
+           string tabName)
         {
             try
             {
@@ -34,23 +34,36 @@ namespace SkyCombGround.PersistModel
 
                 grid.NumElevationsStored = 0;
 
+                const int charsPerValue = 4;
+                int valuesPerRow = grid.NumCols;
+                int charsPerRow = valuesPerRow * charsPerValue;
+                int charsPerCell = GroundValuesPerCell * charsPerValue;
+                int numCellsPerRow = (int)Math.Ceiling(valuesPerRow / (double)GroundValuesPerCell);
+
                 for (int row = 1; row <= grid.NumRows; row++)
                 {
                     var rowData = new StringBuilder();
-                    for (int col = 1; ; col++)
+
+                    // Read only expected number of cells
+                    for (int col = 1; col <= numCellsPerRow; col++)
                     {
                         var cell = dataStore.Worksheet.Cells[row, col];
-                        if (cell?.Value == null)
-                            break;
-                        rowData.Append(cell.Value.ToString());
+                        if (cell?.Value != null)
+                            rowData.Append(cell.Value.ToString());
                     }
 
                     string rowString = rowData.ToString();
+
+                    // Optional check (debugging aid)
+                    if (rowString.Length < charsPerRow)
+                        throw new Exception($"Row {row} data too short: expected {charsPerRow} characters, got {rowString.Length}");
+
                     for (int col = 0; col < grid.NumCols; col++)
                     {
-                        if (col * 4 + 4 <= rowString.Length)
+                        int startIndex = col * charsPerValue;
+                        if (startIndex + charsPerValue <= rowString.Length)
                         {
-                            string hexValue = rowString.Substring(col * 4, 4);
+                            string hexValue = rowString.Substring(startIndex, charsPerValue);
                             int compressedValue = Convert.ToInt32(hexValue, 16);
                             float elevation = compressedValue / (float)GroundScaleFactor;
                             grid.AddSettingDatum(row, col + 1, elevation);
@@ -63,6 +76,7 @@ namespace SkyCombGround.PersistModel
                 throw new Exception("OptimizedGridProcedures.LoadGridOptimized", ex);
             }
         }
+
 
 
 

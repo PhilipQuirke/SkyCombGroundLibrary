@@ -377,11 +377,6 @@ namespace SkyCombGround.GroundModel
             MinCountryNorthingM = ConfigBase.StringToInt(settings[2]);
             MaxCountryEastingM = ConfigBase.StringToInt(settings[3]);
             MaxCountryNorthingM = ConfigBase.StringToInt(settings[4]);
-
-            // minEastingM = ConfigBase.StringToInt(settings[1]);
-            // minNorthingM = ConfigBase.StringToInt(settings[2]);
-            // maxEastingM = ConfigBase.StringToInt(settings[3]);
-            // maxNorthingM = ConfigBase.StringToInt(settings[4]);
             ElevationAccuracyM = ConfigBase.StringToFloat(settings[5]);
             MaxElevationQuarterM = (short)ConfigBase.StringToInt(settings[6]);
             MinElevationQuarterM = (short)ConfigBase.StringToInt(settings[7]);
