@@ -263,7 +263,7 @@ namespace SkyCombGround.GroundModel
         // For a "query" point inside the grid, calculate the elevation.
         // As the grid is 1m by 1m cells, the horizontal difference in
         // distance from queryLocn to the closest point is not important. 
-        public float GetElevationByDroneLocn(DroneLocation droneLocnM)
+        public float GetElevationByLocn(DroneLocation droneLocnM)
         {
             try
             {
