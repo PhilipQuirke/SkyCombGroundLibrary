@@ -63,9 +63,14 @@ namespace SkyCombGround.CommonSpace
         {
             string newname = Path.GetFileName(newfilename);
             string newpath = Path.GetDirectoryName(newfilename);
+
+            if(newname=="")
+                // This is a folder of images. Set newname to the last folder name in newpath
+                newname = newpath.Substring(newpath.LastIndexOf("\\") + 1);
+
             JsonSettings currentsettings = LoadSettings();
 
-            // nq pick up old numobjects if incoming is zero.
+            // Pick up old numobjects if incoming is zero.
             int num = 0;
             int index = currentsettings.RecentFiles.FindIndex(p => (p.Name != null && p.Name.Contains(newname, StringComparison.OrdinalIgnoreCase)) &&
                         (p.Path != null && p.Path.Contains(newpath, StringComparison.OrdinalIgnoreCase)));
