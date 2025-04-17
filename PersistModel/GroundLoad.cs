@@ -64,8 +64,12 @@ namespace SkyCombGround.PersistModel
                         if (startIndex + charsPerValue <= rowString.Length)
                         {
                             string hexValue = rowString.Substring(startIndex, charsPerValue);
-                            int compressedValue = Convert.ToInt32(hexValue, 16);
-                            float elevation = compressedValue / (float)GroundScaleFactor;
+                            float elevation = 0; // Sea-level
+                            if (hexValue != "0000")
+                            {
+                                int compressedValue = Convert.ToInt32(hexValue, 16);
+                                elevation = compressedValue / (float)GroundScaleFactor;
+                            }
                             grid.AddSettingDatum(row, col + 1, elevation);
                         }
                     }

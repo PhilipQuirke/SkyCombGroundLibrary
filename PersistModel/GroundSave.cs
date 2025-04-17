@@ -30,6 +30,11 @@ namespace SkyCombGround.PersistModel
                     for (int col = 1; col <= grid.NumCols; col++)
                     {
                         float elevation = grid.GetElevationMByGridIndex(row, col);
+
+                        // LINZ does not provide elevations over the sea, so there may be gaps in the data. Store as 0m.
+                        if (elevation < 0)
+                            elevation = 0.0f;
+
                         // Convert to integer (multiply by ScaleFactor to preserve 0.25 intervals)
                         int compressedValue = (int)(elevation * GroundScaleFactor);
                         rowData.Append(compressedValue.ToString("X4")); // Use 4-digit hex to support higher values

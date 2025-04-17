@@ -39,7 +39,8 @@ namespace SkyCombGround.PersistModel
             BaseConstants.Assert(original.MaxCountryNorthingM == reloaded.MaxCountryNorthingM, "MaxCountryNorthingM mismatch");
             BaseConstants.Assert(original.MinCountryEastingM == reloaded.MinCountryEastingM, "MinCountryEastingM mismatch");
             BaseConstants.Assert(original.MaxCountryEastingM == reloaded.MaxCountryEastingM, "MaxCountryEastingM mismatch");
-            BaseConstants.Assert(original.MinElevationQuarterM == reloaded.MinElevationQuarterM, "MinElevationQuarterM mismatch");
+            BaseConstants.Assert(original.MinElevationQuarterM < 0 || // On save we convert negative values to zero (sea-level).
+                                 original.MinElevationQuarterM == reloaded.MinElevationQuarterM, "MinElevationQuarterM mismatch");
             BaseConstants.Assert(original.MaxElevationQuarterM == reloaded.MaxElevationQuarterM, "MaxElevationQuarterM mismatch");
             BaseConstants.Assert(original.NumRows == reloaded.NumRows, "NumRows mismatch");
             BaseConstants.Assert(original.NumCols == reloaded.NumCols, "NumCols mismatch");
@@ -56,7 +57,8 @@ namespace SkyCombGround.PersistModel
 
                     maxError = Math.Max(maxError, error);
 
-                    BaseConstants.Assert(error <= MaxAllowedErrorM,
+                    // We convert negative values to zero (sea-level) on save 
+                    BaseConstants.Assert(origVal < 0 || error <= MaxAllowedErrorM,
                         $"{label} elevation mismatch at ({row},{col}): original={origVal}, reloaded={reloadedVal}, error={error}");
                 }
 
