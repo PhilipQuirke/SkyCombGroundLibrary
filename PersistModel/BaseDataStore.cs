@@ -622,7 +622,7 @@ namespace SkyCombGround.PersistModel
                 ("", "Overview", false, @"https://github.com/PhilipQuirke/SkyCombAnalystHelp/blob/main/README.md" ),
                 ("", "Datastore", false, @"https://github.com/PhilipQuirke/SkyCombAnalystHelp/blob/main/DataStore.md" ),
                 ("", "", false, "" ),
-                ("", "Copyright 2024 SkyComb Limited. All rights reserved.", false, "" ),
+                ("", "Copyright 2025 SkyComb Limited. All rights reserved.", false, "" ),
             };
         }
 
