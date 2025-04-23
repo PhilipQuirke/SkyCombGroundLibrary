@@ -1,4 +1,4 @@
-﻿// Copyright SkyComb Limited 2024. All rights reserved. 
+﻿// Copyright SkyComb Limited 2025. All rights reserved. 
 
 
 namespace SkyCombGround.CommonSpace
@@ -112,6 +112,11 @@ namespace SkyCombGround.CommonSpace
         // Ground Grid constants
         protected const int GroundValuesPerCell = 75;
         protected const int GroundScaleFactor = 4; // To preserve 0.25 intervals
+
+
+        protected const int CountryImageWidth = 300; // fixed size in pixels
+        protected const int CountryImageHeight = 200; // fixed size in pixels
+
 
 
         public float DegToRad(float deg)
