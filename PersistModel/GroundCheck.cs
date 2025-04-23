@@ -12,7 +12,7 @@ namespace SkyCombGround.PersistModel
         {
             // Act: Reload data from file
             GroundData? reloadedData;
-            using (var loadStore = new BaseDataStore(tempExcelFile, create: false))
+            using (var loadStore = new BaseDataStore(tempExcelFile, false))
             {
                 loadStore.Open();
                 reloadedData = GroundLoad.Load(loadStore, fullLoad: true);
