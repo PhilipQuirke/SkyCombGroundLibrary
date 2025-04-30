@@ -75,7 +75,7 @@ namespace SkyCombGroundLibrary.GroundLogic
                     {
                         // Calculate rectangle dimensions based on range
                         double rangeWidth = range.Longitude / 360.0 * (tileSize << zoom);
-                        double rangeHeight = range.Latitude/ 360.0 * (tileSize << zoom);
+                        double rangeHeight = range.Latitude / 360.0 * (tileSize << zoom);
 
                         int exactX = (int)(tileSize * (tileWidth / 2.0) + relativeX - rangeWidth / 2);
                         int exactY = (int)(tileSize * (tileHeight / 2.0) + relativeY - rangeHeight / 2);

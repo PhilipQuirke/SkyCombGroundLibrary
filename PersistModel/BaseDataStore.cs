@@ -654,7 +654,7 @@ namespace SkyCombGround.PersistModel
         {
             var worksheetXml = pivotTable.WorkSheet.WorksheetXml;
             var element = worksheetXml.GetElementsByTagName("conditionalFormatting")[0];
-            if(element != null)
+            if (element != null)
                 ((XmlElement)element).SetAttribute("pivot", "1");
         }
 

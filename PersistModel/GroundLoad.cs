@@ -37,7 +37,6 @@ namespace SkyCombGround.PersistModel
                 const int charsPerValue = 4;
                 int valuesPerRow = grid.NumCols;
                 int charsPerRow = valuesPerRow * charsPerValue;
-                int charsPerCell = GroundValuesPerCell * charsPerValue;
                 int numCellsPerRow = (int)Math.Ceiling(valuesPerRow / (double)GroundValuesPerCell);
 
                 for (int row = 1; row <= grid.NumRows; row++)

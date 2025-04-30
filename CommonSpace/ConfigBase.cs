@@ -140,7 +140,7 @@ namespace SkyCombGround.CommonSpace
 
         // Directory path to store created (video and spreadsheet) files into. Trailing "\" (if any) is trimmed
         public string OutputDirectory { get; set; } = "";
-        
+
         // List of recent files and related info
         public List<RecentFile> RecentFiles { get; set; } = new();
 

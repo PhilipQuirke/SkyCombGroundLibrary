@@ -19,19 +19,19 @@ namespace SkyCombGround.CommonSpace
         public static JsonSettings GetSettingsJson(string inputDirectory, string groundDirectory
             , string yoloDirectory, string outputDirectory, List<RecentFile> recentList
             , MasterCategoryListJ categoryList) => new JsonSettings
-        {
-            InputDirectory = inputDirectory,
-            GroundDirectory = groundDirectory,
-            YoloDirectory = yoloDirectory,
-            OutputDirectory = outputDirectory,
-            RecentFiles = recentList,
-            CategoryList = categoryList
-        };
+            {
+                InputDirectory = inputDirectory,
+                GroundDirectory = groundDirectory,
+                YoloDirectory = yoloDirectory,
+                OutputDirectory = outputDirectory,
+                RecentFiles = recentList,
+                CategoryList = categoryList
+            };
 
         public static JsonSettings LoadSettings()
         {
- 
-        if (File.Exists(SettingsFilePath))
+
+            if (File.Exists(SettingsFilePath))
             {
                 string json = File.ReadAllText(SettingsFilePath);
                 return JsonConvert.DeserializeObject<JsonSettings>(json);
@@ -64,7 +64,7 @@ namespace SkyCombGround.CommonSpace
             string newname = Path.GetFileName(newfilename);
             string newpath = Path.GetDirectoryName(newfilename);
 
-            if(newname=="")
+            if (newname == "")
                 // This is a folder of images. Set newname to the last folder name in newpath
                 newname = newpath.Substring(newpath.LastIndexOf("\\") + 1);
 

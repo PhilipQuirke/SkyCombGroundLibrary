@@ -154,8 +154,8 @@ namespace SkyCombGround.CommonSpace
         public const int GroundedSetting = 4;
         public const int MinSizeCM2Setting = 5;
         public const int MaxSizeCM2Setting = 6;
-//        public const int MinTempSetting = 7;
-//        public const int MaxTempSetting = 8;
+        //        public const int MinTempSetting = 7;
+        //        public const int MaxTempSetting = 8;
 
 
         // Get the class's settings as datapairs (e.g. for saving to the datastore). Must align with above index values.
