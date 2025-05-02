@@ -342,14 +342,16 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        public void SetChart(ExcelChart chart, string title, float rowOffset, int colOffset, int depth, int width = StandardChartCols)
+        public void SetChart(ExcelChart chart, string title, float rowOffset=0, int colOffset=0)
         {
             SetChartTitle(chart, title);
 
             int startRow = (int)(rowOffset * StandardChartRows);
-            chart.SetPosition(startRow, 0, colOffset * StandardChartCols, 0);
-            chart.To.Column = colOffset * StandardChartCols + width;
-            chart.To.Row = startRow + depth;
+            int startCol = colOffset * StandardChartCols;
+
+            chart.SetPosition(startRow, 0, startCol, 0);
+            chart.To.Column = startCol + StandardChartCols;
+            chart.To.Row = startRow + LargeChartRows;
         }
 
 
