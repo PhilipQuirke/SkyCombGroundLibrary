@@ -64,6 +64,14 @@ namespace SkyCombGround.CommonSpace
         }
 
 
+        public bool IsZero()
+        {
+            return
+                Math.Abs(Latitude) < 0.0000005 &&
+                Math.Abs(Longitude) < 0.0000005;
+        }
+
+
         public static bool DifferentLocations(GlobalLocation location1, GlobalLocation location2)
         {
             return
