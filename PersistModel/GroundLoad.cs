@@ -6,7 +6,7 @@ using System.Text;
 namespace SkyCombGround.PersistModel
 {
     // Load meta-data about the ground DEM and DSM elevations from a datastore
-    public class GroundLoad : BaseConstants
+    public class GroundLoad : GroundConstants
     {
         // Load Ground elevation settings
         private static (List<string>? groundSettings, List<string>? demSettings, List<string>? dsmSettings)
@@ -69,6 +69,7 @@ namespace SkyCombGround.PersistModel
                                 int compressedValue = Convert.ToInt32(hexValue, 16);
                                 elevation = compressedValue / (float)GroundScaleFactor;
                             }
+
                             grid.AddSettingDatum(row, col + 1, elevation);
                         }
                     }
@@ -79,8 +80,6 @@ namespace SkyCombGround.PersistModel
                 throw new Exception("OptimizedGridProcedures.LoadGridOptimized", ex);
             }
         }
-
-
 
 
         // Load ground data (if any) from the DataStore 

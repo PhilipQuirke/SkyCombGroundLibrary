@@ -108,15 +108,8 @@ namespace SkyCombGround.CommonSpace
         public const int FarRhsColOffset = 10;
         public const int LabelToValueCellOffset = 1;
 
-
-        // Ground Grid constants
-        protected const int GroundValuesPerCell = 75;
-        protected const int GroundScaleFactor = 4; // To preserve 0.25 intervals
-
-
         protected const int CountryImageWidth = 300; // fixed size in pixels
         protected const int CountryImageHeight = 200; // fixed size in pixels
-
 
 
         public float DegToRad(float deg)
@@ -213,6 +206,26 @@ namespace SkyCombGround.CommonSpace
             // Calling GC.Collect again after finalizers have run, collects any objects that were finalized.
             GC.Collect();
         }
+    }
 
+
+    public class GroundConstants : BaseConstants
+    {
+        public static string DsmTitle = "Surface (aka tree-top, DSM) elevations";
+        public static string DemTitle = "Earth (aka ground, DEM) elevations";
+        public static string SwatheTitle = "Swathe seen";
+
+        // The drone video footage extends beyond the flight path locations, so we add a buffer.
+        public const int GroundBufferM = 50;
+
+        // The highest land altitude in New Zealand is Aoraki/Mount Cook, which stands at 3,724 meters
+        protected const int GroundNZMaxDEM = 3725;
+
+        // The DEM & DSM data is in a grid of 1 m x 1 m cells,
+        // with heights stored in 0.25m increments.
+        public const float VerticalUnitM = 0.25f;
+        protected const int GroundScaleFactor = 4; // Inverse of VerticalUnitM
+
+        protected const int GroundValuesPerCell = 75;
     }
 }

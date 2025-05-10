@@ -4,7 +4,7 @@ using SkyCombGround.GroundLogic;
 
 namespace SkyCombGround.PersistModel
 {
-    public class GroundCheck
+    public class GroundCheck : GroundConstants
     {
         private const float MaxAllowedErrorM = 0.5f;
 
@@ -19,8 +19,8 @@ namespace SkyCombGround.PersistModel
                 loadStore.FreeResources();
             }
 
-            BaseConstants.Assert(originalData != null, "Original GroundData is null");
-            BaseConstants.Assert(reloadedData != null, "Reloaded GroundData is null");
+            Assert(originalData != null, "Original GroundData is null");
+            Assert(reloadedData != null, "Reloaded GroundData is null");
 
             CompareModels("DEM", originalData.DemModel, reloadedData.DemModel);
             CompareModels("DSM", originalData.DsmModel, reloadedData.DsmModel);
@@ -34,33 +34,36 @@ namespace SkyCombGround.PersistModel
             if (original == null)
                 return;
 
-            BaseConstants.Assert(original.IsDem == reloaded.IsDem, "IsDem mismatch");
-            BaseConstants.Assert(original.MinCountryNorthingM == reloaded.MinCountryNorthingM, "MinCountryNorthingM mismatch");
-            BaseConstants.Assert(original.MaxCountryNorthingM == reloaded.MaxCountryNorthingM, "MaxCountryNorthingM mismatch");
-            BaseConstants.Assert(original.MinCountryEastingM == reloaded.MinCountryEastingM, "MinCountryEastingM mismatch");
-            BaseConstants.Assert(original.MaxCountryEastingM == reloaded.MaxCountryEastingM, "MaxCountryEastingM mismatch");
-            BaseConstants.Assert(original.MinElevationQuarterM < 0 || // On save we convert negative values to zero (sea-level).
-                                 original.MinElevationQuarterM == reloaded.MinElevationQuarterM, "MinElevationQuarterM mismatch");
-            BaseConstants.Assert(original.MaxElevationQuarterM == reloaded.MaxElevationQuarterM, "MaxElevationQuarterM mismatch");
-            BaseConstants.Assert(original.NumRows == reloaded.NumRows, "NumRows mismatch");
-            BaseConstants.Assert(original.NumCols == reloaded.NumCols, "NumCols mismatch");
-            BaseConstants.Assert(original.NumDatums == reloaded.NumDatums, "NumDatums mismatch");
+            bool badData1 = original.MinElevationQuarterM < 0; // On save we convert negative values to zero (sea-level).
+            bool badData2 = original.MaxElevationQuarterM > GroundNZMaxDEM * GroundScaleFactor; // On save we convert too large values to zero (sea-level).
+
+            Assert(original.IsDem == reloaded.IsDem, "IsDem mismatch");
+            Assert(original.MinCountryNorthingM == reloaded.MinCountryNorthingM, "MinCountryNorthingM mismatch");
+            Assert(original.MaxCountryNorthingM == reloaded.MaxCountryNorthingM, "MaxCountryNorthingM mismatch");
+            Assert(original.MinCountryEastingM == reloaded.MinCountryEastingM, "MinCountryEastingM mismatch");
+            Assert(original.MaxCountryEastingM == reloaded.MaxCountryEastingM, "MaxCountryEastingM mismatch");
+            Assert(badData1 || badData2 || original.MinElevationQuarterM == reloaded.MinElevationQuarterM, "MinElevationQuarterM mismatch");
+            Assert(badData2 || original.MaxElevationQuarterM == reloaded.MaxElevationQuarterM, "MaxElevationQuarterM mismatch");
+            Assert(original.NumRows == reloaded.NumRows, "NumRows mismatch");
+            Assert(original.NumCols == reloaded.NumCols, "NumCols mismatch");
+            Assert(original.NumDatums == reloaded.NumDatums, "NumDatums mismatch");
 
             float maxError = 0;
 
-            for (int row = 1; row <= original.NumRows; row++)
-                for (int col = 1; col <= original.NumCols; col++)
-                {
-                    float origVal = original.GetElevationMByGridIndex(row, col);
-                    float reloadedVal = reloaded.GetElevationMByGridIndex(row, col);
-                    float error = Math.Abs(origVal - reloadedVal);
+            if( ! badData2 )
+                for (int row = 1; row <= original.NumRows; row++)
+                    for (int col = 1; col <= original.NumCols; col++)
+                    {
+                        float origVal = original.GetElevationMByGridIndex(row, col);
+                        float reloadedVal = reloaded.GetElevationMByGridIndex(row, col);
+                        float error = Math.Abs(origVal - reloadedVal);
 
-                    maxError = Math.Max(maxError, error);
+                        maxError = Math.Max(maxError, error);
 
-                    // We convert negative values to zero (sea-level) on save 
-                    BaseConstants.Assert(origVal < 0 || error <= MaxAllowedErrorM,
-                        $"{label} elevation mismatch at ({row},{col}): original={origVal}, reloaded={reloadedVal}, error={error}");
-                }
+                        // We convert negative values to zero (sea-level) on save 
+                        Assert(origVal < 0 || error <= MaxAllowedErrorM,
+                            $"{label} elevation mismatch at ({row},{col}): original={origVal}, reloaded={reloadedVal}, error={error}");
+                    }
 
             Console.WriteLine($"{label} max error: {maxError}m");
         }

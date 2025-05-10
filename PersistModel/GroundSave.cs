@@ -6,7 +6,7 @@ using System.Text;
 namespace SkyCombGround.PersistModel
 {
     // Save meta-data about a drone flight, the videos taken, the flight log, and ground DEM and DSM elevations to a datastore, including graphs
-    public class GroundSave : BaseConstants
+    public class GroundSave : GroundConstants
     {
         public static bool SaveGridOptimized(
             BaseDataStore? dataStore,
@@ -34,6 +34,8 @@ namespace SkyCombGround.PersistModel
                         // LINZ does not provide elevations over the sea, so there may be gaps in the data. Store as 0m.
                         if (elevation < 0)
                             elevation = 0.0f;
+
+                        Assert(elevation < GroundNZMaxDEM, "Elevation is bad (too large)");
 
                         // Convert to integer (multiply by ScaleFactor to preserve 0.25 intervals)
                         int compressedValue = (int)(elevation * GroundScaleFactor);

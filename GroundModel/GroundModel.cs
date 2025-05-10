@@ -15,22 +15,8 @@ namespace SkyCombGround.GroundModel
 
 
     // Holds ground elevation data at all locations in a rectangular area (grid).
-    public class GroundModel : BaseConstants
+    public class GroundModel : GroundConstants
     {
-        public static string DsmTitle = "Surface (aka tree-top, DSM) elevations";
-        public static string DemTitle = "Earth (aka ground, DEM) elevations";
-        public static string SwatheTitle = "Swathe seen";
-
-
-        // The drone video footage extends beyond the flight path locations, so we add a buffer.
-        public const int GroundBufferM = 50;
-
-
-        // The DEM & DSM data is available in a grid of 1 m x 1 m cells,
-        // with heights in 0.25m increments.
-        public const float VerticalUnitM = 0.25f;
-
-
         // Is this DEM data? Else is DSM data. 
         public bool IsDem { get; }
 
@@ -277,7 +263,11 @@ namespace SkyCombGround.GroundModel
                 if (ElevationQuarterM[gridIndex] == UnknownValue)
                     return UnknownValue;
 
-                return GridElevationQuarterMToM(ElevationQuarterM[gridIndex]);
+                var answer = GridElevationQuarterMToM(ElevationQuarterM[gridIndex]);
+
+                Assert(answer <= GroundNZMaxDEM, "Bad Elevation");
+
+                return answer;
             }
             catch (Exception ex)
             {
@@ -305,7 +295,14 @@ namespace SkyCombGround.GroundModel
                 // Do not change NumElevationsStored or Max/MinElevationQuarterM
                 return;
 
-            if (elevationM == UnknownValue)
+            // Convert bad data to UnknownValue. Very rare.
+            // For D:\SkyComb\Data_Input\PV\DJI_202504101900_007_PP-Ortho-4-HG
+            // some elevations are 6385 which is higher than Aoraki/Mount Cook.
+            if (elevationM > GroundNZMaxDEM)
+                elevationM = UnknownValue;
+
+            // Very rarely, BitConverter.ToSingle returns -9999 (which is < UnknownValue)
+            if (elevationM <= UnknownValue)
             {
                 ElevationQuarterM[gridIndex] = UnknownValue;
                 // Do not change NumElevationsStored or Max/MinElevationQuarterM
@@ -328,6 +325,9 @@ namespace SkyCombGround.GroundModel
                 MaxElevationQuarterM = Math.Max(quarterMs, MaxElevationQuarterM);
                 MinElevationQuarterM = Math.Min(quarterMs, MinElevationQuarterM);
             }
+
+            Assert(MinElevationQuarterM <= GroundNZMaxDEM * GroundScaleFactor, "Bad MinElevationQuarterM");
+            Assert(MaxElevationQuarterM <= GroundNZMaxDEM * GroundScaleFactor, "Bad MaxElevationQuarterM");
         }
 
 
