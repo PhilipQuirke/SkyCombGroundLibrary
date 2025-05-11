@@ -477,44 +477,63 @@ namespace SkyCombGround.GroundModel
         }
 
 
-        // Given the (rotated) rectangle defined by the 4 corners, set the grid area as seen.
-        // The rectangle is part of the drone swathe.
-        // Assuming we are painting a sequence of flightsteps, painting the edges and diagonals
-        // seems sufficient to represent the seen area.
-        public void DroneRectSeen(RelativeLocation topLeftLocn, RelativeLocation topRightLocn, RelativeLocation bottomRightLocn, RelativeLocation bottomLeftLocn)
+        // Set all ground pixels within a (potentially rotated) rectangle to seen.
+        public void DroneRectSeen(RelativeLocation topLeftLocn, RelativeLocation topRightLocn,
+                                  RelativeLocation bottomRightLocn, RelativeLocation bottomLeftLocn)
         {
-            // Paint edges
-            DroneLineSeen(bottomLeftLocn, bottomRightLocn);
-            DroneLineSeen(topLeftLocn, topRightLocn);
-            DroneLineSeen(bottomLeftLocn, topLeftLocn);
-            DroneLineSeen(bottomRightLocn, topRightLocn);
+            // First, find the bounding box of the rectangle to limit our scan area
+            float minNorthing = Math.Min(Math.Min(topLeftLocn.NorthingM, topRightLocn.NorthingM),
+                                Math.Min(bottomRightLocn.NorthingM, bottomLeftLocn.NorthingM));
+            float maxNorthing = Math.Max(Math.Max(topLeftLocn.NorthingM, topRightLocn.NorthingM),
+                                Math.Max(bottomRightLocn.NorthingM, bottomLeftLocn.NorthingM));
+            float minEasting = Math.Min(Math.Min(topLeftLocn.EastingM, topRightLocn.EastingM),
+                               Math.Min(bottomRightLocn.EastingM, bottomLeftLocn.EastingM));
+            float maxEasting = Math.Max(Math.Max(topLeftLocn.EastingM, topRightLocn.EastingM),
+                               Math.Max(bottomRightLocn.EastingM, bottomLeftLocn.EastingM));
 
-            // Paint diagonals
-            DroneLineSeen(bottomLeftLocn, topRightLocn);
-            DroneLineSeen(topLeftLocn, bottomRightLocn);
+            // Round to integers and add a small buffer to ensure we capture all points
+            int minNorthingInt = (int)Math.Floor(minNorthing) - 1;
+            int maxNorthingInt = (int)Math.Ceiling(maxNorthing) + 1;
+            int minEastingInt = (int)Math.Floor(minEasting) - 1;
+            int maxEastingInt = (int)Math.Ceiling(maxEasting) + 1;
 
-
-            // Paint the core (unrotated) rectangle contained within the four corners
-            List<float> northList = new List<float> {
-                topLeftLocn.NorthingM,
-                topRightLocn.NorthingM,
-                bottomRightLocn.NorthingM,
-                bottomLeftLocn.NorthingM};
-            northList.Sort(); // Sort in ascending order
-
-            List<float> eastList = new List<float> {
-                topLeftLocn.EastingM,
-                topRightLocn.EastingM,
-                bottomRightLocn.EastingM,
-                bottomLeftLocn.EastingM };
-            eastList.Sort(); // Sort in ascending order
-
-            for (float north = northList[1]; north <= northList[2]; north++)
-                for (float east = eastList[1]; east <= eastList[2]; east++)
+            // For each point in the bounding box, check if it's inside the rotated rectangle
+            for (int northing = minNorthingInt; northing <= maxNorthingInt; northing++)
+            {
+                for (int easting = minEastingInt; easting <= maxEastingInt; easting++)
                 {
-                    var locn = new RelativeLocation(north, east);
-                    DronePointSeen(locn);
+                    var point = new RelativeLocation(northing, easting);
+                    if (IsPointInPolygon(point, new[] {
+                topLeftLocn, topRightLocn, bottomRightLocn, bottomLeftLocn
+            }))
+                    {
+                        DronePointSeen(point);
+                    }
                 }
+            }
+        }
+
+
+        // Determines if a point is inside a polygon using the ray casting algorithm
+        private bool IsPointInPolygon(RelativeLocation point, RelativeLocation[] polygon)
+        {
+            bool result = false;
+            int j = polygon.Length - 1;
+
+            for (int i = 0; i < polygon.Length; i++)
+            {
+                if (((polygon[i].NorthingM <= point.NorthingM && point.NorthingM < polygon[j].NorthingM) ||
+                     (polygon[j].NorthingM <= point.NorthingM && point.NorthingM < polygon[i].NorthingM)) &&
+                    (point.EastingM < (polygon[j].EastingM - polygon[i].EastingM) *
+                     (point.NorthingM - polygon[i].NorthingM) / (polygon[j].NorthingM - polygon[i].NorthingM) +
+                     polygon[i].EastingM))
+                {
+                    result = !result;
+                }
+                j = i;
+            }
+
+            return result;
         }
     }
 }
