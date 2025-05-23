@@ -248,4 +248,26 @@ namespace SkyCombGround.CommonSpace
 
         protected const int GroundValuesPerCell = 75;
     }
+
+
+    public static class FloatComparisonHelper
+    {
+        private const float EPSILON = 0.0001f;
+        private const float UNKNOWN_VALUE_EPSILON = 1.0f; // Larger epsilon for UnknownValue comparisons
+
+        public static bool IsUnknownValue(float value)
+        {
+            return Math.Abs(value - BaseConstants.UnknownValue) < UNKNOWN_VALUE_EPSILON;
+        }
+
+        public static bool AreEqual(float a, float b, float epsilon = EPSILON)
+        {
+            return Math.Abs(a - b) < epsilon;
+        }
+
+        public static bool IsEffectivelyZero(float value, float epsilon = EPSILON)
+        {
+            return Math.Abs(value) < epsilon;
+        }
+    }
 }
