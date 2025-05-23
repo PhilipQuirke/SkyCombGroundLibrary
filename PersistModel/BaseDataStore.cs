@@ -4,6 +4,7 @@ using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Table.PivotTable;
 using SkyCombGround.CommonSpace;
 using System.Drawing;
+using System.Globalization;
 using System.Xml;
 
 
@@ -15,8 +16,27 @@ namespace SkyCombGround.PersistModel
         // Ask the user to close it. If they do, return true so we can retry.
         public delegate bool CantAccessDataStore_InformUser_ReturnRetry();
 
-        public static CantAccessDataStore_InformUser_ReturnRetry? CantAccessDataStore_InformUser_ReturnRetry_delegate = null;
+        // Use a thread-safe approach with a lock
+        private static readonly object _delegateLock = new object();
+        private static CantAccessDataStore_InformUser_ReturnRetry? _cantAccessDelegate = null;
 
+        public static CantAccessDataStore_InformUser_ReturnRetry? CantAccessDataStore_InformUser_ReturnRetry_delegate
+        {
+            get
+            {
+                lock (_delegateLock)
+                {
+                    return _cantAccessDelegate;
+                }
+            }
+            set
+            {
+                lock (_delegateLock)
+                {
+                    _cantAccessDelegate = value;
+                }
+            }
+        }
 
         // The name of the spreadsheet created as the DataStore
         public string DataStoreFileName { get; set; } = "";
@@ -73,12 +93,13 @@ namespace SkyCombGround.PersistModel
             }
             catch (Exception ex)
             {
-                if (ex.ToString().Contains("Error saving file") &&
-                    (CantAccessDataStore_InformUser_ReturnRetry_delegate != null))
+                var retryDelegate = CantAccessDataStore_InformUser_ReturnRetry_delegate;
+
+                if (ex.ToString().Contains("Error saving file") && retryDelegate != null)
                 {
                     // If we can't save a datastore, it is possible the file is open in Excel.
                     // Ask the user to close it. If they do, retry the save.
-                    if (CantAccessDataStore_InformUser_ReturnRetry_delegate())
+                    if (retryDelegate())
                         Store.Save();
                     else
                         throw;
@@ -450,6 +471,8 @@ namespace SkyCombGround.PersistModel
 
         public void SetDataPairValue(int row, int col, DataPair pair)
         {
+            Assert(Worksheet != null, "Worksheet is not initialized");
+
             int ndp = pair.Ndp;
             if (ndp == 0)
             {
@@ -458,7 +481,7 @@ namespace SkyCombGround.PersistModel
             }
             else if (ndp > 0)
             {
-                double value = double.Parse(pair.Value);
+                double value = double.Parse(pair.Value, CultureInfo.InvariantCulture);
                 var cell = Worksheet.Cells[row, col];
                 cell.Value = value;
                 cell.Style.Numberformat.Format = (ndp == 1 ? "0.0" : ndp == 2 ? "0.00" : ndp == 3 ? "0.000" : "0.0000000");
@@ -683,12 +706,6 @@ namespace SkyCombGround.PersistModel
 
                 _disposed = true;
             }
-        }
-
-
-        ~BaseDataStore()
-        {
-            Dispose(false);
         }
     }
 }

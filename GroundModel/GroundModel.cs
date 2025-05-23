@@ -192,9 +192,26 @@ namespace SkyCombGround.GroundModel
         // Convert from drone location (e.g. [14,3] ) to a grid index. 
         protected int DroneLocnToGridIndex(RelativeLocation droneLocnM, bool strict = true)
         {
-            int index =
-                ((int)(droneLocnM.NorthingM) + GroundBufferM) * NumCols +
-                ((int)(droneLocnM.EastingM) + GroundBufferM);
+            // Use long for intermediate calculations to prevent overflow
+            long northingIndex = (long)(droneLocnM.NorthingM) + GroundBufferM;
+            long eastingIndex = (long)(droneLocnM.EastingM) + GroundBufferM;
+
+            // Check bounds before multiplication
+            if (northingIndex < 0 || northingIndex >= NumRows ||
+                eastingIndex < 0 || eastingIndex >= NumCols)
+            {
+                if (strict)
+                    throw new ArgumentOutOfRangeException("Drone location is outside grid bounds");
+                return UnknownValue;
+            }
+
+            long longIndex = northingIndex * NumCols + eastingIndex;
+
+            // Verify the result fits in an int
+            if (longIndex > int.MaxValue)
+                throw new OverflowException($"Grid index calculation overflow: {longIndex}");
+
+            int index = (int)longIndex;
 
             if (strict)
                 AssertGoodIndex("DroneLocnToGridIndex", index);
@@ -208,10 +225,22 @@ namespace SkyCombGround.GroundModel
         // Translate from country location (e.g. [5786000,1954744] ) to grid index
         private int CountryLocnToGridIndex(RelativeLocation countryLocnM)
         {
-            int answer =
-                ((int)(countryLocnM.NorthingM) - MinCountryNorthingM) * NumCols +
-                ((int)(countryLocnM.EastingM) - MinCountryEastingM);
+            long northingIndex = (long)(countryLocnM.NorthingM) - MinCountryNorthingM;
+            long eastingIndex = (long)(countryLocnM.EastingM) - MinCountryEastingM;
 
+            // Check bounds
+            if (northingIndex < 0 || northingIndex >= NumRows ||
+                eastingIndex < 0 || eastingIndex >= NumCols)
+            {
+                throw new ArgumentOutOfRangeException("Country location is outside grid bounds");
+            }
+
+            long longAnswer = northingIndex * NumCols + eastingIndex;
+
+            if (longAnswer > int.MaxValue)
+                throw new OverflowException($"Grid index calculation overflow: {longAnswer}");
+
+            int answer = (int)longAnswer;
             AssertGoodIndex("CountryLocnToGridIndex", answer);
 
             return answer;
@@ -437,6 +466,13 @@ namespace SkyCombGround.GroundModel
 
 
         public int M2Seen { get { return NumElevationsStored; } }
+
+
+        public short GetSeenValue(int row, int col)
+        {
+            int gridIndex = (row - 1) * NumCols + (col - 1);
+            return ElevationQuarterM[gridIndex];
+        }
 
 
         // Set point to seen - the point is part of the drone swathe

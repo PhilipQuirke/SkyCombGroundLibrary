@@ -1,5 +1,6 @@
 ﻿using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundLogic;
+using SkyCombGround.GroundModel;
 using System.Text;
 
 
@@ -34,6 +35,7 @@ namespace SkyCombGround.PersistModel
 
                 grid.NumElevationsStored = 0;
 
+                bool isSwathe = (grid is SwatheModel);
                 const int charsPerValue = 4;
                 int valuesPerRow = grid.NumCols;
                 int charsPerRow = valuesPerRow * charsPerValue;
@@ -66,8 +68,17 @@ namespace SkyCombGround.PersistModel
                             float elevation = 0; // Sea-level
                             if (hexValue != "0000")
                             {
-                                int compressedValue = Convert.ToInt32(hexValue, 16);
-                                elevation = compressedValue / (float)GroundScaleFactor;
+                                if (isSwathe)
+                                {
+                                    // For SwatheModel, store raw value (0 or 1)
+                                    elevation = Convert.ToInt32(hexValue, 16);
+                                }
+                                else
+                                {
+                                    // For DEM/DSM, convert from compressed value
+                                    int compressedValue = Convert.ToInt32(hexValue, 16);
+                                    elevation = compressedValue / (float)GroundScaleFactor;
+                                }
                             }
 
                             grid.AddSettingDatum(row, col + 1, elevation);

@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Globalization;
 
 
 namespace SkyCombGround.CommonSpace
@@ -39,9 +40,22 @@ namespace SkyCombGround.CommonSpace
         // This constructor is the inverse of the ToString function below.
         public GlobalLocation(string locationAsString)
         {
-            var stringList = locationAsString.Split(",");
-            Latitude = Convert.ToDouble(stringList[0]);
-            Longitude = Convert.ToDouble(stringList[1]);
+            if (string.IsNullOrEmpty(locationAsString))
+                throw new ArgumentException("Location string cannot be null or empty");
+
+            var stringList = locationAsString.Split(',');
+
+            if (stringList.Length != 2)
+                throw new ArgumentException($"Location string must contain exactly one comma. Got: '{locationAsString}'");
+
+            if (!double.TryParse(stringList[0].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double lat))
+                throw new ArgumentException($"Invalid latitude value: '{stringList[0]}'");
+
+            if (!double.TryParse(stringList[1].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double lon))
+                throw new ArgumentException($"Invalid longitude value: '{stringList[1]}'");
+
+            Latitude = lat;
+            Longitude = lon;
         }
 
 
@@ -289,14 +303,6 @@ namespace SkyCombGround.CommonSpace
         public DroneLocation Negate()
         {
             return Multiply(-1);
-        }
-
-
-        // Return a new DroneLocation equal to a unit vector of this location
-        public DroneLocation UnitVector()
-        {
-            var diagonalM = DiagonalM;
-            return Multiply(diagonalM == 0 ? 0 : 1 / diagonalM);
         }
 
 

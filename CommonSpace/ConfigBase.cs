@@ -1,5 +1,7 @@
 ﻿// Copyright SkyComb Limited 2024. All rights reserved. 
 
+using System.Globalization;
+
 
 namespace SkyCombGround.CommonSpace
 {
@@ -60,7 +62,7 @@ namespace SkyCombGround.CommonSpace
                 if (input == "Unknown")
                     return UnknownValue;
 
-                return float.Parse(input);
+                return float.Parse(input, CultureInfo.InvariantCulture);
             }
             catch
             {
@@ -91,7 +93,7 @@ namespace SkyCombGround.CommonSpace
                 if (input == "Unknown")
                     return UnknownValue;
 
-                return double.Parse(input);
+                return double.Parse(input, CultureInfo.InvariantCulture);
             }
             catch
             {

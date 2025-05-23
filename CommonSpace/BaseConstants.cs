@@ -209,6 +209,26 @@ namespace SkyCombGround.CommonSpace
     }
 
 
+    // Ground data encoding 
+    // ==================== 
+    // DEM/DSM Elevation encoding:
+    // - Stored as 4-character hexadecimal strings (0000-FFFF)
+    // - Negative elevations (below sea level) are stored as 0
+    // - Elevations are multiplied by GroundScaleFactor (4) before encoding
+    // - Maximum supported elevation: 16383m (0xFFFF / 4)
+    // - Resolution: 0.25m (1 / GroundScaleFactor)
+    // - Unknown/missing data: Stored as 0 (indistinguishable from sea level)
+    //
+    // Swathe (seen/unseen) encoding:
+    // - Stored as 4-character hexadecimal strings
+    // - 0000 = unseen area
+    // - 0001 = seen area
+    // - No scaling applied
+    //
+    // Cell packing:
+    // - Multiple values packed into Excel cells (GroundValuesPerCell=75 values per cell)
+    // - Each value uses 4 hex characters
+    // - Maximum 300 characters per Excel cell
     public class GroundConstants : BaseConstants
     {
         public static string DsmTitle = "Surface (aka tree-top, DSM) elevations";
