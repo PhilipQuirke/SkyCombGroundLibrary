@@ -533,6 +533,7 @@ namespace SkyCombGround.PersistModel
         }
 
 
+        // Remove the last 4 characters from the file name, which is the file extension.
         public static string RemoveFileNameSuffix(string fileName)
         {
             if (fileName.Length < 4)
@@ -541,51 +542,14 @@ namespace SkyCombGround.PersistModel
             return fileName.Substring(0, fileName.Length - 4);
         }
 
-
-        public static string AddFileNameSuffix(string fileName, string suffix)
-        {
-            return RemoveFileNameSuffix(fileName) + suffix;
-        }
-
-
+        
+        // Replace the last 4 characters of the file name, which is the file extension.
         public static string SwapFileNameExtension(string fileName, string newExtension)
         {
             if (fileName.Length < 4)
                 return fileName;
 
             return fileName.Substring(0, fileName.Length - 4) + newExtension;
-        }
-
-
-        // Assuming that the file name is something like F:\SkyComb\Data_Input\Philip_Quirke\DJI_0027.SRT
-        // return the string F:\SkyComb\Data_Ground
-        public static string GuessGroundDataFolderFromFileName(string fileName)
-        {
-            if (fileName.Length < 15)
-                return "";
-
-            int pos = fileName.IndexOf("Data_Input");
-
-            if (pos < 0)
-                return "";
-
-            return fileName.Substring(0, pos) + "Data_Ground";
-        }
-
-
-        // Assuming that the file name is something like F:\SkyComb\Data_Input\Philip_Quirke\DJI_0027.SRT
-        // return the string F:\SkyComb\Data_Output
-        public static string GuessOutputDataFolderFromFileName(string fileName)
-        {
-            if (fileName.Length < 15)
-                return "";
-
-            int pos = fileName.IndexOf("Data_Input");
-
-            if (pos < 0)
-                return "";
-
-            return fileName.Substring(0, pos) + "Data_Output";
         }
 
 
