@@ -50,7 +50,7 @@ namespace SkyCombGround.PersistModel
 
             float maxError = 0;
 
-            if( ! badData2 )
+            if (!badData2)
                 for (int row = 1; row <= original.NumRows; row++)
                     for (int col = 1; col <= original.NumCols; col++)
                     {

@@ -363,7 +363,7 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        public void SetChart(ExcelChart chart, string title, float rowOffset=0, int colOffset=0)
+        public void SetChart(ExcelChart chart, string title, float rowOffset = 0, int colOffset = 0)
         {
             SetChartTitle(chart, title);
 
@@ -542,7 +542,7 @@ namespace SkyCombGround.PersistModel
             return fileName.Substring(0, fileName.Length - 4);
         }
 
-        
+
         // Replace the last 4 characters of the file name, which is the file extension.
         public static string SwapFileNameExtension(string fileName, string newExtension)
         {
