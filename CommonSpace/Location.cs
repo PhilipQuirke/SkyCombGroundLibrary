@@ -223,22 +223,26 @@ namespace SkyCombGround.CommonSpace
     {
         public DroneLocation(float northingM = 0, float eastingM = 0) : base(northingM, eastingM)
         {
+            Max2DP();
         }
 
 
         public DroneLocation(DroneLocation location) : base(location)
         {
+            Max2DP();
         }
 
 
         public DroneLocation(string northingMString, string eastingMString) : base(northingMString, eastingMString)
         {
+            Max2DP();
         }
 
 
         // This constructor mirrors the ToString function below.
         public DroneLocation(string locationAsString) : base(locationAsString)
         {
+            Max2DP();
         }
 
 
@@ -246,12 +250,23 @@ namespace SkyCombGround.CommonSpace
         {
             NorthingM = location.Y;
             EastingM = location.X;
+            Max2DP();
         }
 
 
         public override DroneLocation Clone()
         {
             return new DroneLocation(this);
+        }
+
+
+        // Drone locations are stored with 2 decimal places of precision.
+        // We do this to avoid floating point errors in calculations.
+        // When storing drone locations to a datastore and retrieving them we rely on 2dp.
+        public void Max2DP()
+        {
+            NorthingM = (float) Math.Round(NorthingM, 2);
+            EastingM = (float)Math.Round(EastingM, 2);
         }
 
 

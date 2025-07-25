@@ -192,9 +192,10 @@ namespace SkyCombGround.GroundModel
         // Convert from drone location (e.g. [14,3] ) to a grid index. 
         protected int DroneLocnToGridIndex(RelativeLocation droneLocnM, bool strict = true)
         {
-            // Use long for intermediate calculations to prevent overflow
-            long northingIndex = (long)(droneLocnM.NorthingM) + GroundBufferM;
-            long eastingIndex = (long)(droneLocnM.EastingM) + GroundBufferM;
+            const double epsilon = 0.001; // Small value to ensure consistent rounding
+
+            long northingIndex = (long)(droneLocnM.NorthingM + epsilon) + GroundBufferM;
+            long eastingIndex = (long)(droneLocnM.EastingM + epsilon) + GroundBufferM;
 
             // Check bounds before multiplication
             if (northingIndex < 0 || northingIndex >= NumRows ||
