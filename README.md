@@ -1,13 +1,19 @@
 ﻿# SkyComb Ground Library
 
-A .NET library for processing geographical elevation data from GeoTIFF files, specifically designed for drone flight planning and geospatial analysis.
+A .NET library for processing geographical elevation data from GeoTIFF files, 
+specifically designed for drone flight planning and geospatial analysis.
+
+You can obtain NZ GeoTIFF files covering large areas from the government LINZ department for free.
+Stored the GeoTiffs in folder(s). Add folders over time as you explore new physical locations.
+
+The service allows you to define a small area (e.g. the area under a drone flight )
+and persist the GeoTIFF information (both DEM and DSM) for that area in a spreadsheet (i.e. an xls) called a DataStore.
 
 ## Features
 
 - 🗺️ **Load and process DEM** (Digital Elevation Model) data for ground elevation
 - 🌳 **Load and process DSM** (Digital Surface Model) data for surface elevation including vegetation and structures
 - 📍 **Point elevation queries** - Get elevation data for specific geographical coordinates
-- 🚁 **Flight path analysis** - Calculate elevation profiles along drone flight paths
 - 🌍 **Coordinate system support** - Handles conversion between global (WGS84) and local coordinate systems
 - 📊 **Export capabilities** - Save elevation data to spreadsheets for further analysis
 - ⚡ **High precision** - Works with 1m grid resolution and ±0.2m accuracy (for LIDAR data)
@@ -185,19 +191,13 @@ GroundDataService.RebuildElevationIndexes(string dataDirectory);
 ```
 
 ## Supported Regions
-
-| Region | Status | Data Source |
-|--------|--------|-------------|
-| 🇳🇿 New Zealand | ✅ Full Support | [LINZ](https://data.linz.govt.nz/) |
-
-**Note**: This library currently supports only New Zealand. Support for other regions would require additional development and appropriate data sources.
+This library currently supports only New Zealand. Support for other regions would require additional development and appropriate data sources.
 
 ## Examples
 
 See the [Examples](Examples/) directory for comprehensive usage examples:
 
 - `BasicUsageExamples.cs` - Getting started with elevation queries
-- Flight path analysis
 - Error handling
 - Single point elevation lookup
 
@@ -250,6 +250,7 @@ This library is part of the SkyComb ecosystem:
 
 - **[SkyComb Analyst](https://github.com/PhilipQuirke/SkyCombAnalyst/)** - Drone thermal video analysis
 - **[SkyComb Flights](https://github.com/PhilipQuirke/SkyCombFlights/)** - Drone flight planning
+- **[SkyComb Image Library](https://github.com/PhilipQuirke/SkyCombImageLibrary/)** - Drone image processing
 - **[SkyComb Drone Library](https://github.com/PhilipQuirke/SkyCombDroneLibrary/)** - Drone flight data processing
 
 ## License
