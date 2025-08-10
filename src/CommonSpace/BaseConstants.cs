@@ -23,10 +23,10 @@ namespace SkyCombGround.CommonSpace
         public const int RadiansNdp = 6;
         public const int DegreesNdp = 2;
         public const int MillisecondsNdp = 0;
-        // Needed for millisecond accuracy.
-        public const int SecondsNdp = 3;
+        public const int SecondsNdp = 3; // Needed for millisecond accuracy.
 
 
+        // Commonly used "unknown" values
         public const int UnknownValue = -999;
         public const string UnknownString = "Unknown";
         public const int UnknownSectionId = 999999;
@@ -44,12 +44,12 @@ namespace SkyCombGround.CommonSpace
         public const float RadiansToDegrees = 1 / DegreesToRadians;
 
 
-        // Fonts
+        // Datastore Fonts
         public const int LargeTitleFontSize = 16;
         public const int MediumTitleFontSize = 14;
 
 
-        // Titles
+        // Datastore Titles
         public const string PrefixTitle = "SkyComb Analyst";
         public const string IndexTitle = "Table of Contents";
         public const string AnimalReportTitle = "Animal Report";
@@ -86,14 +86,14 @@ namespace SkyCombGround.CommonSpace
         public const string HelpTabName = "Help";
 
 
-        // Chart outline sizes
+        // Datastore Chart outline sizes
         public const int StandardChartCols = 13;
         public const int StandardChartRows = 15;
         public const int LargeChartRows = 2 * StandardChartRows;
         public const int ChartFullWidthPixels = 1400;
 
 
-        // Rows
+        // Datastore Standard Rows
         public const int Chapter1TitleRow = 3;
         public const int Chapter2TitleRow = 21;
         public const int Chapter3TitleRow = 38;
@@ -101,13 +101,15 @@ namespace SkyCombGround.CommonSpace
         public const int IndexContentRow = 3;
 
 
-        // Columns / Column offset
+        // Datastore Standard Columns / Column offset
         public const int LhsColOffset = 1;
         public const int MidColOffset = 4;
         public const int RhsColOffset = 7;
         public const int FarRhsColOffset = 10;
         public const int LabelToValueCellOffset = 1;
 
+
+        // Datastore Country Image Sizes
         protected const int CountryImageWidth = 300; // fixed size in pixels
         protected const int CountryImageHeight = 200; // fixed size in pixels
 
