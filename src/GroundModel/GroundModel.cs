@@ -1,5 +1,6 @@
 // Copyright SkyComb Limited 2025. All rights reserved. 
 using SkyCombGround.CommonSpace;
+using SkyCombGround.GroundLogic;
 using System.Drawing;
 
 
@@ -275,6 +276,37 @@ namespace SkyCombGround.GroundModel
                     ElevationQuarterM[i] = MinElevationQuarterM;
         }
 
+
+        // For a "query" point inside the grid, calculate the elevation using global coordinates.
+        // Converts global location to country coordinates first, then gets elevation.
+        public float GetElevationByGlobalLocation(GlobalLocation globalLocation)
+        {
+            if (globalLocation == null)
+                return UnknownValue;
+
+            try
+            {
+                // Convert global location to country coordinates
+                var countryLocation = NztmProjection.WgsToNztm(globalLocation);
+                
+                // Get the elevation using country coordinates
+                int gridIndex = CountryLocnToGridIndex(countryLocation);
+                
+                if (ElevationQuarterM[gridIndex] == UnknownValue)
+                    return float.NaN;
+
+                var answer = GridElevationQuarterMToM(ElevationQuarterM[gridIndex]);
+
+                Assert(answer <= GroundNZMaxDEM, "Bad Elevation");
+
+                return answer;
+            }
+            catch (Exception)
+            {
+                // Return NaN for any conversion or lookup errors
+                return float.NaN;
+            }
+        }
 
         // For a "query" point inside the grid, calculate the elevation.
         // As the grid is 1m by 1m cells, the horizontal difference in

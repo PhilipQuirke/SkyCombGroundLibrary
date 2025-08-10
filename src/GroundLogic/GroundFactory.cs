@@ -97,7 +97,7 @@ namespace SkyCombGround.GroundLogic
                 MinGlobalLocation = minLocation;
                 MaxGlobalLocation = maxLocation;
 
-                // Is the drone flight in New Zealand?
+                // Currently only supports New Zealand
                 if (ContainedByGlobalLocation(-50, 165, -34, 179))
                 {
                     // Using TIFF files in subfolders of the groundDirectory folder,
@@ -110,23 +110,8 @@ namespace SkyCombGround.GroundLogic
                     return;
                 }
 
-                // Is the drone flight in the US?
-                if (ContainedByGlobalLocation(25, -125, 50, -66))
-                {
-                    // ToDo: Add USA methods here.
-
-                    return;
-                }
-
-                // Is the drone flight in the UK?
-                if (ContainedByGlobalLocation(49, -12, 61, 1))
-                {
-                    // ToDo: Add UK methods here.
-
-                    return;
-                }
-
-                // # ExtendGroundSpace: Add more country-specific code here.
+                // Location is not supported
+                throw new ArgumentException("Location is outside New Zealand bounds. This library currently only supports New Zealand elevation data.");
             }
             catch (Exception ex)
             {
