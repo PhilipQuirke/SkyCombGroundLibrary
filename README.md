@@ -259,9 +259,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Support
 
-- 📖 **Documentation**: [API Docs](docs/api.md)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/PhilipQuirke/SkyCombGroundLibrary/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/PhilipQuirke/SkyCombGroundLibrary/discussions)
 - 📧 **Email**: Contact through GitHub
 
 ---
