@@ -61,7 +61,7 @@ namespace SkyCombGround.Services
         }
 
         /// <inheritdoc />
-        public async Task<IGroundData> GetElevationDataAsync(GeographicalBounds bounds, string dataDirectory, CancellationToken cancellationToken = default)
+        public async Task<IGroundData> GetGroundDataAsync(GeographicalBounds bounds, string dataDirectory, CancellationToken cancellationToken = default)
         {
             if (bounds == null)
                 throw new ArgumentNullException(nameof(bounds));
@@ -117,7 +117,7 @@ namespace SkyCombGround.Services
                 new GlobalLocation(location.Latitude + buffer, location.Longitude + buffer)
             );
 
-            using var groundData = await GetElevationDataAsync(bounds, dataDirectory, cancellationToken);
+            using var groundData = await GetGroundDataAsync(bounds, dataDirectory, cancellationToken);
             return groundData.GetElevation(location, elevationType);
         }
 

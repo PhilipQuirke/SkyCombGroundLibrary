@@ -152,7 +152,7 @@ namespace SkyCombGround.GroundModel
 
 
         // Has this object obtained some elevation data?
-        public bool HasElevationData()
+        public bool HasGroundData()
         {
             return NumElevationsStored > 0;
         }

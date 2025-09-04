@@ -32,7 +32,7 @@ namespace SkyCombGround.Examples
             {
                 // Get elevation data (requires local GeoTIFF files)
                 // Note: You need to have elevation data files in the specified directory
-                using var groundData = await groundService.GetElevationDataAsync(bounds, @"C:\ElevationData");
+                using var groundData = await groundService.GetGroundDataAsync(bounds, @"C:\GroundData");
 
                 Console.WriteLine($"Elevation data loaded successfully!");
                 Console.WriteLine($"  DEM data available: {groundData.HasDemData}");
@@ -71,7 +71,7 @@ namespace SkyCombGround.Examples
         {
             Console.WriteLine("\n=== Rebuild Elevation Index Example ===");
             
-            string dataDirectory = @"C:\ElevationData";
+            string dataDirectory = @"C:\GroundData";
             Console.WriteLine($"Rebuilding elevation indexes for: {dataDirectory}");
             Console.WriteLine("This may take several minutes for large datasets...");
 
@@ -115,7 +115,7 @@ namespace SkyCombGround.Examples
                 Console.WriteLine($"Flight bounds: {bounds.Southwest} to {bounds.Northeast}");
 
                 var groundService = GroundDataService.Create();
-                using var groundData = await groundService.GetElevationDataAsync(bounds, @"C:\ElevationData");
+                using var groundData = await groundService.GetGroundDataAsync(bounds, @"C:\GroundData");
 
                 // Analyze elevation profile along flight path
                 Console.WriteLine("\nElevation profile:");
@@ -166,13 +166,13 @@ namespace SkyCombGround.Examples
                 var demElevation = await groundService.GetElevationAtAsync(
                     mountCook, 
                     ElevationType.DEM, 
-                    @"C:\ElevationData");
+                    @"C:\GroundData");
 
                 // Get DSM elevation for this single point
                 var dsmElevation = await groundService.GetElevationAtAsync(
                     mountCook, 
                     ElevationType.DSM, 
-                    @"C:\ElevationData");
+                    @"C:\GroundData");
 
                 if (!float.IsNaN(demElevation))
                 {
@@ -213,7 +213,7 @@ namespace SkyCombGround.Examples
                     new GlobalLocation(-33.8500, 151.2500)
                 );
 
-                using var groundData = await groundService.GetElevationDataAsync(bounds, @"C:\ElevationData");
+                using var groundData = await groundService.GetGroundDataAsync(bounds, @"C:\GroundData");
                 Console.WriteLine("  Unexpected success - this should have failed!");
             }
             catch (Exceptions.UnsupportedLocationException ex)
@@ -243,7 +243,7 @@ namespace SkyCombGround.Examples
 
             Console.WriteLine("\n=== Examples Complete ===");
             Console.WriteLine("Note: To run these examples successfully, you need:");
-            Console.WriteLine("1. GeoTIFF elevation files in C:\\ElevationData directory");
+            Console.WriteLine("1. GeoTIFF elevation files in C:\\GroundData directory");
             Console.WriteLine("2. Data covering the New Zealand coordinates used in examples");
             Console.WriteLine("3. For New Zealand data, visit: https://data.linz.govt.nz/");
             Console.WriteLine("4. IMPORTANT: Run GroundDataService.RebuildElevationIndexes() after adding new TIF files!");

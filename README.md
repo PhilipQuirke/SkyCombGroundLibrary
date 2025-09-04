@@ -41,7 +41,7 @@ var bounds = new GeographicalBounds(
 
 // Get elevation data
 var groundService = GroundDataService.Create();
-using var groundData = await groundService.GetElevationDataAsync(bounds, @"C:\ElevationData");
+using var groundData = await groundService.GetGroundDataAsync(bounds, @"C:\GroundData");
 
 // Query elevation at a point
 var location = new GlobalLocation(-36.8462, 174.7660); // Auckland CBD
@@ -62,7 +62,7 @@ var flightPath = new List<GlobalLocation>
 
 // Calculate bounding box and get elevation data
 var bounds = GeographicalBounds.FromPoints(flightPath);
-using var groundData = await groundService.GetElevationDataAsync(bounds, @"C:\ElevationData");
+using var groundData = await groundService.GetGroundDataAsync(bounds, @"C:\GroundData");
 
 // Analyze elevation profile
 foreach (var point in flightPath)
@@ -89,7 +89,7 @@ This library works with GeoTIFF elevation files. Currently supports **New Zealan
 2. **Organize files** in the following directory structure:
 
    ```
-   ElevationData/
+   GroundData/
    ├── DEM/
    │   ├── tile_001.tif
    │   ├── tile_002.tif
@@ -109,7 +109,7 @@ This library works with GeoTIFF elevation files. Currently supports **New Zealan
    using SkyCombGround.GroundLogic;
    
    // Rebuild indexes for all TIF files in directory and subdirectories
-   GroundTiffNZ.RebuildIndexes(@"C:\ElevationData");
+   GroundTiffNZ.RebuildIndexes(@"C:\GroundData");
    ```
    
    **Why this is required:**
@@ -139,12 +139,12 @@ This is the most common issue and usually indicates that elevation data indexes 
 
 1. **After adding new GeoTIFF files**, always run:
    ```csharp
-   GroundDataService.RebuildElevationIndexes(@"C:\ElevationData");
+   GroundDataService.RebuildElevationIndexes(@"C:\GroundData");
    ```
 
 2. **Check file organization**: Ensure TIF files are organized correctly:
    ```
-   ElevationData/
+   GroundData/
    ├── region1/
    │   ├── file1.tif
    │   ├── file2.tif  
@@ -177,7 +177,7 @@ This is the most common issue and usually indicates that elevation data indexes 
 
 ```csharp
 // Load elevation data for an area
-Task<IGroundData> GetElevationDataAsync(GeographicalBounds bounds, string dataDirectory);
+Task<IGroundData> GetGroundDataAsync(GeographicalBounds bounds, string dataDirectory);
 
 // Get elevation at a specific point  
 Task<float> GetElevationAtAsync(GlobalLocation location, ElevationType type, string dataDirectory);
@@ -219,7 +219,7 @@ var service = GroundDataService.Create(options);
 
 The library provides specific exception types:
 
-- **`ElevationDataNotFoundException`** - No elevation files found
+- **`GroundDataNotFoundException`** - No elevation files found
 - **`UnsupportedLocationException`** - Location outside supported regions
 - **`GeoTiffProcessingException`** - Issues processing GeoTIFF files
 - **`InvalidGeographicalBoundsException`** - Invalid coordinate bounds

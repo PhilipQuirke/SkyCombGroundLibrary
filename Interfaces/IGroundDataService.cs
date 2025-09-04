@@ -148,9 +148,9 @@ namespace SkyCombGround.Interfaces
         /// <returns>Ground elevation data including DEM and DSM models</returns>
         /// <exception cref="ArgumentNullException">Thrown when bounds or dataDirectory is null</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown when dataDirectory does not exist</exception>
-        /// <exception cref="ElevationDataNotFoundException">Thrown when no elevation data files are found</exception>
+        /// <exception cref="GroundDataNotFoundException">Thrown when no elevation data files are found</exception>
         /// <exception cref="UnsupportedLocationException">Thrown when the location is not supported</exception>
-        Task<IGroundData> GetElevationDataAsync(GeographicalBounds bounds, string dataDirectory, CancellationToken cancellationToken = default);
+        Task<IGroundData> GetGroundDataAsync(GeographicalBounds bounds, string dataDirectory, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets elevation at a specific geographical point
