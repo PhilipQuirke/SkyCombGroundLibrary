@@ -1,4 +1,4 @@
-﻿// Copyright SkyComb Limited 2024. All rights reserved.
+﻿// Copyright SkyComb Limited 2025. All rights reserved.
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Table.PivotTable;
@@ -533,23 +533,24 @@ namespace SkyCombGround.PersistModel
         }
 
 
-        // Remove the last 4 characters from the file name, which is the file extension.
+        // Remove the file extension from the file name, if present.
         public static string RemoveFileNameSuffix(string fileName)
         {
-            if (fileName.Length < 4)
+            if (string.IsNullOrEmpty(fileName))
                 return fileName;
-
-            return fileName.Substring(0, fileName.Length - 4);
+            var ext = Path.GetExtension(fileName);
+            if (string.IsNullOrEmpty(ext))
+                return fileName;
+            return fileName.Substring(0, fileName.Length - ext.Length);
         }
 
 
-        // Replace the last 4 characters of the file name, which is the file extension.
+        // Replace the file extension.
         public static string SwapFileNameExtension(string fileName, string newExtension)
         {
-            if (fileName.Length < 4)
+            if (string.IsNullOrEmpty(fileName))
                 return fileName;
-
-            return fileName.Substring(0, fileName.Length - 4) + newExtension;
+            return Path.ChangeExtension(fileName, newExtension);
         }
 
 
