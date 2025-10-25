@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 
 
-
 namespace SkyCombGround.CommonSpace
 {
     public class JsonSettings : SettingsBase
@@ -28,6 +27,7 @@ namespace SkyCombGround.CommonSpace
                 CategoryList = categoryList
             };
 
+
         public static JsonSettings LoadSettings()
         {
 
@@ -38,9 +38,7 @@ namespace SkyCombGround.CommonSpace
             }
             MasterCategoryListJ defaultCategoryList = [];
             defaultCategoryList.Default();
-            ;
-            //          MasterCategoryListJ defaultCategoryList = [];
-            //            defaultCategoryList.Default();
+ 
             JsonSettings defaultSettings = GetSettingsJson(
                     "c:\\skycomb\\data_input\\",
                     "c:\\skycomb\\data_ground\\",
@@ -54,9 +52,6 @@ namespace SkyCombGround.CommonSpace
 
             return defaultSettings;
         }
-
-
-        public static bool SettingsExist() => File.Exists(SettingsFilePath);
 
 
         public static List<RecentFile> AddRecentFile(string newfilename, int numObjects)
