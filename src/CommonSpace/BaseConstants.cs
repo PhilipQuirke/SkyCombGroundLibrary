@@ -6,7 +6,7 @@ namespace SkyCombGround.CommonSpace
     public class BaseConstants : GroundColors
     {
         // The current version of the code base.
-        public static string CodeVersion = "10.3";
+        public static string CodeVersion = "11.0";
 
 
         // Number of decimal places for commonly used types of data
