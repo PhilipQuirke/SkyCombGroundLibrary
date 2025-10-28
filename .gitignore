@@ -2,7 +2,5 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/bin/Debug
 /obj
-/bin/Release/net7.0
-/bin/Release/net8.0
+/bin 

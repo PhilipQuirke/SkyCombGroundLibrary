@@ -50,7 +50,10 @@ namespace SkyCombGround.PersistModel
         // Create or open a DataStore on disk 
         public BaseDataStore(string fileName, bool create)
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            // According to the Polyform Noncommercial license:
+            ExcelPackage.License.SetNonCommercialPersonal("Philip Quirke");
+            // or..
+            // ExcelPackage.License.SetNonCommercialOrganization("SkyComb Limited");
 
             DataStoreFileName = fileName;
             if (create)
