@@ -114,6 +114,8 @@ namespace SkyCombGround.CommonSpace
         // Scale from one coordinate system to another.
         // e.g. Optical video resolution is greater than thermal video resolution e.g. 1 or 3
         public float Scale;
+        public float ScaleX;
+        public float ScaleY;
 
         // This is the horizontal distance to translate the X coordinate.
         // e.g. Optical video can cover a wider field of vision than thermal video. This is the left edge translation.
@@ -125,16 +127,18 @@ namespace SkyCombGround.CommonSpace
 
 
         // Constructor. Default params are a "no change" transform
-        public Transform(float scale = 1, float xMargin = 0, float yMargin = 0)
+        public Transform(float scale = 1, float xMargin = 0, float yMargin = 0, float scaleX = 1.0f, float scaleY = 1.0f)
         {
             Scale = scale;
+            ScaleX = scaleX;
+            ScaleY = scaleY;
             XMargin = xMargin;
             YMargin = yMargin;
         }
 
 
-        public int CalcX(int x) { return (int)(XMargin + x * Scale); }
-        public int CalcY(int y) { return (int)(YMargin + y * Scale); }
+        public int CalcX(int x) { return (int)(XMargin + ( x * Scale * ScaleX)); }
+        public int CalcY(int y) { return (int)(YMargin + ( y * Scale * ScaleY)); }
 
 
         public Rectangle CalcRect(Rectangle Rect)
@@ -142,8 +146,8 @@ namespace SkyCombGround.CommonSpace
             return new Rectangle(
                 CalcX(Rect.X),
                 CalcY(Rect.Y),
-                (int)(Rect.Width * Scale),
-                (int)(Rect.Height * Scale));
+                (int)(Rect.Width * Scale * ScaleX),
+                (int)(Rect.Height * Scale * ScaleY));
         }
 
 
