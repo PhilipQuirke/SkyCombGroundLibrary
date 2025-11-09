@@ -95,7 +95,7 @@ namespace SkyCombGround.CommonSpace
 
         // Datastore Standard Rows
         public const int Chapter1TitleRow = 3;
-        public const int Chapter2TitleRow = 21;
+        public const int Chapter2TitleRow = 22;
         public const int Chapter3TitleRow = 38;
         public const int Chapter4TitleRow = 50;
         public const int IndexContentRow = 3;
