@@ -112,15 +112,23 @@ namespace SkyCombGroundLibrary.GroundLogic
             GlobalLocation globalLocation, // centre of flight area
             GlobalLocation globalRange) // rectangle around the centre
         {
-            OpenStreetMap map = new();
+            try
+            {
+                OpenStreetMap map = new();
 
-            map.Main(globalLocation, null, SmallAreaZoom).Wait();
-            Bitmap? bitmap1 = new Bitmap(map.Background);
+                map.Main(globalLocation, null, SmallAreaZoom).Wait();
+                Bitmap? bitmap1 = new Bitmap(map.Background);
 
-            map.Main(globalLocation, globalRange, LargeAreaZoom).Wait();
-            Bitmap? bitmap2 = new Bitmap(map.Background);
+                map.Main(globalLocation, globalRange, LargeAreaZoom).Wait();
+                Bitmap? bitmap2 = new Bitmap(map.Background);
 
-            return (bitmap1, bitmap2);
+                return (bitmap1, bitmap2);
+            }
+            catch
+            {
+                // Occurs if the internet is not available.
+                return (null, null);
+            }
         }
     }
 }
