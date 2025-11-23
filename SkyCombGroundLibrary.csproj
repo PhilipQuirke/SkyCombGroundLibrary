@@ -8,7 +8,7 @@
     
     <!-- Package Metadata -->
     <PackageId>SkyCombGroundLibrary</PackageId>
-	<Version>11.2.0</Version>
+	<Version>11.3.0</Version>
     <Authors>SkyComb Limited</Authors>
     <Description>A library for processing geographical elevation data (DEM/DSM) from GeoTIFF files, designed for drone flight planning and geospatial analysis</Description>
     <PackageTags>GIS;elevation;DEM;DSM;geotiff;geospatial;drone;mapping;geography;lidar</PackageTags>
