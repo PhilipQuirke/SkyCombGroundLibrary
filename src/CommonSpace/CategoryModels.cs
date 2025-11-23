@@ -1,13 +1,17 @@
-﻿// Copyright SkyComb Limited 2024. All rights reserved. 
+﻿// Copyright SkyComb Limited 2025. All rights reserved. 
 using System.Text.Json.Serialization;
 
+
 // This version of CategoryModels is used for loading off JSON settings and is designed for a record that persists across flights.
-// It uses the same structure as SkyCombImage.CategorySpace CategoryModel; here all the classes are suffixed by J.
+// It uses the same structure as SkyCombImage.CategorySpace CategoryModel; here all the classes are suffixed by J for JSON.
 namespace SkyCombGround.CommonSpace
 {
     // An "CategoryModel" represents the information that can be added to an object to categorise it.
     public class CategoryModelJ : ConfigBase
     {
+        public const string IgnoreCategory = "Ignore";
+
+
         // What category does the object belong to?
         public string Category { get; set; }
 
@@ -17,7 +21,7 @@ namespace SkyCombGround.CommonSpace
         // Notes about the object
         public string Notes { get; set; }
 
-        public CategoryModelJ() { } //nq
+        public CategoryModelJ() { }  
 
         public CategoryModelJ(string category = "", bool include = true, string notes = "")
         {
@@ -114,7 +118,7 @@ namespace SkyCombGround.CommonSpace
         // Maximum valid size of this category of object in cm2
         public float MaxSizeCM2 { get; set; }
 
-        public MasterCategoryModelJ() { } //nq
+        public MasterCategoryModelJ() { } 
 
         [JsonConstructor]
         public MasterCategoryModelJ(
@@ -154,8 +158,6 @@ namespace SkyCombGround.CommonSpace
         public const int GroundedSetting = 4;
         public const int MinSizeCM2Setting = 5;
         public const int MaxSizeCM2Setting = 6;
-        //        public const int MinTempSetting = 7;
-        //        public const int MaxTempSetting = 8;
 
 
         // Get the class's settings as datapairs (e.g. for saving to the datastore). Must align with above index values.
@@ -188,7 +190,7 @@ namespace SkyCombGround.CommonSpace
     // This is the maximal list of categories that the user picks from when categorising objects.
     public class MasterCategoryListJ : SortedList<string, MasterCategoryModelJ>
     {
-        public MasterCategoryListJ() : base() { } //nq
+        public MasterCategoryListJ() : base() { }  
 
         public void Add(MasterCategoryModelJ category)
         {
@@ -257,7 +259,7 @@ namespace SkyCombGround.CommonSpace
             // Smallest(standing): Adult of smaller stature (~30 cm × ~40 cm) = 943 cm²
             // Largest(lying down): Taller adult (~40 cm × ~50 cm) = 1,571 cm²
 
-            Add(new("Inanimate", false, "", true));
+            Add(new(CategoryModelJ.IgnoreCategory, false, "", true));
 
             Add(new("Stone", false, "", true));
 
