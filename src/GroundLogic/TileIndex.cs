@@ -59,9 +59,29 @@ namespace SkyCombGround.GroundLogic
         {
             var tiff = Tiff.Open(tiffFileName, "r");
 
+
+            shortFileName = shortFileName.ToLower();
+            shortSubdir = shortSubdir.ToLower();
+
+
             var isDem =
-                shortFileName.ToLower().Contains("dem_") ||
-                shortFileName.ToLower().Contains("_dem");
+                shortFileName.Contains("dem_") ||
+                shortFileName.Contains("_dem") ||
+                shortFileName.Contains("dem-") ||
+                shortFileName.Contains("-dem");
+            var isDsm =
+                shortFileName.Contains("dsm_") ||
+                shortFileName.Contains("_dsm") ||
+                shortFileName.Contains("dsm-") ||
+                shortFileName.Contains("-dsm");
+
+            // If not indicated in the file name, check the subdirectory name
+            if (!isDem && !isDsm)
+                isDem =
+                    shortSubdir.Contains("dem_") ||
+                    shortSubdir.Contains("_dem") ||
+                    shortSubdir.Contains("dem-") ||
+                    shortSubdir.Contains("-dem");
 
             int width = tiff.GetField(TiffTag.IMAGEWIDTH)[0].ToInt();
             int height = tiff.GetField(TiffTag.IMAGELENGTH)[0].ToInt();
