@@ -10,9 +10,6 @@ namespace SkyCombGround.CommonSpace
     // That is 1 unit Latitude is not the same distance as 1 unit Longitude in meters (apart from at the Equator).
     public class GlobalLocation : BaseConstants
     {
-        public static string Format = "0.0000000";
-
-
         // Latitude (North South) ranges from -90 to +90 degrees e.g. -36.871811
         public double Latitude { get; set; }
         // Longitude (West East) ranges from -180 to +180 degrees e.g. 174.701012
@@ -67,7 +64,7 @@ namespace SkyCombGround.CommonSpace
 
         public override string ToString()
         {
-            return Latitude.ToString(Format) + "," + Longitude.ToString(Format);
+            return Latitude.ToString(LatLongFormat) + "," + Longitude.ToString(LatLongFormat);
         }
 
 
@@ -81,27 +78,24 @@ namespace SkyCombGround.CommonSpace
         public bool IsZero()
         {
             return
-                Math.Abs(Latitude) < 0.0000005 &&
-                Math.Abs(Longitude) < 0.0000005;
+                Math.Abs(Latitude) < LatLongEpsilon &&
+                Math.Abs(Longitude) < LatLongEpsilon;
         }
 
 
         public static bool DifferentLocations(GlobalLocation location1, GlobalLocation location2)
         {
             return
-                Math.Abs(location1.Latitude - location2.Latitude) > 0.00000005 ||
-                Math.Abs(location1.Longitude - location2.Longitude) > 0.00000005;
+                Math.Abs(location1.Latitude - location2.Latitude) > LatLongEpsilon ||
+                Math.Abs(location1.Longitude - location2.Longitude) > LatLongEpsilon;
         }
     }
 
 
     // A relative location, based on some origin, with distances in meters.
     // RelativeLocation is a symmetrical local coordinate system. 1 unit Easting = 1 unit Northing = 1 meter
-    public class RelativeLocation
+    public class RelativeLocation : BaseConstants
     {
-        public static string Format = "0.00";
-
-
         // Distance North (South if negative) in meters. Similar to Latitude 
         public float NorthingM { get; set; }
 
@@ -145,7 +139,7 @@ namespace SkyCombGround.CommonSpace
         // This function mirrors the "string" constructor above.
         public override string ToString()
         {
-            return NorthingM.ToString(Format) + "," + EastingM.ToString(Format);
+            return NorthingM.ToString(RelativeLocnFormat) + "," + EastingM.ToString(RelativeLocnFormat);
         }
 
 
@@ -187,7 +181,7 @@ namespace SkyCombGround.CommonSpace
                 return new DroneLocation();
 
             double latMidDegrees = (location1.Latitude + location2.Latitude) / 2.0;
-            double latMidRadians = latMidDegrees * BaseConstants.DegreesToRadians;
+            double latMidRadians = latMidDegrees * DegreesToRadians;
 
             double per_deg_lat = 111132.954 - 559.822 * Math.Cos(2.0 * latMidRadians) + 1.175 * Math.Cos(4.0 * latMidRadians);
             double per_deg_lon = (Math.PI / 180.0) * 6367449.0 * Math.Cos(latMidRadians);
@@ -260,13 +254,13 @@ namespace SkyCombGround.CommonSpace
         }
 
 
-        // Drone locations are stored with 2 decimal places of precision.
+        // Drone (relative) locations are stored with 2 decimal places of precision.
         // We do this to avoid floating point errors in calculations.
         // When storing drone locations to a datastore and retrieving them we rely on 2dp.
         public void Max2DP()
         {
-            NorthingM = (float) Math.Round(NorthingM, 2);
-            EastingM = (float)Math.Round(EastingM, 2);
+            NorthingM = (float) Math.Round(NorthingM, LocationNdp);
+            EastingM = (float)Math.Round(EastingM, LocationNdp);
         }
 
 
@@ -309,8 +303,8 @@ namespace SkyCombGround.CommonSpace
         public DroneLocation Multiply(float factor)
         {
             return new DroneLocation(
-                this.NorthingM * factor,
-                this.EastingM * factor);
+                NorthingM * factor,
+                EastingM * factor);
         }
 
 

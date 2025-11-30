@@ -104,7 +104,7 @@ namespace SkyCombGround.GroundModel
 
 
         // Partial constructor initialisation of the GroundGrid
-        private void Initialise()
+        public void Initialise()
         {
             ElevationQuarterM = new short[NumDatums];
             for (int i = 0; i < NumDatums; i++)

@@ -2,6 +2,7 @@
 using BitMiracle.LibTiff.Classic;
 using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundModel;
+using System.Diagnostics;
 using System.Drawing;
 
 
@@ -48,6 +49,22 @@ namespace SkyCombGround.GroundLogic
 
             int northing = 0;
             int easting = 0;
+            long width = 0;
+            long height = 0;
+            int samplesPerPixel = 0;
+            int bitsPerSample = 0;
+            int bytesPerSample = 0;
+            double originX = 0;
+            double originY = 0;
+            double pixelSizeX = 0;
+            double pixelSizeY = 0;
+            long tileWidth = 0;
+            long tileHeight = 0;
+            long tileSize = 0;
+            long numTiles = 0;
+            long tilesPerRow = 0;
+            long tileRoom = 0;
+            long bufferSize = 0;
 
             try
             {
@@ -69,39 +86,40 @@ namespace SkyCombGround.GroundLogic
                     //      This tag is optionally provided for defining exact affine transformations between raster and model space.
                     //      Used in interchangeable GeoTIFF files.
 
-                    int width = tiff.GetField(TiffTag.IMAGEWIDTH)[0].ToInt();
-                    int height = tiff.GetField(TiffTag.IMAGELENGTH)[0].ToInt();
+                    width = tiff.GetField(TiffTag.IMAGEWIDTH)[0].ToInt();
+                    height = tiff.GetField(TiffTag.IMAGELENGTH)[0].ToInt();
 
-                    int samplesPerPixel = tiff.GetField(TiffTag.SAMPLESPERPIXEL)[0].ToInt();
-                    int bitsPerSample = tiff.GetField(TiffTag.BITSPERSAMPLE)[0].ToInt();
-                    int bytesPerSample = bitsPerSample / 8;
+                    samplesPerPixel = tiff.GetField(TiffTag.SAMPLESPERPIXEL)[0].ToInt();
+                    bitsPerSample = tiff.GetField(TiffTag.BITSPERSAMPLE)[0].ToInt();
+                    bytesPerSample = bitsPerSample / 8;
 
                     FieldValue[] modelTiePointTag = tiff.GetField(TiffTag.GEOTIFF_MODELTIEPOINTTAG);
                     byte[] modelTransformation = modelTiePointTag[1].GetBytes();
-                    double originX = BitConverter.ToDouble(modelTransformation, 24); // e.g. 1924960
-                    double originY = BitConverter.ToDouble(modelTransformation, 32); // e.g. 5803440
+                    originX = BitConverter.ToDouble(modelTransformation, 24); // e.g. 1924960
+                    originY = BitConverter.ToDouble(modelTransformation, 32); // e.g. 5803440
 
                     FieldValue[] modelPixelScaleTag = tiff.GetField(TiffTag.GEOTIFF_MODELPIXELSCALETAG);
                     byte[] modelPixelScale = modelPixelScaleTag[1].GetBytes();
-                    double pixelSizeX = BitConverter.ToDouble(modelPixelScale, 0);
-                    double pixelSizeY = BitConverter.ToDouble(modelPixelScale, 8);
+                    pixelSizeX = BitConverter.ToDouble(modelPixelScale, 0);
+                    pixelSizeY = BitConverter.ToDouble(modelPixelScale, 8);
 
-                    int tileWidth = tiff.GetField(TiffTag.TILEWIDTH)[0].ToInt();
-                    int tileHeight = tiff.GetField(TiffTag.TILELENGTH)[0].ToInt();
-                    var tileSize = tiff.TileSize();
-                    var numTiles = tiff.NumberOfTiles();
-                    int tilesPerRow = (width + tileWidth - 1) / tileWidth; // Number of tiles in each row
-                    var tileRoom = tileSize * numTiles;
+                    tileWidth = tiff.GetField(TiffTag.TILEWIDTH)[0].ToInt();
+                    tileHeight = tiff.GetField(TiffTag.TILELENGTH)[0].ToInt();
+                    tileSize = tiff.TileSize();
+                    numTiles = tiff.NumberOfTiles();
+                    tilesPerRow = (width + tileWidth - 1) / tileWidth; // Number of tiles in each row
+                    tileRoom = tileSize * numTiles;
 
-                    var bufferSize = Math.Max(width * height * sizeof(float), tileRoom);
+                    bufferSize = Math.Max(width * height * sizeof(float), tileRoom);
                     var buffer = new byte[bufferSize];
-                    var offset = 0;
+                    long offset = 0;
 
 
-                    // Read the full Tiff into memory. NZ Tiffs are ~1Mb. 
+                    // Read the full Tiff into memory. NZ Tiffs were ~1Mb. Now some are 323Mb.
                     for (var tileIndex = 0; tileIndex < numTiles; tileIndex++)
                     {
-                        tiff.ReadEncodedTile(tileIndex, buffer, offset, -1);
+                        // PQR TODO The int conversion will fail on 323Mb TIF files
+                        tiff.ReadEncodedTile(tileIndex, buffer, (int)offset, -1);
                         offset += tileSize;
                     }
 
@@ -122,15 +140,16 @@ namespace SkyCombGround.GroundLogic
                                 if ((xLocation >= MinCountryEastingM) &&
                                     (xLocation <= MaxCountryEastingM))
                                 {
-                                    int tileIndexX = easting / tileWidth;
-                                    int tileIndexY = northing / tileHeight;
-                                    int tileIndex = tileIndexY * tilesPerRow + tileIndexX;
+                                    long tileIndexX = easting / tileWidth;
+                                    long tileIndexY = northing / tileHeight;
+                                    long tileIndex = tileIndexY * tilesPerRow + tileIndexX;
 
-                                    int tileOffsetX = easting % tileWidth;
-                                    int tileOffsetY = northing % tileHeight;
-                                    int tileOffset = (tileOffsetY * tileWidth + tileOffsetX) * sizeof(float);
+                                    long tileOffsetX = easting % tileWidth;
+                                    long tileOffsetY = northing % tileHeight;
+                                    long tileOffset = (tileOffsetY * tileWidth + tileOffsetX) * sizeof(float);
 
-                                    float elevationM = BitConverter.ToSingle(buffer, tileOffset + tileIndex * tileSize);
+                                    // PQR TODO The int conversion will fail on 323Mb TIF files
+                                    float elevationM = BitConverter.ToSingle(buffer, (int)(tileOffset + tileIndex * tileSize));
 
                                     AddCountryDatum(new RelativeLocation((float)yLocation, (float)xLocation), elevationM);
                                 }
@@ -145,7 +164,8 @@ namespace SkyCombGround.GroundLogic
             }
             catch (Exception ex)
             {
-                throw ThrowException("GroundDatumsTiff.GetDatums: northing=" + northing + " easting=" + easting, ex);
+                Debug.WriteLine("GroundDatumsTiff.GetDatums: northing=" + northing + " easting=" + easting, ex);
+                Initialise();
             }
         }
     }

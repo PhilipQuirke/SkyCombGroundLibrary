@@ -11,19 +11,25 @@ namespace SkyCombGround.CommonSpace
 
         // Number of decimal places for commonly used types of data
         public const int FpsNdp = 6;
-        public const int LatLongNdp = 10;
         public const int ElevationNdp = 1; // Used for Altitude, DEM and DSM elevations. Lidar is +/- 0.2m
         public const int HeightNdp = 2; // Used for Object Height
         public const int AreaM2Ndp = 2;
         public const int AreaCM2Ndp = 0;
         public const int TemperatureNdp = 0;
-        public const int LocationNdp = 2;
         public const int PixelVelNdp = 4;
         public const int PixelNdp = 0;
         public const int RadiansNdp = 6;
         public const int DegreesNdp = 2;
         public const int MillisecondsNdp = 0;
         public const int SecondsNdp = 3; // Needed for millisecond accuracy.
+        // Global Latitude/Longitude location
+        // https://wiki.openstreetmap.org/wiki/Precision_of_coordinates says 0.000 001° is ~0.1m
+        public const int LatLongNdp = 6; 
+        public static string LatLongFormat = "0.000000";
+        public const float LatLongEpsilon = 0.0000005f;
+        // Relative Northing/Easting location
+        public const int LocationNdp = 2;
+        public static string RelativeLocnFormat = "0.00";
 
 
         // Commonly used "unknown" values
