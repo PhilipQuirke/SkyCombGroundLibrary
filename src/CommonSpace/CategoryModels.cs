@@ -13,13 +13,13 @@ namespace SkyCombGround.CommonSpace
 
 
         // What category does the object belong to?
-        public string Category { get; set; }
+        public string Category { get; set; } = "";
 
         // Should the object be included in analysis?
         public bool Include { get; set; }
 
         // Notes about the object
-        public string Notes { get; set; }
+        public string Notes { get; set; } = "";
 
         public CategoryModelJ() { }  
 

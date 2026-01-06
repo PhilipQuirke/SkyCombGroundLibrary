@@ -235,15 +235,6 @@ The library provides specific exception types:
 
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-### Extending the Library
-
-To add support for new countries or regions:
-
-1. Create a new coordinate conversion class (similar to `NztmProjection`)
-2. Implement country-specific data loading (similar to `GroundTiffNZ`)  
-3. Add country detection logic in `GroundDataService`
-4. Update documentation and tests
-
 ## Related Projects
 
 This library is part of the SkyComb ecosystem:

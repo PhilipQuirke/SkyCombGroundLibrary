@@ -96,10 +96,10 @@ namespace SkyCombGround.CommonSpace
     // RelativeLocation is a symmetrical local coordinate system. 1 unit Easting = 1 unit Northing = 1 meter
     public class RelativeLocation : BaseConstants
     {
-        // Distance North (South if negative) in meters. Similar to Latitude 
+        // Distance North (South if negative) in meters. Similar to Latitude. Often in range 0 to 3000 
         public float NorthingM { get; set; }
 
-        // Distance East (West if negative) in meters. Similar to Longitude
+        // Distance East (West if negative) in meters. Similar to Longitude. Often in range 0 to 3000 
         public float EastingM { get; set; }
 
         // Length of the vector in Meters
@@ -353,7 +353,7 @@ namespace SkyCombGround.CommonSpace
     }
 
 
-    // A location in country-specific coordinates.
+    // A location in country-specific coordinates. In NZ this is NZTM2000 with NorthingM in range 1 million to 9 million and EastingM in range 100,000 to 3 million.
     public class CountryLocation : RelativeLocation
     {
         public CountryLocation(float northingM = 0, float eastingM = 0) : base(northingM, eastingM)

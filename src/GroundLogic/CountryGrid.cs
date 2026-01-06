@@ -1,4 +1,4 @@
-﻿// Copyright SkyComb Limited 2024. All rights reserved. 
+﻿// Copyright SkyComb Limited 2026. All rights reserved. 
 using BitMiracle.LibTiff.Classic;
 using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundModel;
@@ -178,7 +178,6 @@ namespace SkyCombGround.GroundLogic
         public NzGrid(string groundDirectory, bool isDem, RelativeLocation minCountryLocnM, RelativeLocation maxCountryLocnM)
             : base(groundDirectory, isDem, minCountryLocnM, maxCountryLocnM)
         {
-            NztmProjection.AssertGood();
         }
     }
 
@@ -223,8 +222,8 @@ namespace SkyCombGround.GroundLogic
 
                 if (groundDirectory != "")
                 {
-                    var minCountryM = NztmProjection.WgsToNztm(groundData.MinGlobalLocation);
-                    var maxCountryM = NztmProjection.WgsToNztm(groundData.MaxGlobalLocation);
+                    var minCountryM = ConvertDJILocationHeight.Wgs84ToNztm(groundData.MinGlobalLocation);
+                    var maxCountryM = ConvertDJILocationHeight.Wgs84ToNztm(groundData.MaxGlobalLocation);
 
                     var demDatums = new NzGrid(groundDirectory, true, minCountryM, maxCountryM);
                     // Open an index of the ground DEM books found in groundDirectory (or subdirectory)

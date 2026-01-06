@@ -1,4 +1,4 @@
-// Copyright SkyComb Limited 2025. All rights reserved. 
+// Copyright SkyComb Limited 2026. All rights reserved. 
 using SkyCombGround.CommonSpace;
 using SkyCombGround.GroundLogic;
 using System.Drawing;
@@ -21,7 +21,7 @@ namespace SkyCombGround.GroundModel
         // Is this DEM data? Else is DSM data. 
         public bool IsDem { get; }
 
-        // DEM/DSM range from ~0 to 3,754 m (NZ's highest mountain).
+        // DEM/DSM range from ~0 to 3,754 m (NZ's highest mountain) using the NZVD2016 scale.
         // In C#, short ints (signed 16-bit integer) can store values from -32,768 to 32,767
         // So a short int can store the DEM/DSM height values / VerticalUnitM.
         // We store the elevations in a Northing by Easting (2D array) in VerticalUnitM values
@@ -29,12 +29,12 @@ namespace SkyCombGround.GroundModel
         // Number of elevations values stored into the elevation array
         public int NumElevationsStored { get; set; } = UnknownValue;
 
-        // Min/Max elevation
+        // Min/Max elevation (in NZVD2016)
         public short MaxElevationQuarterM { get; set; }
         public short MinElevationQuarterM { get; set; }
 
         // The Northing/Easting coverage of the datums (including BufferM on each side)
-        // in the local coordinate system. (Not drone zero-based coordinates.)
+        // in the local coordinate system NZTM2000. (Not drone zero-based coordinates.)
         public int MaxCountryNorthingM { get; set; } // e.g. 5786068
         public int MinCountryNorthingM { get; set; } // e.g. 5786000
         public int MaxCountryEastingM { get; set; } // e.g. 1954744
@@ -287,7 +287,7 @@ namespace SkyCombGround.GroundModel
             try
             {
                 // Convert global location to country coordinates
-                var countryLocation = NztmProjection.WgsToNztm(globalLocation);
+                var countryLocation = ConvertDJILocationHeight.Wgs84ToNztm(globalLocation);
                 
                 // Get the elevation using country coordinates
                 int gridIndex = CountryLocnToGridIndex(countryLocation);
